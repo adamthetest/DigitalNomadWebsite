@@ -13,6 +13,7 @@ class Country extends Model
         'currency_code',
         'currency_symbol',
         'timezone',
+        'continent',
         'is_active',
     ];
 

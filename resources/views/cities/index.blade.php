@@ -14,19 +14,60 @@
             </p>
         </div>
 
+        <!-- Quick Filters -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Filters</h3>
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('cities.index', ['continent' => 'Europe']) }}" 
+                   class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm hover:bg-blue-200 transition-colors">
+                    🇪🇺 Europe
+                </a>
+                <a href="{{ route('cities.index', ['continent' => 'Asia']) }}" 
+                   class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm hover:bg-blue-200 transition-colors">
+                    🌏 Asia
+                </a>
+                <a href="{{ route('cities.index', ['continent' => 'North America']) }}" 
+                   class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm hover:bg-blue-200 transition-colors">
+                    🌎 North America
+                </a>
+                <a href="{{ route('cities.index', ['featured' => 'true']) }}" 
+                   class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm hover:bg-yellow-200 transition-colors">
+                    ⭐ Featured Only
+                </a>
+                <a href="{{ route('cities.index', ['cost_max' => '1000']) }}" 
+                   class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm hover:bg-green-200 transition-colors">
+                    💰 Under $1000/month
+                </a>
+                <a href="{{ route('cities.index', ['internet_min' => '100']) }}" 
+                   class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm hover:bg-purple-200 transition-colors">
+                    🚀 Fast Internet (100+ Mbps)
+                </a>
+                <a href="{{ route('cities.index', ['safety_min' => '8']) }}" 
+                   class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm hover:bg-red-200 transition-colors">
+                    🛡️ Very Safe (8+)
+                </a>
+            </div>
+        </div>
+
         <!-- Search and Filters -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
             <form method="GET" action="{{ route('cities.index') }}" class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <!-- Search -->
-                    <div>
+                    <div class="relative">
                         <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search Cities</label>
                         <input type="text" 
                                id="search" 
                                name="search" 
                                value="{{ request('search') }}"
                                placeholder="City or country name..."
-                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               autocomplete="off">
+                        
+                        <!-- Search Suggestions Dropdown -->
+                        <div id="search-suggestions" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg hidden max-h-60 overflow-y-auto">
+                            <!-- Suggestions will be populated here -->
+                        </div>
                     </div>
 
                     <!-- Country Filter -->
@@ -66,7 +107,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <!-- Internet Speed -->
                     <div>
                         <label for="internet_min" class="block text-sm font-medium text-gray-700 mb-2">Min Internet Speed (Mbps)</label>
@@ -90,6 +131,72 @@
                                placeholder="7"
                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     </div>
+
+                    <!-- Temperature Range -->
+                    <div>
+                        <label for="temp_min" class="block text-sm font-medium text-gray-700 mb-2">Min Temperature (°C)</label>
+                        <input type="number" 
+                               id="temp_min" 
+                               name="temp_min" 
+                               value="{{ request('temp_min') }}"
+                               placeholder="15"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+
+                    <div>
+                        <label for="temp_max" class="block text-sm font-medium text-gray-700 mb-2">Max Temperature (°C)</label>
+                        <input type="number" 
+                               id="temp_max" 
+                               name="temp_max" 
+                               value="{{ request('temp_max') }}"
+                               placeholder="35"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Continent Filter -->
+                    <div>
+                        <label for="continent" class="block text-sm font-medium text-gray-700 mb-2">Continent</label>
+                        <select id="continent" 
+                                name="continent" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">All Continents</option>
+                            @foreach($continents as $continent)
+                                <option value="{{ $continent }}" {{ request('continent') == $continent ? 'selected' : '' }}>
+                                    {{ $continent }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Featured Filter -->
+                    <div>
+                        <label for="featured" class="block text-sm font-medium text-gray-700 mb-2">Featured Cities</label>
+                        <select id="featured" 
+                                name="featured" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">All Cities</option>
+                            <option value="true" {{ request('featured') == 'true' ? 'selected' : '' }}>Featured Only</option>
+                            <option value="false" {{ request('featured') == 'false' ? 'selected' : '' }}>Non-Featured Only</option>
+                        </select>
+                    </div>
+
+                    <!-- Sort Options -->
+                    <div>
+                        <label for="sort" class="block text-sm font-medium text-gray-700 mb-2">Sort By</label>
+                        <select id="sort" 
+                                name="sort" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="featured" {{ request('sort') == 'featured' ? 'selected' : '' }}>Featured First</option>
+                            <option value="name" {{ request('sort') == 'name' ? 'selected' : '' }}>Name A-Z</option>
+                            <option value="cost_low" {{ request('sort') == 'cost_low' ? 'selected' : '' }}>Cost: Low to High</option>
+                            <option value="cost_high" {{ request('sort') == 'cost_high' ? 'selected' : '' }}>Cost: High to Low</option>
+                            <option value="internet" {{ request('sort') == 'internet' ? 'selected' : '' }}>Internet Speed</option>
+                            <option value="safety" {{ request('sort') == 'safety' ? 'selected' : '' }}>Safety Score</option>
+                            <option value="temperature" {{ request('sort') == 'temperature' ? 'selected' : '' }}>Temperature</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="flex justify-between items-center">
@@ -98,7 +205,7 @@
                         Apply Filters
                     </button>
                     
-                    @if(request()->hasAny(['search', 'country', 'cost_min', 'cost_max', 'internet_min', 'safety_min']))
+                    @if(request()->hasAny(['search', 'country', 'cost_min', 'cost_max', 'internet_min', 'safety_min', 'temp_min', 'temp_max', 'continent', 'featured', 'sort']))
                         <a href="{{ route('cities.index') }}" 
                            class="text-gray-600 hover:text-gray-800">
                             Clear Filters
@@ -112,7 +219,7 @@
         <div class="mb-6">
             <p class="text-gray-600">
                 Showing {{ $cities->count() }} of {{ $cities->total() }} cities
-                @if(request()->hasAny(['search', 'country', 'cost_min', 'cost_max', 'internet_min', 'safety_min']))
+                @if(request()->hasAny(['search', 'country', 'cost_min', 'cost_max', 'internet_min', 'safety_min', 'temp_min', 'temp_max', 'continent', 'featured', 'sort']))
                     matching your criteria
                 @endif
             </p>
@@ -241,6 +348,85 @@ document.addEventListener('DOMContentLoaded', function() {
         map.fitBounds(group.getBounds().pad(0.1));
     }
 });
+
+// Search Autocomplete Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search');
+    const suggestionsDiv = document.getElementById('search-suggestions');
+    let searchTimeout;
+
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        // Clear previous timeout
+        clearTimeout(searchTimeout);
+        
+        if (query.length < 2) {
+            suggestionsDiv.classList.add('hidden');
+            return;
+        }
+
+        // Debounce search requests
+        searchTimeout = setTimeout(() => {
+            fetch(`{{ route('cities.search-suggestions') }}?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(suggestions => {
+                    displaySuggestions(suggestions);
+                })
+                .catch(error => {
+                    console.error('Search error:', error);
+                });
+        }, 300);
+    });
+
+    function displaySuggestions(suggestions) {
+        if (suggestions.length === 0) {
+            suggestionsDiv.classList.add('hidden');
+            return;
+        }
+
+        suggestionsDiv.innerHTML = suggestions.map(city => `
+            <div class="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0" 
+                 onclick="selectSuggestion('${city.name}', '${city.country}')">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <div class="font-semibold text-gray-900">${city.name}</div>
+                        <div class="text-sm text-gray-600">${city.country}</div>
+                    </div>
+                    <div class="text-xs text-gray-500 text-right">
+                        ${city.cost ? `$${city.cost}/mo` : ''}
+                        ${city.internet ? ` • ${city.internet} Mbps` : ''}
+                        ${city.safety ? ` • ${city.safety}/10 safety` : ''}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        suggestionsDiv.classList.remove('hidden');
+    }
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+            suggestionsDiv.classList.add('hidden');
+        }
+    });
+
+    // Hide suggestions on escape key
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            suggestionsDiv.classList.add('hidden');
+        }
+    });
+});
+
+function selectSuggestion(cityName, countryName) {
+    document.getElementById('search').value = cityName;
+    document.getElementById('search-suggestions').classList.add('hidden');
+    
+    // Optionally submit the form automatically
+    // document.querySelector('form').submit();
+}
 </script>
 
 @endsection

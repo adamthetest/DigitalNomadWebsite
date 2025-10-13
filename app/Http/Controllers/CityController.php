@@ -58,12 +58,103 @@ class CityController extends Controller
             $query->where('safety_score', '>=', $request->safety_min);
         }
 
+        // Filter by temperature range
+        if ($request->filled('temp_min')) {
+            $query->where('average_temperature', '>=', $request->temp_min);
+        }
+        if ($request->filled('temp_max')) {
+            $query->where('average_temperature', '<=', $request->temp_max);
+        }
+
+        // Filter by featured status
+        if ($request->filled('featured')) {
+            $query->where('is_featured', $request->featured === 'true');
+        }
+
+        // Filter by continent/region
+        if ($request->filled('continent')) {
+            $query->whereHas('country', function ($q) use ($request) {
+                $q->where('continent', $request->continent);
+            });
+        }
+
+        // Sort options
+        $sortBy = $request->get('sort', 'featured');
+        switch ($sortBy) {
+            case 'name':
+                $query->orderBy('name');
+                break;
+            case 'cost_low':
+                $query->orderBy('cost_of_living_index', 'asc');
+                break;
+            case 'cost_high':
+                $query->orderBy('cost_of_living_index', 'desc');
+                break;
+            case 'internet':
+                $query->orderBy('internet_speed_mbps', 'desc');
+                break;
+            case 'safety':
+                $query->orderBy('safety_score', 'desc');
+                break;
+            case 'temperature':
+                $query->orderBy('average_temperature', 'desc');
+                break;
+            case 'featured':
+            default:
+                $query->orderBy('is_featured', 'desc')->orderBy('name');
+                break;
+        }
+
         $cities = $query->paginate(12);
         
         // Get countries for filter dropdown
         $countries = \App\Models\Country::orderBy('name')->get();
+        
+        // Get continents for filter dropdown
+        $continents = \App\Models\Country::distinct()
+            ->pluck('continent')
+            ->filter()
+            ->sort()
+            ->values();
 
-        return view('cities.index', compact('cities', 'countries'));
+        return view('cities.index', compact('cities', 'countries', 'continents'));
+    }
+
+    /**
+     * Get city search suggestions for autocomplete.
+     */
+    public function searchSuggestions(Request $request)
+    {
+        $query = $request->get('q', '');
+        
+        if (strlen($query) < 2) {
+            return response()->json([]);
+        }
+        
+        $cities = City::with('country')
+            ->where('is_active', true)
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                  ->orWhereHas('country', function ($countryQuery) use ($query) {
+                      $countryQuery->where('name', 'like', "%{$query}%");
+                  });
+            })
+            ->limit(10)
+            ->get();
+        
+        $suggestions = $cities->map(function ($city) {
+            return [
+                'id' => $city->id,
+                'name' => $city->name,
+                'country' => $city->country->name,
+                'url' => route('cities.show', $city),
+                'cost' => $city->cost_of_living_index,
+                'internet' => $city->internet_speed_mbps,
+                'safety' => $city->safety_score,
+            ];
+        });
+        
+        return response()->json($suggestions);
     }
 
     /**
