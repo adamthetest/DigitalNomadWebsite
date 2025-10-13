@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\FavoritesController;
+use App\Http\Controllers\CoworkingSpaceController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -31,6 +32,11 @@ Route::get('/articles/{article}', [ArticleController::class, 'show'])->name('art
 Route::get('/deals', [DealController::class, 'index'])->name('deals.index');
 Route::get('/deals/{deal}', [DealController::class, 'show'])->name('deals.show');
 Route::post('/deals/{deal}/click', [DealController::class, 'trackClick'])->name('deals.click');
+
+// Coworking Spaces routes
+Route::get('/coworking-spaces', [CoworkingSpaceController::class, 'index'])->name('coworking-spaces.index');
+Route::get('/coworking-spaces/{coworkingSpace}', [CoworkingSpaceController::class, 'show'])->name('coworking-spaces.show');
+Route::get('/cities/{city}/coworking-spaces', [CoworkingSpaceController::class, 'byCity'])->name('coworking-spaces.city');
 
 // Newsletter routes
 Route::get('/newsletter', [NewsletterController::class, 'index'])->name('newsletter.index');
