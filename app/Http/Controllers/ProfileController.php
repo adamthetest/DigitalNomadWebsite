@@ -94,7 +94,6 @@ class ProfileController extends Controller
     public function index(Request $request)
     {
         $query = User::where('is_public', true)
-            ->whereNotNull('bio')
             ->orderBy('created_at', 'desc');
 
         // Search functionality
