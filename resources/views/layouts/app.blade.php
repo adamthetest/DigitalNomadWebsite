@@ -35,6 +35,7 @@
                     <a href="{{ route('calculator.index') }}" class="text-gray-700 hover:text-blue-600 font-medium">Calculator</a>
                     <a href="{{ route('deals.index') }}" class="text-gray-700 hover:text-blue-600 font-medium">Deals</a>
                     <a href="{{ route('articles.index') }}" class="text-gray-700 hover:text-blue-600 font-medium">Blog</a>
+                    <a href="{{ route('newsletter.index') }}" class="text-gray-700 hover:text-blue-600 font-medium">Newsletter</a>
                     
                     @auth
                         <a href="{{ route('dashboard') }}" class="text-gray-700 hover:text-blue-600 font-medium">Dashboard</a>

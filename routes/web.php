@@ -9,6 +9,7 @@ use App\Http\Controllers\DealController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\NewsletterController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -29,6 +30,13 @@ Route::get('/articles/{article}', [ArticleController::class, 'show'])->name('art
 Route::get('/deals', [DealController::class, 'index'])->name('deals.index');
 Route::get('/deals/{deal}', [DealController::class, 'show'])->name('deals.show');
 Route::post('/deals/{deal}/click', [DealController::class, 'trackClick'])->name('deals.click');
+
+// Newsletter routes
+Route::get('/newsletter', [NewsletterController::class, 'index'])->name('newsletter.index');
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+Route::get('/newsletter/unsubscribe', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
+Route::post('/newsletter/unsubscribe', [NewsletterController::class, 'processUnsubscribe'])->name('newsletter.unsubscribe.process');
+Route::get('/newsletter/stats', [NewsletterController::class, 'stats'])->name('newsletter.stats');
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {

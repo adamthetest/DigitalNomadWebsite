@@ -167,10 +167,14 @@
         <p class="text-xl text-blue-100 mb-8">
             Get weekly recommendations for your next digital nomad destination
         </p>
-        <form class="max-w-md mx-auto flex gap-4">
+        <form method="POST" action="{{ route('newsletter.subscribe') }}" class="max-w-md mx-auto flex gap-4">
+            @csrf
             <input type="email" 
+                   name="email"
                    placeholder="Enter your email" 
+                   required
                    class="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white">
+            <input type="hidden" name="source" value="homepage_footer">
             <button type="submit" 
                     class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
                 Subscribe
