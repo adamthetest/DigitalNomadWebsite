@@ -41,6 +41,35 @@ class UserResource extends Resource
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->maxLength(255),
+                        Forms\Components\Textarea::make('bio')
+                            ->label('Bio')
+                            ->maxLength(1000)
+                            ->rows(3),
+                        Forms\Components\TextInput::make('location')
+                            ->label('Location')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('website')
+                            ->label('Website')
+                            ->url()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('twitter')
+                            ->label('Twitter')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('instagram')
+                            ->label('Instagram')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('linkedin')
+                            ->label('LinkedIn')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('github')
+                            ->label('GitHub')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('timezone')
+                            ->label('Timezone')
+                            ->maxLength(255),
+                        Forms\Components\Toggle::make('is_public')
+                            ->label('Public Profile')
+                            ->default(true),
                         Forms\Components\DateTimePicker::make('email_verified_at')
                             ->label('Email Verified At')
                             ->displayFormat('M j, Y g:i A'),

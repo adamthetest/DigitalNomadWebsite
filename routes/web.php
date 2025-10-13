@@ -12,6 +12,7 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\CoworkingSpaceController;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -46,6 +47,10 @@ Route::get('/newsletter/unsubscribe', [NewsletterController::class, 'unsubscribe
 Route::post('/newsletter/unsubscribe', [NewsletterController::class, 'processUnsubscribe'])->name('newsletter.unsubscribe.process');
 Route::get('/newsletter/stats', [NewsletterController::class, 'stats'])->name('newsletter.stats');
 
+// Profile routes
+Route::get('/profiles', [ProfileController::class, 'index'])->name('profiles.index');
+Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
+
 // Favorites routes (authenticated only)
 Route::middleware('auth')->group(function () {
     Route::get('/favorites', [FavoritesController::class, 'index'])->name('favorites.index');
@@ -53,6 +58,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/favorites/{favorite}', [FavoritesController::class, 'destroy'])->name('favorites.destroy');
     Route::patch('/favorites/{favorite}/notes', [FavoritesController::class, 'updateNotes'])->name('favorites.update-notes');
     Route::get('/favorites/count', [FavoritesController::class, 'getCount'])->name('favorites.count');
+    
+    // Profile management routes
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile/image', [ProfileController::class, 'deleteImage'])->name('profile.delete-image');
 });
 
 // Authentication Routes
