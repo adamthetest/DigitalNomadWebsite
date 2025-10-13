@@ -2,6 +2,8 @@
 
 A comprehensive Laravel application for digital nomads to discover cities, calculate costs, find coworking spaces, and access exclusive deals.
 
+**🌐 GitHub Repository**: [https://github.com/adamthetest/DigitalNomadWebsite](https://github.com/adamthetest/DigitalNomadWebsite)
+
 ## Features
 
 ### Phase 0 - Foundation ✅
