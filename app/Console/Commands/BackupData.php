@@ -1,0 +1,358 @@
+<?php
+
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
+
+class BackupData extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'backup:data {--type=all : Type of backup (all, users, cities, articles, deals, newsletter, favorites)} {--format=json : Backup format (json, csv, sql)}';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Backup website data (users, cities, articles, deals, etc.)';
+
+    /**
+     * Execute the console command.
+     */
+    public function handle()
+    {
+        $type = $this->option('type');
+        $format = $this->option('format');
+        
+        $this->info("Starting data backup...");
+        $this->info("Type: {$type}");
+        $this->info("Format: {$format}");
+        
+        $timestamp = Carbon::now()->format('Y-m-d_H-i-s');
+        $backupDir = "backups/{$timestamp}";
+        
+        // Create backup directory
+        Storage::makeDirectory($backupDir);
+        
+        try {
+            switch ($type) {
+                case 'all':
+                    $this->backupAll($backupDir, $format);
+                    break;
+                case 'users':
+                    $this->backupUsers($backupDir, $format);
+                    break;
+                case 'cities':
+                    $this->backupCities($backupDir, $format);
+                    break;
+                case 'articles':
+                    $this->backupArticles($backupDir, $format);
+                    break;
+                case 'deals':
+                    $this->backupDeals($backupDir, $format);
+                    break;
+                case 'newsletter':
+                    $this->backupNewsletter($backupDir, $format);
+                    break;
+                case 'favorites':
+                    $this->backupFavorites($backupDir, $format);
+                    break;
+                default:
+                    $this->error("Invalid backup type. Available types: all, users, cities, articles, deals, newsletter, favorites");
+                    return 1;
+            }
+            
+            $this->info("✅ Backup completed successfully!");
+            $this->info("Backup location: storage/app/{$backupDir}");
+            
+            return 0;
+            
+        } catch (\Exception $e) {
+            $this->error("❌ Backup failed: " . $e->getMessage());
+            return 1;
+        }
+    }
+    
+    private function backupAll($backupDir, $format)
+    {
+        $this->info("Backing up all data...");
+        
+        $this->backupUsers($backupDir, $format);
+        $this->backupCities($backupDir, $format);
+        $this->backupArticles($backupDir, $format);
+        $this->backupDeals($backupDir, $format);
+        $this->backupNewsletter($backupDir, $format);
+        $this->backupFavorites($backupDir, $format);
+        $this->backupCoworkingSpaces($backupDir, $format);
+        $this->backupCostItems($backupDir, $format);
+        $this->backupVisaRules($backupDir, $format);
+        $this->backupAffiliateLinks($backupDir, $format);
+        
+        // Create backup summary
+        $this->createBackupSummary($backupDir);
+    }
+    
+    private function backupUsers($backupDir, $format)
+    {
+        $this->info("Backing up users...");
+        
+        $users = DB::table('users')
+            ->select('id', 'name', 'email', 'email_verified_at', 'created_at', 'updated_at')
+            ->get();
+            
+        $this->saveData($backupDir, 'users', $users, $format);
+        $this->info("✅ Users backed up: " . $users->count() . " records");
+    }
+    
+    private function backupCities($backupDir, $format)
+    {
+        $this->info("Backing up cities...");
+        
+        $cities = DB::table('cities')
+            ->join('countries', 'cities.country_id', '=', 'countries.id')
+            ->select(
+                'cities.*',
+                'countries.name as country_name',
+                'countries.code as country_code'
+            )
+            ->get();
+            
+        $this->saveData($backupDir, 'cities', $cities, $format);
+        $this->info("✅ Cities backed up: " . $cities->count() . " records");
+    }
+    
+    private function backupArticles($backupDir, $format)
+    {
+        $this->info("Backing up articles...");
+        
+        $articles = DB::table('articles')
+            ->join('cities', 'articles.city_id', '=', 'cities.id')
+            ->join('countries', 'cities.country_id', '=', 'countries.id')
+            ->select(
+                'articles.*',
+                'cities.name as city_name',
+                'countries.name as country_name'
+            )
+            ->get();
+            
+        $this->saveData($backupDir, 'articles', $articles, $format);
+        $this->info("✅ Articles backed up: " . $articles->count() . " records");
+    }
+    
+    private function backupDeals($backupDir, $format)
+    {
+        $this->info("Backing up deals...");
+        
+        $deals = DB::table('deals')->get();
+        $this->saveData($backupDir, 'deals', $deals, $format);
+        $this->info("✅ Deals backed up: " . $deals->count() . " records");
+    }
+    
+    private function backupNewsletter($backupDir, $format)
+    {
+        $this->info("Backing up newsletter subscribers...");
+        
+        $subscribers = DB::table('newsletter_subscribers')->get();
+        $this->saveData($backupDir, 'newsletter_subscribers', $subscribers, $format);
+        $this->info("✅ Newsletter subscribers backed up: " . $subscribers->count() . " records");
+    }
+    
+    private function backupFavorites($backupDir, $format)
+    {
+        $this->info("Backing up favorites...");
+        
+        $favorites = DB::table('favorites')
+            ->join('users', 'favorites.user_id', '=', 'users.id')
+            ->select(
+                'favorites.*',
+                'users.name as user_name',
+                'users.email as user_email'
+            )
+            ->get();
+            
+        $this->saveData($backupDir, 'favorites', $favorites, $format);
+        $this->info("✅ Favorites backed up: " . $favorites->count() . " records");
+    }
+    
+    private function backupCoworkingSpaces($backupDir, $format)
+    {
+        $this->info("Backing up coworking spaces...");
+        
+        $spaces = DB::table('coworking_spaces')
+            ->join('cities', 'coworking_spaces.city_id', '=', 'cities.id')
+            ->select(
+                'coworking_spaces.*',
+                'cities.name as city_name'
+            )
+            ->get();
+            
+        $this->saveData($backupDir, 'coworking_spaces', $spaces, $format);
+        $this->info("✅ Coworking spaces backed up: " . $spaces->count() . " records");
+    }
+    
+    private function backupCostItems($backupDir, $format)
+    {
+        $this->info("Backing up cost items...");
+        
+        $costItems = DB::table('cost_items')
+            ->join('cities', 'cost_items.city_id', '=', 'cities.id')
+            ->select(
+                'cost_items.*',
+                'cities.name as city_name'
+            )
+            ->get();
+            
+        $this->saveData($backupDir, 'cost_items', $costItems, $format);
+        $this->info("✅ Cost items backed up: " . $costItems->count() . " records");
+    }
+    
+    private function backupVisaRules($backupDir, $format)
+    {
+        $this->info("Backing up visa rules...");
+        
+        $visaRules = DB::table('visa_rules')
+            ->join('countries', 'visa_rules.country_id', '=', 'countries.id')
+            ->select(
+                'visa_rules.*',
+                'countries.name as country_name'
+            )
+            ->get();
+            
+        $this->saveData($backupDir, 'visa_rules', $visaRules, $format);
+        $this->info("✅ Visa rules backed up: " . $visaRules->count() . " records");
+    }
+    
+    private function backupAffiliateLinks($backupDir, $format)
+    {
+        $this->info("Backing up affiliate links...");
+        
+        $affiliateLinks = DB::table('affiliate_links')->get();
+        $this->saveData($backupDir, 'affiliate_links', $affiliateLinks, $format);
+        $this->info("✅ Affiliate links backed up: " . $affiliateLinks->count() . " records");
+    }
+    
+    private function saveData($backupDir, $tableName, $data, $format)
+    {
+        switch ($format) {
+            case 'json':
+                $filename = "{$tableName}.json";
+                $content = json_encode($data, JSON_PRETTY_PRINT);
+                break;
+                
+            case 'csv':
+                $filename = "{$tableName}.csv";
+                $content = $this->arrayToCsv($data->toArray());
+                break;
+                
+            case 'sql':
+                $filename = "{$tableName}.sql";
+                $content = $this->generateSqlInsert($tableName, $data);
+                break;
+                
+            default:
+                throw new \Exception("Unsupported format: {$format}");
+        }
+        
+        Storage::put("{$backupDir}/{$filename}", $content);
+    }
+    
+    private function arrayToCsv($data)
+    {
+        if (empty($data)) {
+            return '';
+        }
+        
+        $csv = '';
+        
+        // Add headers
+        $headers = array_keys($data[0]);
+        $csv .= implode(',', $headers) . "\n";
+        
+        // Add data rows
+        foreach ($data as $row) {
+            $csvRow = [];
+            foreach ($headers as $header) {
+                $value = $row[$header] ?? '';
+                // Escape commas and quotes
+                $value = str_replace(['"', ','], ['""', '","'], $value);
+                $csvRow[] = '"' . $value . '"';
+            }
+            $csv .= implode(',', $csvRow) . "\n";
+        }
+        
+        return $csv;
+    }
+    
+    private function generateSqlInsert($tableName, $data)
+    {
+        if ($data->isEmpty()) {
+            return "-- No data for table {$tableName}\n";
+        }
+        
+        $sql = "-- Backup for table: {$tableName}\n";
+        $sql .= "-- Generated on: " . Carbon::now() . "\n\n";
+        
+        foreach ($data as $row) {
+            $columns = array_keys($row);
+            $values = array_values($row);
+            
+            // Escape values
+            $escapedValues = array_map(function($value) {
+                if (is_null($value)) {
+                    return 'NULL';
+                } elseif (is_string($value)) {
+                    return "'" . addslashes($value) . "'";
+                } else {
+                    return $value;
+                }
+            }, $values);
+            
+            $sql .= "INSERT INTO {$tableName} (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $escapedValues) . ");\n";
+        }
+        
+        return $sql;
+    }
+    
+    private function createBackupSummary($backupDir)
+    {
+        $summary = [
+            'backup_date' => Carbon::now()->toISOString(),
+            'backup_type' => 'all',
+            'tables_backed_up' => [
+                'users',
+                'cities',
+                'articles',
+                'deals',
+                'newsletter_subscribers',
+                'favorites',
+                'coworking_spaces',
+                'cost_items',
+                'visa_rules',
+                'affiliate_links'
+            ],
+            'total_records' => $this->getTotalRecords(),
+            'backup_location' => $backupDir
+        ];
+        
+        Storage::put("{$backupDir}/backup_summary.json", json_encode($summary, JSON_PRETTY_PRINT));
+    }
+    
+    private function getTotalRecords()
+    {
+        $tables = ['users', 'cities', 'articles', 'deals', 'newsletter_subscribers', 'favorites', 'coworking_spaces', 'cost_items', 'visa_rules', 'affiliate_links'];
+        $total = 0;
+        
+        foreach ($tables as $table) {
+            $total += DB::table($table)->count();
+        }
+        
+        return $total;
+    }
+}
