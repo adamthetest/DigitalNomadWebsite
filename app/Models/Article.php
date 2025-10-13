@@ -75,6 +75,11 @@ class Article extends Model
         return $query->where('type', $type);
     }
 
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
     public function incrementViewCount()
     {
         $this->increment('view_count');

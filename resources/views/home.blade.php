@@ -81,7 +81,7 @@
                 <p class="text-gray-600 mb-4">{!! Str::limit($article->parsed_excerpt, 100) !!}</p>
                 <div class="flex justify-between items-center">
                     <span class="text-sm text-gray-500">{{ $article->published_at->format('M d, Y') }}</span>
-                    <a href="#" class="text-blue-600 font-medium hover:text-blue-700">Read More →</a>
+                    <a href="{{ route('articles.show', $article) }}" class="text-blue-600 font-medium hover:text-blue-700">Read More →</a>
                 </div>
             </div>
             @endforeach
