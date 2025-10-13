@@ -19,6 +19,7 @@ class Dashboard extends BaseDashboard
     {
         return [
             \App\Filament\Widgets\UserStatsWidget::class,
+            \App\Filament\Widgets\SecurityStatsWidget::class,
         ];
     }
 

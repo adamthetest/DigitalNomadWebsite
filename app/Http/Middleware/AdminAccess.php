@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\SecurityLog;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,10 +30,8 @@ class AdminAccess
             abort(403, 'Access denied. Admin privileges required.');
         }
 
-        // Option 2: You could also add an 'is_admin' column to users table
-        // if ($user->is_admin !== true) {
-        //     abort(403, 'Access denied. Admin privileges required.');
-        // }
+        // Log admin access
+        SecurityLog::logAdminAccess($user, $request->ip());
 
         return $next($request);
     }
