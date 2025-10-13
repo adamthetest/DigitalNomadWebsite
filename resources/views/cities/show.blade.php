@@ -22,6 +22,20 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Favorite Button -->
+        @auth
+            <div class="mb-8 text-center">
+                <button id="favorite-btn" 
+                        onclick="toggleFavorite({{ $city->id }}, 'App\\Models\\City', 'city')"
+                        class="inline-flex items-center px-6 py-3 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors font-semibold">
+                    <svg id="favorite-icon" class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span id="favorite-text">Add to Favorites</span>
+                </button>
+            </div>
+        @endauth
+
         <!-- Quick Stats -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
@@ -278,6 +292,40 @@ document.addEventListener('DOMContentLoaded', function() {
         map.fitBounds(map.getBounds(), { padding: [20, 20] });
     }
 });
+
+function toggleFavorite(favoritableId, favoritableType, category) {
+    fetch('{{ route("favorites.toggle") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        },
+        body: JSON.stringify({
+            favoritable_id: favoritableId,
+            favoritable_type: favoritableType,
+            category: category,
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const btn = document.getElementById('favorite-btn');
+            const icon = document.getElementById('favorite-icon');
+            const text = document.getElementById('favorite-text');
+            
+            if (data.is_favorited) {
+                btn.className = btn.className.replace('bg-red-100 text-red-600 hover:bg-red-200', 'bg-red-500 text-white hover:bg-red-600');
+                text.textContent = 'Remove from Favorites';
+            } else {
+                btn.className = btn.className.replace('bg-red-500 text-white hover:bg-red-600', 'bg-red-100 text-red-600 hover:bg-red-200');
+                text.textContent = 'Add to Favorites';
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
 </script>
 
 @endsection

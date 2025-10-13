@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -44,5 +45,37 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the user's favorites.
+     */
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
+    /**
+     * Get the user's favorite cities.
+     */
+    public function favoriteCities(): HasMany
+    {
+        return $this->favorites()->where('category', 'city')->with('favoritable');
+    }
+
+    /**
+     * Get the user's favorite articles.
+     */
+    public function favoriteArticles(): HasMany
+    {
+        return $this->favorites()->where('category', 'article')->with('favoritable');
+    }
+
+    /**
+     * Get the user's favorite deals.
+     */
+    public function favoriteDeals(): HasMany
+    {
+        return $this->favorites()->where('category', 'deal')->with('favoritable');
     }
 }

@@ -10,6 +10,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\FavoritesController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -37,6 +38,15 @@ Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])
 Route::get('/newsletter/unsubscribe', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
 Route::post('/newsletter/unsubscribe', [NewsletterController::class, 'processUnsubscribe'])->name('newsletter.unsubscribe.process');
 Route::get('/newsletter/stats', [NewsletterController::class, 'stats'])->name('newsletter.stats');
+
+// Favorites routes (authenticated only)
+Route::middleware('auth')->group(function () {
+    Route::get('/favorites', [FavoritesController::class, 'index'])->name('favorites.index');
+    Route::post('/favorites/toggle', [FavoritesController::class, 'toggle'])->name('favorites.toggle');
+    Route::delete('/favorites/{favorite}', [FavoritesController::class, 'destroy'])->name('favorites.destroy');
+    Route::patch('/favorites/{favorite}/notes', [FavoritesController::class, 'updateNotes'])->name('favorites.update-notes');
+    Route::get('/favorites/count', [FavoritesController::class, 'getCount'])->name('favorites.count');
+});
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
