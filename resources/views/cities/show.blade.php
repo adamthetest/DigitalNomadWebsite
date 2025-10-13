@@ -1,0 +1,221 @@
+@extends('layouts.app')
+
+@section('title', $city->name . ', ' . $city->country->name . ' - Digital Nomad Guide')
+@section('description', Str::limit($city->description, 160))
+
+@section('content')
+<div class="min-h-screen bg-gray-50">
+    <!-- Hero Section -->
+    <div class="relative h-96 bg-gradient-to-r from-blue-600 to-blue-800">
+        <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+        <div class="relative h-full flex items-center justify-center">
+            <div class="text-center text-white px-4">
+                <h1 class="text-4xl md:text-6xl font-bold mb-4">{{ $city->name }}</h1>
+                <p class="text-xl md:text-2xl text-blue-100">{{ $city->country->name }}</p>
+                @if($city->is_featured)
+                    <span class="inline-block bg-yellow-400 text-yellow-900 px-4 py-2 rounded-full text-sm font-semibold mt-4">
+                        ⭐ Featured Destination
+                    </span>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+                <div class="text-3xl mb-2">🌐</div>
+                <div class="text-2xl font-bold text-gray-900">{{ $city->internet_speed_mbps ?? 'N/A' }}</div>
+                <div class="text-gray-600">Mbps Internet</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+                <div class="text-3xl mb-2">💰</div>
+                <div class="text-2xl font-bold text-gray-900">${{ $city->cost_of_living_index ?? 'N/A' }}</div>
+                <div class="text-gray-600">Monthly Cost</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+                <div class="text-3xl mb-2">🛡️</div>
+                <div class="text-2xl font-bold text-gray-900">{{ $city->safety_score ?? 'N/A' }}</div>
+                <div class="text-gray-600">Safety Score</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+                <div class="text-3xl mb-2">🌡️</div>
+                <div class="text-2xl font-bold text-gray-900">{{ $city->average_temperature ?? 'N/A' }}°C</div>
+                <div class="text-gray-600">Avg Temperature</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Description -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">About {{ $city->name }}</h2>
+                    <div class="prose max-w-none text-gray-700">
+                        {!! nl2br(e($city->description)) !!}
+                    </div>
+                </div>
+
+                <!-- Cost of Living -->
+                @if($costItems->count() > 0)
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4">Cost of Living</h2>
+                        <div class="space-y-4">
+                            @foreach($costItems->groupBy('category') as $category => $items)
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ ucfirst($category) }}</h3>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        @foreach($items as $item)
+                                            <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                                <span class="text-gray-700">{{ $item->name }}</span>
+                                                <span class="font-semibold text-gray-900">${{ $item->price }}</span>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Coworking Spaces -->
+                @if($coworkingSpaces->count() > 0)
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4">Coworking Spaces</h2>
+                        <div class="space-y-4">
+                            @foreach($coworkingSpaces as $space)
+                                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h3 class="text-lg font-semibold text-gray-900">{{ $space->name }}</h3>
+                                        @if($space->is_featured)
+                                            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded">
+                                                Featured
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <p class="text-gray-600 mb-3">{{ Str::limit($space->description, 150) }}</p>
+                                    <div class="flex justify-between items-center text-sm text-gray-500">
+                                        <span>📍 {{ $space->address }}</span>
+                                        @if($space->price_per_month)
+                                            <span class="font-semibold text-gray-900">${{ $space->price_per_month }}/month</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Related Articles -->
+                @if($articles->count() > 0)
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-4">Latest Articles</h2>
+                        <div class="space-y-4">
+                            @foreach($articles as $article)
+                                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ $article->title }}</h3>
+                                    <p class="text-gray-600 mb-3">{!! Str::limit($article->parsed_excerpt, 120) !!}</p>
+                                    <div class="flex justify-between items-center text-sm text-gray-500">
+                                        <span>{{ $article->published_at->format('M d, Y') }}</span>
+                                        <a href="#" class="text-blue-600 hover:text-blue-700 font-medium">Read More →</a>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                    <div class="space-y-3">
+                        <a href="#calculator" class="block w-full bg-blue-600 text-white text-center py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
+                            Calculate Costs
+                        </a>
+                        <a href="#deals" class="block w-full bg-green-600 text-white text-center py-2 px-4 rounded-md hover:bg-green-700 transition-colors">
+                            View Deals
+                        </a>
+                        @auth
+                            <button class="block w-full bg-gray-600 text-white text-center py-2 px-4 rounded-md hover:bg-gray-700 transition-colors">
+                                Add to Favorites
+                            </button>
+                        @else
+                            <a href="{{ route('login') }}" class="block w-full bg-gray-600 text-white text-center py-2 px-4 rounded-md hover:bg-gray-700 transition-colors">
+                                Login to Save
+                            </a>
+                        @endauth
+                    </div>
+                </div>
+
+                <!-- Deals -->
+                @if($deals->count() > 0)
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Exclusive Deals</h3>
+                        <div class="space-y-4">
+                            @foreach($deals as $deal)
+                                <div class="border border-gray-200 rounded-lg p-4">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">
+                                            {{ $deal->category }}
+                                        </span>
+                                        @if($deal->discount_percentage)
+                                            <span class="bg-red-100 text-red-800 text-xs font-semibold px-2 py-1 rounded">
+                                                -{{ $deal->discount_percentage }}%
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <h4 class="font-semibold text-gray-900 mb-2">{{ $deal->title }}</h4>
+                                    <p class="text-sm text-gray-600 mb-3">{{ Str::limit($deal->description, 80) }}</p>
+                                    <div class="flex justify-between items-center">
+                                        @if($deal->original_price && $deal->discounted_price)
+                                            <div>
+                                                <span class="font-bold text-green-600">${{ $deal->discounted_price }}</span>
+                                                <span class="text-sm text-gray-500 line-through ml-2">${{ $deal->original_price }}</span>
+                                            </div>
+                                        @elseif($deal->original_price)
+                                            <span class="font-bold text-green-600">${{ $deal->original_price }}</span>
+                                        @endif
+                                        <a href="{{ $deal->deal_url }}" 
+                                           target="_blank" 
+                                           class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                                            Get Deal →
+                                        </a>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Similar Cities -->
+                @if($similarCities->count() > 0)
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Similar Cities</h3>
+                        <div class="space-y-3">
+                            @foreach($similarCities as $similarCity)
+                                <a href="{{ route('cities.show', $similarCity) }}" 
+                                   class="block border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <h4 class="font-semibold text-gray-900">{{ $similarCity->name }}</h4>
+                                            <p class="text-sm text-gray-600">{{ $similarCity->country->name }}</p>
+                                        </div>
+                                        <div class="text-right text-sm text-gray-500">
+                                            <div>${{ $similarCity->cost_of_living_index ?? 'N/A' }}</div>
+                                            <div>{{ $similarCity->internet_speed_mbps ?? 'N/A' }} Mbps</div>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
