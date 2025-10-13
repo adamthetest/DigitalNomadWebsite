@@ -24,6 +24,20 @@
     </div>
 </section>
 
+<!-- Global Map -->
+<section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">🗺️ Explore Our Cities</h2>
+            <p class="text-lg text-gray-600">Discover digital nomad destinations around the world</p>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div id="homeMap" style="height: 500px; width: 100%;" class="rounded-lg"></div>
+        </div>
+    </div>
+</section>
+
 <!-- Featured Cities -->
 <section id="cities" class="py-16 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -169,6 +183,52 @@
 </section>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the home page map
+    const map = L.map('homeMap').setView([20, 0], 2);
+    
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+    }).addTo(map);
+    
+    // Add markers for featured cities
+    const markers = [];
+    @foreach($featuredCities as $city)
+        const marker{{ $city->id }} = L.marker([{{ $city->latitude }}, {{ $city->longitude }}])
+            .addTo(map)
+            .bindPopup(`
+                <div class="text-center">
+                    <h3 class="font-bold text-lg">{{ $city->name }}</h3>
+                    <p class="text-sm text-gray-600">{{ $city->country->name }}</p>
+                    <div class="mt-2 space-y-1">
+                        @if($city->cost_of_living_index)
+                            <p class="text-sm"><span class="font-semibold">Cost:</span> ${{ $city->cost_of_living_index }}/month</p>
+                        @endif
+                        @if($city->internet_speed)
+                            <p class="text-sm"><span class="font-semibold">Internet:</span> {{ $city->internet_speed }} Mbps</p>
+                        @endif
+                        @if($city->safety_score)
+                            <p class="text-sm"><span class="font-semibold">Safety:</span> {{ $city->safety_score }}/10</p>
+                        @endif
+                    </div>
+                    <a href="{{ route('cities.show', $city) }}" 
+                       class="inline-block mt-2 bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+                        Explore City
+                    </a>
+                </div>
+            `);
+        markers.push(marker{{ $city->id }});
+    @endforeach
+    
+    // Fit map to show all markers
+    if (markers.length > 0) {
+        const group = new L.featureGroup(markers);
+        map.fitBounds(group.getBounds().pad(0.1));
+    }
+});
+
 function trackDealClick(dealId) {
     // Track deal clicks for analytics
     fetch('/api/deals/' + dealId + '/click', {

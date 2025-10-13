@@ -118,6 +118,12 @@
             </p>
         </div>
 
+        <!-- Cities Map -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">🗺️ All Cities Map</h2>
+            <div id="citiesMap" style="height: 500px; width: 100%;" class="rounded-lg"></div>
+        </div>
+
         <!-- Cities Grid -->
         @if($cities->count() > 0)
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
@@ -188,4 +194,53 @@
         @endif
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the map
+    const map = L.map('citiesMap').setView([20, 0], 2);
+    
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+    }).addTo(map);
+    
+    // Add markers for each city
+    const markers = [];
+    @foreach($cities as $city)
+        const marker{{ $city->id }} = L.marker([{{ $city->latitude }}, {{ $city->longitude }}])
+            .addTo(map)
+            .bindPopup(`
+                <div class="text-center">
+                    <h3 class="font-bold text-lg">{{ $city->name }}</h3>
+                    <p class="text-sm text-gray-600">{{ $city->country->name }}</p>
+                    <div class="mt-2 space-y-1">
+                        @if($city->cost_of_living_index)
+                            <p class="text-sm"><span class="font-semibold">Cost:</span> ${{ $city->cost_of_living_index }}/month</p>
+                        @endif
+                        @if($city->internet_speed)
+                            <p class="text-sm"><span class="font-semibold">Internet:</span> {{ $city->internet_speed }} Mbps</p>
+                        @endif
+                        @if($city->safety_score)
+                            <p class="text-sm"><span class="font-semibold">Safety:</span> {{ $city->safety_score }}/10</p>
+                        @endif
+                    </div>
+                    <a href="{{ route('cities.show', $city) }}" 
+                       class="inline-block mt-2 bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+                        View Details
+                    </a>
+                </div>
+            `);
+        markers.push(marker{{ $city->id }});
+    @endforeach
+    
+    // Fit map to show all markers
+    if (markers.length > 0) {
+        const group = new L.featureGroup(markers);
+        map.fitBounds(group.getBounds().pad(0.1));
+    }
+});
+</script>
+
 @endsection

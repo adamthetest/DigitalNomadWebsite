@@ -46,6 +46,12 @@
             </div>
         </div>
 
+        <!-- City Map -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">📍 Location</h2>
+            <div id="cityMap" style="height: 400px; width: 100%;" class="rounded-lg"></div>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Main Content -->
             <div class="lg:col-span-2 space-y-8">
@@ -218,4 +224,60 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the map
+    const map = L.map('cityMap').setView([{{ $city->latitude }}, {{ $city->longitude }}], 12);
+    
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+    }).addTo(map);
+    
+    // Add a marker for the city
+    const cityMarker = L.marker([{{ $city->latitude }}, {{ $city->longitude }}])
+        .addTo(map)
+        .bindPopup(`
+            <div class="text-center">
+                <h3 class="font-bold text-lg">{{ $city->name }}</h3>
+                <p class="text-sm text-gray-600">{{ $city->country->name }}</p>
+                @if($city->description)
+                    <p class="text-sm mt-2">{{ Str::limit($city->description, 100) }}</p>
+                @endif
+            </div>
+        `);
+    
+    // Add markers for coworking spaces if they exist
+    @if($coworkingSpaces->count() > 0)
+        @foreach($coworkingSpaces as $space)
+            @if($space->latitude && $space->longitude)
+                L.marker([{{ $space->latitude }}, {{ $space->longitude }}], {
+                    icon: L.divIcon({
+                        className: 'coworking-marker',
+                        html: '<div style="background-color: #3B82F6; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>',
+                        iconSize: [20, 20],
+                        iconAnchor: [10, 10]
+                    })
+                }).addTo(map).bindPopup(`
+                    <div class="text-center">
+                        <h4 class="font-bold">{{ $space->name }}</h4>
+                        <p class="text-sm text-gray-600">{{ $space->address }}</p>
+                        @if($space->price_per_month)
+                            <p class="text-sm font-semibold text-green-600">${{ $space->price_per_month }}/month</p>
+                        @endif
+                    </div>
+                `);
+            @endif
+        @endforeach
+    @endif
+    
+    // Fit map to show all markers
+    if (map.getBounds().isValid()) {
+        map.fitBounds(map.getBounds(), { padding: [20, 20] });
+    }
+});
+</script>
+
 @endsection
