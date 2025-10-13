@@ -207,6 +207,8 @@
                 <div class="mb-8">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Privacy Settings</h3>
                     <div class="flex items-center">
+                        <!-- Hidden input to ensure false value is sent when checkbox is unchecked -->
+                        <input type="hidden" name="is_public" value="0">
                         <input type="checkbox" 
                                id="is_public" 
                                name="is_public" 

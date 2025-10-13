@@ -65,6 +65,9 @@ class ProfileController extends Controller
             'instagram', 'linkedin', 'github', 'timezone', 'is_public'
         ]);
 
+        // Convert string values to boolean for is_public
+        $data['is_public'] = (bool) $data['is_public'];
+
         // Handle profile image upload
         if ($request->hasFile('profile_image')) {
             // Delete old profile image if exists
