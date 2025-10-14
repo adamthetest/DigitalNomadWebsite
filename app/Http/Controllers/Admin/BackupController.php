@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Artisan;
 use Carbon\Carbon;
+use ZipArchive;
 
 class BackupController extends Controller
 {
@@ -36,17 +37,29 @@ class BackupController extends Controller
             
             $output = Artisan::output();
             
-            return response()->json([
-                'success' => true,
-                'message' => 'Backup created successfully!',
-                'output' => $output
-            ]);
+            // Handle AJAX requests
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Backup created successfully!',
+                    'output' => $output
+                ]);
+            }
+            
+            // Handle regular form submissions
+            return redirect()->back()->with('success', 'Backup created successfully!');
             
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Backup failed: ' . $e->getMessage()
-            ], 500);
+            // Handle AJAX requests
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Backup failed: ' . $e->getMessage()
+                ], 500);
+            }
+            
+            // Handle regular form submissions
+            return redirect()->back()->with('error', 'Backup failed: ' . $e->getMessage());
         }
     }
     
@@ -62,6 +75,95 @@ class BackupController extends Controller
         }
         
         return Storage::download($filePath);
+    }
+    
+    /**
+     * Download entire backup directory as zip file.
+     */
+    public function downloadZip($backupDir)
+    {
+        $backupPath = "backups/{$backupDir}";
+        
+        if (!Storage::exists($backupPath)) {
+            abort(404, 'Backup directory not found');
+        }
+        
+        $files = Storage::allFiles($backupPath);
+        
+        if (empty($files)) {
+            abort(404, 'No files found in backup directory');
+        }
+        
+        // Create a temporary zip file
+        $zipFileName = "{$backupDir}.zip";
+        $zipPath = storage_path("app/temp/{$zipFileName}");
+        
+        // Ensure temp directory exists
+        if (!file_exists(storage_path('app/temp'))) {
+            mkdir(storage_path('app/temp'), 0755, true);
+        }
+        
+        $zip = new ZipArchive();
+        if ($zip->open($zipPath, ZipArchive::CREATE) !== TRUE) {
+            abort(500, 'Cannot create zip file');
+        }
+        
+        // Add files to zip
+        foreach ($files as $file) {
+            $relativePath = str_replace("{$backupPath}/", '', $file);
+            $zip->addFromString($relativePath, Storage::get($file));
+        }
+        
+        $zip->close();
+        
+        // Return the zip file as download
+        return response()->download($zipPath, $zipFileName)->deleteFileAfterSend(true);
+    }
+    
+    /**
+     * Cleanup old backups (older than 30 days).
+     */
+    public function cleanup(Request $request)
+    {
+        try {
+            $backupDir = 'backups';
+            $directories = Storage::directories($backupDir);
+            $deletedCount = 0;
+            $cutoffDate = Carbon::now()->subDays(30);
+            
+            foreach ($directories as $directory) {
+                $backupName = basename($directory);
+                $backupDate = Carbon::createFromFormat('Y-m-d_H-i-s', $backupName);
+                
+                if ($backupDate->lt($cutoffDate)) {
+                    Storage::deleteDirectory($directory);
+                    $deletedCount++;
+                }
+            }
+            
+            // Handle AJAX requests
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Cleaned up {$deletedCount} old backups successfully!"
+                ]);
+            }
+            
+            // Handle regular form submissions
+            return redirect()->back()->with('success', "Cleaned up {$deletedCount} old backups successfully!");
+            
+        } catch (\Exception $e) {
+            // Handle AJAX requests
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cleanup failed: ' . $e->getMessage()
+                ], 500);
+            }
+            
+            // Handle regular form submissions
+            return redirect()->back()->with('error', 'Cleanup failed: ' . $e->getMessage());
+        }
     }
     
     /**

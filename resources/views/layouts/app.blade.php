@@ -43,8 +43,6 @@
                     
                     @auth
                         <a href="{{ route('favorites.index') }}" class="text-gray-700 hover:text-blue-600 font-medium">❤️ Favorites</a>
-                        <a href="{{ route('jobs.saved') }}" class="text-gray-700 hover:text-blue-600 font-medium">💾 Saved Jobs</a>
-                        <a href="{{ route('jobs.applied') }}" class="text-gray-700 hover:text-blue-600 font-medium">📝 Applications</a>
                         <a href="{{ route('profile.show', Auth::user()) }}" class="text-gray-700 hover:text-blue-600 font-medium">My Profile</a>
                         <a href="{{ route('dashboard') }}" class="text-gray-700 hover:text-blue-600 font-medium">Dashboard</a>
                         <form method="POST" action="{{ route('logout') }}" class="inline">

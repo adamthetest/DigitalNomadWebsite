@@ -20,11 +20,16 @@ class Dashboard extends BaseDashboard
         return [
             \App\Filament\Widgets\UserStatsWidget::class,
             \App\Filament\Widgets\SecurityStatsWidget::class,
+            \App\Filament\Widgets\BackupWidget::class,
         ];
     }
 
     public function getColumns(): int | string | array
     {
-        return 2;
+        return [
+            'sm' => 1,
+            'md' => 2,
+            'lg' => 3,
+        ];
     }
 }

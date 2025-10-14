@@ -14,6 +14,7 @@ use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\CoworkingSpaceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\Admin\BackupController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -59,8 +60,6 @@ Route::get('/companies/{company}', [JobController::class, 'company'])->name('job
 Route::middleware('auth')->group(function () {
     Route::post('/jobs/{job}/save', [JobController::class, 'toggleSave'])->name('jobs.save');
     Route::post('/jobs/{job}/apply', [JobController::class, 'apply'])->name('jobs.apply');
-    Route::get('/jobs/saved', [JobController::class, 'saved'])->name('jobs.saved');
-    Route::get('/jobs/applied', [JobController::class, 'applied'])->name('jobs.applied');
 });
 Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
 
@@ -97,4 +96,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+});
+
+// Admin backup routes (protected by admin middleware)
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('filament.admin.backup.')->group(function () {
+    Route::get('/backups', [BackupController::class, 'index'])->name('list');
+    Route::post('/backups', [BackupController::class, 'create'])->name('create');
+    Route::post('/backups/cleanup', [BackupController::class, 'cleanup'])->name('cleanup');
+    Route::get('/backups/{backupDir}/download', [BackupController::class, 'downloadZip'])->name('download');
+    Route::get('/backups/{backupDir}/{filename}', [BackupController::class, 'download'])->name('download.file');
+    Route::delete('/backups/{backupDir}', [BackupController::class, 'destroy'])->name('delete');
 });

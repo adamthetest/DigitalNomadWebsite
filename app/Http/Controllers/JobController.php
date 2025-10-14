@@ -231,40 +231,6 @@ class JobController extends Controller
     }
 
     /**
-     * Display user's saved jobs.
-     */
-    public function saved(Request $request)
-    {
-        if (!Auth::check()) {
-            return redirect()->route('login');
-        }
-
-        $user = Auth::user();
-        $savedJobs = $user->savedJobs()
-            ->with('company')
-            ->paginate(12);
-
-        return view('jobs.saved', compact('savedJobs'));
-    }
-
-    /**
-     * Display user's applied jobs.
-     */
-    public function applied(Request $request)
-    {
-        if (!Auth::check()) {
-            return redirect()->route('login');
-        }
-
-        $user = Auth::user();
-        $appliedJobs = $user->appliedJobs()
-            ->with('company')
-            ->paginate(12);
-
-        return view('jobs.applied', compact('appliedJobs'));
-    }
-
-    /**
      * Display company profile.
      */
     public function company(Company $company)

@@ -123,26 +123,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Get jobs saved by the user.
-     */
-    public function savedJobs(): BelongsToMany
-    {
-        return $this->belongsToMany(Job::class, 'job_user_interactions')
-                    ->wherePivot('status', 'saved')
-                    ->withTimestamps();
-    }
-
-    /**
-     * Get jobs applied by the user.
-     */
-    public function appliedJobs(): BelongsToMany
-    {
-        return $this->belongsToMany(Job::class, 'job_user_interactions')
-                    ->wherePivot('status', 'applied')
-                    ->withTimestamps();
-    }
-
-    /**
      * Get the user's profile image URL.
      */
     public function getProfileImageUrlAttribute(): string
