@@ -13,6 +13,7 @@ use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -97,6 +98,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+});
+
+// Real-time notification routes (for testing Socket.IO)
+Route::middleware('auth')->group(function () {
+    Route::get('/socket-test', function () {
+        return view('socket-test');
+    })->name('socket-test');
+    
+    Route::post('/notifications/broadcast-all', [NotificationController::class, 'broadcastToAll'])->name('notifications.broadcast-all');
+    Route::post('/notifications/broadcast-user/{userId}', [NotificationController::class, 'broadcastToUser'])->name('notifications.broadcast-user');
+    Route::post('/notifications/broadcast-current', [NotificationController::class, 'broadcastToCurrentUser'])->name('notifications.broadcast-current');
 });
 
 // Admin backup routes (protected by admin middleware)
