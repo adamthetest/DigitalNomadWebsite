@@ -13,6 +13,7 @@ use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\FavoritesController;
 use App\Http\Controllers\CoworkingSpaceController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\JobController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -49,6 +50,18 @@ Route::get('/newsletter/stats', [NewsletterController::class, 'stats'])->name('n
 
 // Profile routes
 Route::get('/profiles', [ProfileController::class, 'index'])->name('profiles.index');
+Route::get('/discover', [ProfileController::class, 'discover'])->name('profiles.discover');
+Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
+Route::get('/jobs/{job}', [JobController::class, 'show'])->name('jobs.show');
+Route::get('/companies/{company}', [JobController::class, 'company'])->name('jobs.company');
+
+// Authenticated job routes
+Route::middleware('auth')->group(function () {
+    Route::post('/jobs/{job}/save', [JobController::class, 'toggleSave'])->name('jobs.save');
+    Route::post('/jobs/{job}/apply', [JobController::class, 'apply'])->name('jobs.apply');
+    Route::get('/jobs/saved', [JobController::class, 'saved'])->name('jobs.saved');
+    Route::get('/jobs/applied', [JobController::class, 'applied'])->name('jobs.applied');
+});
 Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
 
 // Favorites routes (authenticated only)

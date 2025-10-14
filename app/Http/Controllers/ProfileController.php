@@ -15,9 +15,18 @@ class ProfileController extends Controller
      */
     public function show(User $user)
     {
-        // Check if profile is public or if user is viewing their own profile
-        if (!$user->is_public && Auth::id() !== $user->id) {
-            abort(403, 'This profile is private.');
+        // Check profile visibility
+        if ($user->visibility === 'hidden' && Auth::id() !== $user->id) {
+            abort(403, 'This profile is hidden.');
+        }
+        
+        if ($user->visibility === 'members' && !Auth::check() && Auth::id() !== $user->id) {
+            abort(403, 'This profile is only visible to members.');
+        }
+
+        // Update last active if viewing own profile
+        if (Auth::id() === $user->id) {
+            $user->updateLastActive();
         }
 
         $user->load('favorites.favoritable');
@@ -48,24 +57,39 @@ class ProfileController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
+            'tagline' => 'nullable|string|max:160',
             'bio' => 'nullable|string|max:1000',
-            'location' => 'nullable|string|max:255',
+            'job_title' => 'nullable|string|max:255',
+            'company' => 'nullable|string|max:255',
+            'skills' => 'nullable|array|max:10',
+            'skills.*' => 'string|max:50',
+            'work_type' => 'nullable|in:freelancer,employee,entrepreneur',
+            'availability' => 'nullable|string|max:255',
+            'location_current' => 'nullable|string|max:255',
+            'location_next' => 'nullable|string|max:255',
             'website' => 'nullable|url|max:255',
-            'twitter' => 'nullable|string|max:255',
-            'instagram' => 'nullable|string|max:255',
-            'linkedin' => 'nullable|string|max:255',
-            'github' => 'nullable|string|max:255',
+            'twitter' => 'nullable|url|max:255',
+            'instagram' => 'nullable|url|max:255',
+            'linkedin' => 'nullable|url|max:255',
+            'github' => 'nullable|url|max:255',
+            'behance' => 'nullable|url|max:255',
             'timezone' => 'nullable|string|max:255',
+            'visibility' => 'required|in:public,members,hidden',
+            'location_precise' => 'boolean',
+            'show_social_links' => 'boolean',
             'is_public' => 'boolean',
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $data = $request->only([
-            'name', 'bio', 'location', 'website', 'twitter', 
-            'instagram', 'linkedin', 'github', 'timezone', 'is_public'
+            'name', 'tagline', 'bio', 'job_title', 'company', 'skills', 'work_type', 'availability',
+            'location_current', 'location_next', 'website', 'twitter', 'instagram', 'linkedin', 
+            'github', 'behance', 'timezone', 'visibility', 'location_precise', 'show_social_links', 'is_public'
         ]);
 
-        // Convert string values to boolean for is_public
+        // Convert string values to boolean
+        $data['location_precise'] = (bool) $data['location_precise'];
+        $data['show_social_links'] = (bool) $data['show_social_links'];
         $data['is_public'] = (bool) $data['is_public'];
 
         // Handle profile image upload
@@ -93,27 +117,81 @@ class ProfileController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::where('is_public', true)
-            ->orderBy('created_at', 'desc');
+        $query = User::members()->orderBy('created_at', 'desc');
 
         // Search functionality
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('tagline', 'like', "%{$search}%")
                   ->orWhere('bio', 'like', "%{$search}%")
-                  ->orWhere('location', 'like', "%{$search}%");
+                  ->orWhere('job_title', 'like', "%{$search}%")
+                  ->orWhere('company', 'like', "%{$search}%")
+                  ->orWhere('location_current', 'like', "%{$search}%")
+                  ->orWhere('location_next', 'like', "%{$search}%");
             });
         }
 
         // Filter by location
         if ($request->filled('location')) {
-            $query->where('location', 'like', "%{$request->location}%");
+            $query->byLocation($request->location);
         }
 
-        $users = $query->paginate(12);
+        // Filter by skills
+        if ($request->filled('skills')) {
+            $skills = is_array($request->skills) ? $request->skills : explode(',', $request->skills);
+            $query->bySkills($skills);
+        }
 
-        return view('profiles.index', compact('users'));
+        // Filter by work type
+        if ($request->filled('work_type')) {
+            $query->byWorkType($request->work_type);
+        }
+
+        // Filter by verification status
+        if ($request->filled('verified')) {
+            $query->verified();
+        }
+
+        // Filter by premium status
+        if ($request->filled('premium')) {
+            $query->premium();
+        }
+
+        // Sort options
+        $sort = $request->get('sort', 'newest');
+        switch ($sort) {
+            case 'online':
+                $query->orderBy('last_active', 'desc');
+                break;
+            case 'active':
+                $query->orderBy('last_active', 'desc');
+                break;
+            case 'premium':
+                $query->orderBy('premium_status', 'desc')->orderBy('created_at', 'desc');
+                break;
+            case 'verified':
+                $query->orderBy('email_verified_at', 'desc')->orderBy('created_at', 'desc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
+        $users = $query->paginate(12)->withQueryString();
+
+        // Get filter options for the form
+        $workTypes = ['freelancer' => 'Freelancer', 'employee' => 'Remote Employee', 'entrepreneur' => 'Entrepreneur'];
+        $sortOptions = [
+            'newest' => 'Newest Profiles',
+            'active' => 'Recently Active',
+            'premium' => 'Premium Members',
+            'verified' => 'Verified Members',
+        ];
+
+        return view('profiles.index', compact('users', 'workTypes', 'sortOptions'));
     }
 
     /**
@@ -129,5 +207,87 @@ class ProfileController extends Controller
         }
 
         return response()->json(['success' => true]);
+    }
+
+    /**
+     * Display the discover page for finding nomads.
+     */
+    public function discover(Request $request)
+    {
+        $query = User::public()->orderBy('created_at', 'desc');
+
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('tagline', 'like', "%{$search}%")
+                  ->orWhere('bio', 'like', "%{$search}%")
+                  ->orWhere('job_title', 'like', "%{$search}%")
+                  ->orWhere('company', 'like', "%{$search}%")
+                  ->orWhere('location_current', 'like', "%{$search}%")
+                  ->orWhere('location_next', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by location
+        if ($request->filled('location')) {
+            $query->byLocation($request->location);
+        }
+
+        // Filter by skills
+        if ($request->filled('skills')) {
+            $skills = is_array($request->skills) ? $request->skills : explode(',', $request->skills);
+            $query->bySkills($skills);
+        }
+
+        // Filter by work type
+        if ($request->filled('work_type')) {
+            $query->byWorkType($request->work_type);
+        }
+
+        // Filter by verification status
+        if ($request->filled('verified')) {
+            $query->verified();
+        }
+
+        // Filter by premium status
+        if ($request->filled('premium')) {
+            $query->premium();
+        }
+
+        // Sort options
+        $sort = $request->get('sort', 'newest');
+        switch ($sort) {
+            case 'online':
+                $query->orderBy('last_active', 'desc');
+                break;
+            case 'active':
+                $query->orderBy('last_active', 'desc');
+                break;
+            case 'premium':
+                $query->orderBy('premium_status', 'desc')->orderBy('created_at', 'desc');
+                break;
+            case 'verified':
+                $query->orderBy('email_verified_at', 'desc')->orderBy('created_at', 'desc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
+        $users = $query->paginate(12)->withQueryString();
+
+        // Get filter options for the form
+        $workTypes = ['freelancer' => 'Freelancer', 'employee' => 'Remote Employee', 'entrepreneur' => 'Entrepreneur'];
+        $sortOptions = [
+            'newest' => 'Newest Profiles',
+            'active' => 'Recently Active',
+            'premium' => 'Premium Members',
+            'verified' => 'Verified Members',
+        ];
+
+        return view('profiles.discover', compact('users', 'workTypes', 'sortOptions'));
     }
 }

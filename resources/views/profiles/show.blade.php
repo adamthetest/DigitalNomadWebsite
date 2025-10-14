@@ -20,9 +20,31 @@
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center space-x-3 mb-2">
                         <h1 class="text-3xl font-bold text-gray-900">{{ $user->display_name }}</h1>
-                        @if($user->is_public)
+                        
+                        <!-- Verification Badges -->
+                        @foreach($user->verification_badges as $badge)
+                            @if($badge === 'email_verified')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    ✓ Verified
+                                </span>
+                            @elseif($badge === 'id_verified')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    🛡️ ID Verified
+                                </span>
+                            @elseif($badge === 'premium')
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    ⭐ Premium
+                                </span>
+                            @endif
+                        @endforeach
+
+                        @if($user->visibility === 'public')
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                 Public Profile
+                            </span>
+                        @elseif($user->visibility === 'members')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                Members Only
                             </span>
                         @else
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
@@ -31,18 +53,81 @@
                         @endif
                     </div>
 
-                    @if($user->location)
+                    @if($user->tagline)
+                        <p class="text-lg text-gray-600 mb-3 font-medium">{{ $user->tagline }}</p>
+                    @endif
+
+                    @if($user->job_title || $user->company)
+                        <div class="flex items-center text-gray-600 mb-3">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6"></path>
+                            </svg>
+                            <span>
+                                @if($user->job_title && $user->company)
+                                    {{ $user->job_title }} at {{ $user->company }}
+                                @elseif($user->job_title)
+                                    {{ $user->job_title }}
+                                @elseif($user->company)
+                                    {{ $user->company }}
+                                @endif
+                            </span>
+                        </div>
+                    @endif
+
+                    @if($user->current_location)
                         <div class="flex items-center text-gray-600 mb-3">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
-                            <span>{{ $user->location }}</span>
+                            <span>{{ $user->current_location }}</span>
+                            @if($user->isOnline())
+                                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    🟢 Online
+                                </span>
+                            @endif
+                        </div>
+                    @endif
+
+                    @if($user->location_next)
+                        <div class="flex items-center text-gray-600 mb-3">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                            </svg>
+                            <span>Next: {{ $user->location_next }}</span>
                         </div>
                     @endif
 
                     @if($user->bio)
-                        <p class="text-gray-700 text-lg leading-relaxed">{{ $user->bio }}</p>
+                        <p class="text-gray-700 text-lg leading-relaxed mb-4">{{ $user->bio }}</p>
+                    @endif
+
+                    <!-- Skills -->
+                    @if($user->skills && count($user->skills) > 0)
+                        <div class="mb-4">
+                            <div class="flex flex-wrap gap-2">
+                                @foreach($user->skills as $skill)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        {{ $skill }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Work Type -->
+                    @if($user->work_type)
+                        <div class="mb-4">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                                @if($user->work_type === 'freelancer')
+                                    💼 Freelancer
+                                @elseif($user->work_type === 'employee')
+                                    🏢 Remote Employee
+                                @elseif($user->work_type === 'entrepreneur')
+                                    🚀 Entrepreneur
+                                @endif
+                            </span>
+                        </div>
                     @endif
 
                     <!-- Social Links -->
@@ -107,7 +192,7 @@
         </div>
 
         <!-- Profile Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
                 <div class="text-2xl font-bold text-blue-600">{{ $favoriteCities->count() }}</div>
                 <div class="text-gray-600">Favorite Cities</div>
@@ -120,7 +205,40 @@
                 <div class="text-2xl font-bold text-purple-600">{{ $favoriteDeals->count() }}</div>
                 <div class="text-gray-600">Favorite Deals</div>
             </div>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+                <div class="text-2xl font-bold text-orange-600">{{ $user->travel_timeline ? count($user->travel_timeline) : 0 }}</div>
+                <div class="text-gray-600">Cities Visited</div>
+            </div>
         </div>
+
+        <!-- Travel Timeline -->
+        @if($user->travel_timeline && count($user->travel_timeline) > 0)
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">🗺️ Travel Timeline</h2>
+                <div class="space-y-4">
+                    @foreach(array_reverse($user->travel_timeline) as $entry)
+                        <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                            <div class="flex-shrink-0">
+                                <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900">{{ $entry['city'] }}, {{ $entry['country'] }}</h3>
+                                <div class="text-sm text-gray-600">
+                                    @if($entry['arrived_at'])
+                                        <span>Arrived: {{ \Carbon\Carbon::parse($entry['arrived_at'])->format('M Y') }}</span>
+                                    @endif
+                                    @if($entry['left_at'])
+                                        <span class="ml-2">Left: {{ \Carbon\Carbon::parse($entry['left_at'])->format('M Y') }}</span>
+                                    @elseif($entry['arrived_at'] && !$entry['left_at'])
+                                        <span class="ml-2 text-green-600">Currently here</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
 
         <!-- Favorites Sections -->
         @if($favoriteCities->count() > 0)

@@ -36,11 +36,15 @@
                            <a href="{{ route('deals.index') }}" class="text-gray-700 hover:text-blue-600 font-medium">Deals</a>
                            <a href="{{ route('articles.index') }}" class="text-gray-700 hover:text-blue-600 font-medium">Blog</a>
                            <a href="{{ route('coworking-spaces.index') }}" class="text-gray-700 hover:text-blue-600 font-medium">Coworking</a>
+                           <a href="{{ route('profiles.discover') }}" class="text-gray-700 hover:text-blue-600 font-medium">🌍 Discover</a>
+                    <a href="{{ route('jobs.index') }}" class="text-gray-700 hover:text-blue-600 font-medium">💼 Jobs</a>
                            <a href="{{ route('profiles.index') }}" class="text-gray-700 hover:text-blue-600 font-medium">Profiles</a>
                            <a href="{{ route('newsletter.index') }}" class="text-gray-700 hover:text-blue-600 font-medium">Newsletter</a>
                     
                     @auth
                         <a href="{{ route('favorites.index') }}" class="text-gray-700 hover:text-blue-600 font-medium">❤️ Favorites</a>
+                        <a href="{{ route('jobs.saved') }}" class="text-gray-700 hover:text-blue-600 font-medium">💾 Saved Jobs</a>
+                        <a href="{{ route('jobs.applied') }}" class="text-gray-700 hover:text-blue-600 font-medium">📝 Applications</a>
                         <a href="{{ route('profile.show', Auth::user()) }}" class="text-gray-700 hover:text-blue-600 font-medium">My Profile</a>
                         <a href="{{ route('dashboard') }}" class="text-gray-700 hover:text-blue-600 font-medium">Dashboard</a>
                         <form method="POST" action="{{ route('logout') }}" class="inline">
