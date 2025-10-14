@@ -18,10 +18,10 @@ return new class extends Migration
             $table->string('category')->nullable(); // 'city', 'article', 'deal', etc.
             $table->json('notes')->nullable(); // User's personal notes
             $table->timestamps();
-            
+
             // Ensure a user can't favorite the same item twice
             $table->unique(['user_id', 'favoritable_id', 'favoritable_type']);
-            
+
             // Indexes for performance
             $table->index(['user_id', 'category']);
             $table->index(['favoritable_id', 'favoritable_type']);

@@ -30,7 +30,7 @@ return new class extends Migration
             $table->integer('conversion_count')->default(0);
             $table->decimal('total_commission', 10, 2)->default(0);
             $table->timestamps();
-            
+
             $table->index(['category', 'is_active']);
             $table->index(['affiliate_provider', 'is_active']);
             $table->index(['is_featured', 'is_active']);

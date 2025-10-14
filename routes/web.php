@@ -1,20 +1,20 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\CityController;
-use App\Http\Controllers\CalculatorController;
-use App\Http\Controllers\ArticleController;
-use App\Http\Controllers\DealController;
-use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Auth\PasswordResetController;
-use App\Http\Controllers\NewsletterController;
-use App\Http\Controllers\FavoritesController;
-use App\Http\Controllers\CoworkingSpaceController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\JobController;
 use App\Http\Controllers\Admin\BackupController;
+use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\PasswordResetController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\CalculatorController;
+use App\Http\Controllers\CityController;
+use App\Http\Controllers\CoworkingSpaceController;
+use App\Http\Controllers\DealController;
+use App\Http\Controllers\FavoritesController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\JobController;
+use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -70,7 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/favorites/{favorite}', [FavoritesController::class, 'destroy'])->name('favorites.destroy');
     Route::patch('/favorites/{favorite}/notes', [FavoritesController::class, 'updateNotes'])->name('favorites.update-notes');
     Route::get('/favorites/count', [FavoritesController::class, 'getCount'])->name('favorites.count');
-    
+
     // Profile management routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -82,10 +82,10 @@ Route::middleware('auth')->group(function () {
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
-    
+
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
-    
+
     Route::get('/forgot-password', [PasswordResetController::class, 'showLinkRequestForm'])->name('password.request');
     Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLinkEmail'])->name('password.email');
     Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');

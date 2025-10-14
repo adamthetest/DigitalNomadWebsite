@@ -4,14 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Job extends Model
 {
     protected $table = 'job_postings';
-    
+
     protected $fillable = [
         'title',
         'description',
@@ -78,8 +77,8 @@ class Job extends Model
     public function savedByUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'job_user_interactions')
-                    ->wherePivot('status', 'saved')
-                    ->withTimestamps();
+            ->wherePivot('status', 'saved')
+            ->withTimestamps();
     }
 
     /**
@@ -88,8 +87,8 @@ class Job extends Model
     public function appliedByUsers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'job_user_interactions')
-                    ->wherePivot('status', 'applied')
-                    ->withTimestamps();
+            ->wherePivot('status', 'applied')
+            ->withTimestamps();
     }
 
     /**
@@ -113,7 +112,7 @@ class Job extends Model
      */
     public function getFormattedSalaryAttribute(): string
     {
-        if (!$this->salary_min && !$this->salary_max) {
+        if (! $this->salary_min && ! $this->salary_max) {
             return 'Salary not specified';
         }
 
@@ -134,7 +133,7 @@ class Job extends Model
      */
     public function getTypeLabelAttribute(): string
     {
-        return match($this->type) {
+        return match ($this->type) {
             'full-time' => 'Full Time',
             'part-time' => 'Part Time',
             'contract' => 'Contract',
@@ -149,7 +148,7 @@ class Job extends Model
      */
     public function getRemoteTypeLabelAttribute(): string
     {
-        return match($this->remote_type) {
+        return match ($this->remote_type) {
             'fully-remote' => 'Fully Remote',
             'hybrid' => 'Hybrid',
             'timezone-limited' => 'Timezone Limited',
@@ -188,7 +187,7 @@ class Job extends Model
     public function scopePublished($query)
     {
         return $query->whereNotNull('published_at')
-                    ->where('published_at', '<=', now());
+            ->where('published_at', '<=', now());
     }
 
     /**
@@ -198,7 +197,7 @@ class Job extends Model
     {
         return $query->where(function ($q) {
             $q->whereNull('expires_at')
-              ->orWhere('expires_at', '>', now());
+                ->orWhere('expires_at', '>', now());
         });
     }
 
@@ -229,7 +228,7 @@ class Job extends Model
     /**
      * Scope for jobs by salary range.
      */
-    public function scopeBySalaryRange($query, int $min, int $max = null)
+    public function scopeBySalaryRange($query, int $min, ?int $max = null)
     {
         return $query->where(function ($q) use ($min, $max) {
             $q->where(function ($subQ) use ($min, $max) {

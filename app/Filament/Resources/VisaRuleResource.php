@@ -3,16 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\VisaRuleResource\Pages;
-use App\Filament\Resources\VisaRuleResource\RelationManagers;
 use App\Models\VisaRule;
-use App\Models\Country;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class VisaRuleResource extends Resource
 {
@@ -38,13 +34,13 @@ class VisaRuleResource extends Resource
                             ->required()
                             ->searchable()
                             ->preload(),
-                        
+
                         Forms\Components\TextInput::make('nationality')
                             ->required()
                             ->maxLength(2)
                             ->label('Traveler Nationality (Country Code)')
                             ->placeholder('e.g., US, UK, CA'),
-                        
+
                         Forms\Components\Select::make('visa_type')
                             ->options([
                                 'visa_free' => 'Visa Free',
@@ -54,43 +50,43 @@ class VisaRuleResource extends Resource
                                 'no_entry' => 'No Entry',
                             ])
                             ->required(),
-                        
+
                         Forms\Components\TextInput::make('stay_duration_days')
                             ->numeric()
                             ->label('Stay Duration (Days)'),
-                        
+
                         Forms\Components\TextInput::make('validity_days')
                             ->numeric()
                             ->label('Visa Validity (Days)'),
-                        
+
                         Forms\Components\TextInput::make('cost_usd')
                             ->numeric()
                             ->step(0.01)
                             ->label('Cost (USD)'),
-                        
+
                         Forms\Components\Textarea::make('requirements')
                             ->rows(3)
                             ->placeholder('Required documents and conditions'),
-                        
+
                         Forms\Components\Textarea::make('application_process')
                             ->rows(3)
                             ->placeholder('How to apply for the visa'),
-                        
+
                         Forms\Components\TextInput::make('official_website')
                             ->url()
                             ->placeholder('Official government website'),
-                        
+
                         Forms\Components\TagsInput::make('restrictions')
                             ->placeholder('Add restrictions...'),
-                        
+
                         Forms\Components\Textarea::make('notes')
                             ->rows(3)
                             ->placeholder('Additional notes'),
-                        
+
                         Forms\Components\DatePicker::make('last_updated')
                             ->label('Last Updated')
                             ->default(now()),
-                        
+
                         Forms\Components\Toggle::make('is_active')
                             ->label('Active')
                             ->default(true),
@@ -106,11 +102,11 @@ class VisaRuleResource extends Resource
                 Tables\Columns\TextColumn::make('country.name')
                     ->label('Destination Country')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('nationality')
                     ->label('Nationality')
                     ->sortable(),
-                
+
                 Tables\Columns\BadgeColumn::make('visa_type')
                     ->colors([
                         'success' => 'visa_free',
@@ -119,32 +115,32 @@ class VisaRuleResource extends Resource
                         'danger' => 'visa_required',
                         'secondary' => 'no_entry',
                     ]),
-                
+
                 Tables\Columns\TextColumn::make('stay_duration_days')
                     ->label('Stay Duration')
                     ->numeric()
                     ->sortable()
-                    ->formatStateUsing(fn ($state) => $state ? $state . ' days' : '-'),
-                
+                    ->formatStateUsing(fn ($state) => $state ? $state.' days' : '-'),
+
                 Tables\Columns\TextColumn::make('validity_days')
                     ->label('Validity')
                     ->numeric()
                     ->sortable()
-                    ->formatStateUsing(fn ($state) => $state ? $state . ' days' : '-'),
-                
+                    ->formatStateUsing(fn ($state) => $state ? $state.' days' : '-'),
+
                 Tables\Columns\TextColumn::make('cost_usd')
                     ->label('Cost')
                     ->money('USD')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('last_updated')
                     ->date()
                     ->sortable(),
-                
+
                 Tables\Columns\IconColumn::make('is_active')
                     ->boolean()
                     ->label('Active'),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -155,7 +151,7 @@ class VisaRuleResource extends Resource
                     ->relationship('country', 'name')
                     ->searchable()
                     ->preload(),
-                
+
                 Tables\Filters\SelectFilter::make('visa_type')
                     ->options([
                         'visa_free' => 'Visa Free',
@@ -164,7 +160,7 @@ class VisaRuleResource extends Resource
                         'visa_required' => 'Visa Required',
                         'no_entry' => 'No Entry',
                     ]),
-                
+
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label('Active Rules'),
             ])

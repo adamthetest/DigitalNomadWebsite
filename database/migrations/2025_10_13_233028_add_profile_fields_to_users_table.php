@@ -41,7 +41,7 @@ return new class extends Migration
                 'linkedin',
                 'github',
                 'is_public',
-                'timezone'
+                'timezone',
             ]);
         });
     }

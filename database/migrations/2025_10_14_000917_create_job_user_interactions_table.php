@@ -21,7 +21,7 @@ return new class extends Migration
             $table->timestamp('status_updated_at')->nullable();
             $table->json('application_data')->nullable(); // Store application form data
             $table->timestamps();
-            
+
             $table->unique(['user_id', 'job_id']);
             $table->index(['user_id', 'status']);
             $table->index(['job_id', 'status']);

@@ -29,7 +29,7 @@ return new class extends Migration
             $table->string('contact_email')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
-            
+
             $table->index(['verified', 'is_active']);
             $table->index('subscription_plan');
         });

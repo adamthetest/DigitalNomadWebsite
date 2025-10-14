@@ -75,6 +75,7 @@ class Favorite extends Model
 
         if ($favorite) {
             $favorite->delete();
+
             return false; // Removed from favorites
         } else {
             static::create([
@@ -84,6 +85,7 @@ class Favorite extends Model
                 'category' => $category,
                 'notes' => $notes,
             ]);
+
             return true; // Added to favorites
         }
     }

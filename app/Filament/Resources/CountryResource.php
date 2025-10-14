@@ -3,15 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CountryResource\Pages;
-use App\Filament\Resources\CountryResource\RelationManagers;
 use App\Models\Country;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CountryResource extends Resource
 {
@@ -34,27 +31,27 @@ class CountryResource extends Resource
                         Forms\Components\TextInput::make('name')
                             ->required()
                             ->maxLength(255),
-                        
+
                         Forms\Components\TextInput::make('code')
                             ->required()
                             ->maxLength(2)
                             ->label('Country Code (e.g., US, TH)'),
-                        
+
                         Forms\Components\TextInput::make('currency_code')
                             ->required()
                             ->maxLength(3)
                             ->label('Currency Code (e.g., USD, THB)'),
-                        
+
                         Forms\Components\TextInput::make('currency_symbol')
                             ->required()
                             ->maxLength(10)
                             ->label('Currency Symbol (e.g., $, ฿)'),
-                        
+
                         Forms\Components\TextInput::make('timezone')
                             ->required()
                             ->maxLength(255)
                             ->label('Timezone (e.g., Asia/Bangkok)'),
-                        
+
                         Forms\Components\Toggle::make('is_active')
                             ->label('Active')
                             ->default(true),
@@ -70,26 +67,26 @@ class CountryResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('code')
                     ->label('Code')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('currency_code')
                     ->label('Currency')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('currency_symbol')
                     ->label('Symbol')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('timezone')
                     ->sortable(),
-                
+
                 Tables\Columns\IconColumn::make('is_active')
                     ->boolean()
                     ->label('Active'),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

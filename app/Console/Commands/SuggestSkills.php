@@ -48,18 +48,19 @@ class SuggestSkills extends Command
 
         // Get users who have bio or job title but few or no skills
         $users = User::where(function ($query) {
-                $query->whereNotNull('bio')
-                      ->orWhereNotNull('job_title');
-            })
+            $query->whereNotNull('bio')
+                ->orWhereNotNull('job_title');
+        })
             ->where(function ($query) {
                 $query->whereNull('skills')
-                      ->orWhereJsonLength('skills', '<=', 2);
+                    ->orWhereJsonLength('skills', '<=', 2);
             })
             ->limit($limit)
             ->get();
 
         if ($users->isEmpty()) {
             $this->info('No users found that need skill suggestions.');
+
             return;
         }
 
@@ -68,22 +69,22 @@ class SuggestSkills extends Command
         foreach ($users as $user) {
             try {
                 $suggestions = $this->generateSkillSuggestions($user);
-                
-                if (!empty($suggestions)) {
+
+                if (! empty($suggestions)) {
                     $currentSkills = $user->skills ?? [];
                     $newSkills = array_unique(array_merge($currentSkills, $suggestions));
-                    
+
                     // Limit to 10 skills max
                     $newSkills = array_slice($newSkills, 0, 10);
-                    
+
                     $user->update(['skills' => $newSkills]);
                     $suggested++;
-                    
-                    $this->line("Suggested skills for {$user->name}: " . implode(', ', $suggestions));
+
+                    $this->line("Suggested skills for {$user->name}: ".implode(', ', $suggestions));
                 }
             } catch (\Exception $e) {
-                Log::error("Failed to suggest skills for user {$user->id}: " . $e->getMessage());
-                $this->error("Failed to suggest skills for {$user->name}: " . $e->getMessage());
+                Log::error("Failed to suggest skills for user {$user->id}: ".$e->getMessage());
+                $this->error("Failed to suggest skills for {$user->name}: ".$e->getMessage());
             }
         }
 
@@ -96,7 +97,7 @@ class SuggestSkills extends Command
     private function generateSkillSuggestions(User $user): array
     {
         $suggestions = [];
-        $text = strtolower(($user->bio ?? '') . ' ' . ($user->job_title ?? '') . ' ' . ($user->company ?? ''));
+        $text = strtolower(($user->bio ?? '').' '.($user->job_title ?? '').' '.($user->company ?? ''));
 
         foreach ($this->skillMappings as $keyword => $skills) {
             if (str_contains($text, $keyword)) {
@@ -111,7 +112,7 @@ class SuggestSkills extends Command
                 'Time Management',
                 'Communication',
                 'Adaptability',
-                'Cultural Awareness'
+                'Cultural Awareness',
             ]);
         }
 

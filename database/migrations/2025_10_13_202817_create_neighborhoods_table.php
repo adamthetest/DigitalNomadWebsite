@@ -27,7 +27,7 @@ return new class extends Migration
             $table->json('transportation')->nullable(); // Public transport info
             $table->boolean('is_active')->default(true);
             $table->timestamps();
-            
+
             $table->index(['city_id', 'is_active']);
             $table->unique(['city_id', 'slug']);
         });

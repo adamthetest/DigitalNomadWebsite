@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 
 class ProfileController extends Controller
@@ -21,8 +20,8 @@ class ProfileController extends Controller
         if ($user->visibility === 'hidden' && Auth::id() !== $user->id) {
             abort(403, 'This profile is hidden.');
         }
-        
-        if ($user->visibility === 'members' && !Auth::check() && Auth::id() !== $user->id) {
+
+        if ($user->visibility === 'members' && ! Auth::check() && Auth::id() !== $user->id) {
             abort(403, 'This profile is only visible to members.');
         }
 
@@ -32,7 +31,7 @@ class ProfileController extends Controller
         }
 
         $user->load('favorites.favoritable');
-        
+
         // Get user's favorites grouped by category
         $favoriteCities = $user->favoriteCities()->get();
         $favoriteArticles = $user->favoriteArticles()->get();
@@ -47,6 +46,7 @@ class ProfileController extends Controller
     public function edit()
     {
         $user = Auth::user();
+
         return view('profiles.edit', compact('user'));
     }
 
@@ -85,8 +85,8 @@ class ProfileController extends Controller
 
         $data = $request->only([
             'name', 'tagline', 'bio', 'job_title', 'company', 'skills', 'work_type', 'availability',
-            'location_current', 'location_next', 'website', 'twitter', 'instagram', 'linkedin', 
-            'github', 'behance', 'timezone', 'visibility', 'location_precise', 'show_social_links', 'is_public'
+            'location_current', 'location_next', 'website', 'twitter', 'instagram', 'linkedin',
+            'github', 'behance', 'timezone', 'visibility', 'location_precise', 'show_social_links', 'is_public',
         ]);
 
         // Convert string values to boolean
@@ -103,7 +103,7 @@ class ProfileController extends Controller
 
             // Store new image
             $image = $request->file('profile_image');
-            $filename = 'profiles/' . $user->id . '_' . time() . '.' . $image->getClientOriginalExtension();
+            $filename = 'profiles/'.$user->id.'_'.time().'.'.$image->getClientOriginalExtension();
             $image->storeAs('public', $filename);
             $data['profile_image'] = $filename;
         }
@@ -126,12 +126,12 @@ class ProfileController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('tagline', 'like', "%{$search}%")
-                  ->orWhere('bio', 'like', "%{$search}%")
-                  ->orWhere('job_title', 'like', "%{$search}%")
-                  ->orWhere('company', 'like', "%{$search}%")
-                  ->orWhere('location_current', 'like', "%{$search}%")
-                  ->orWhere('location_next', 'like', "%{$search}%");
+                    ->orWhere('tagline', 'like', "%{$search}%")
+                    ->orWhere('bio', 'like', "%{$search}%")
+                    ->orWhere('job_title', 'like', "%{$search}%")
+                    ->orWhere('company', 'like', "%{$search}%")
+                    ->orWhere('location_current', 'like', "%{$search}%")
+                    ->orWhere('location_next', 'like', "%{$search}%");
             });
         }
 
@@ -202,7 +202,7 @@ class ProfileController extends Controller
     public function updatePassword(Request $request)
     {
         $user = Auth::user();
-        
+
         // Debug: Log everything
         \Log::info('Password change request - DEBUG', [
             'user_id' => $user ? $user->id : 'null',
@@ -214,14 +214,15 @@ class ProfileController extends Controller
             'current_password_value' => $request->input('current_password'),
             'content_type' => $request->header('Content-Type'),
             'is_json' => $request->isJson(),
-            'is_form' => $request->is('*')
+            'is_form' => $request->is('*'),
         ]);
 
-        if (!$user) {
+        if (! $user) {
             \Log::error('No authenticated user for password change');
+
             return response()->json([
                 'success' => false,
-                'message' => 'You must be logged in to change your password.'
+                'message' => 'You must be logged in to change your password.',
             ], 401);
         }
 
@@ -231,17 +232,18 @@ class ProfileController extends Controller
         ]);
 
         // Check if current password is correct
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->current_password, $user->password)) {
             \Log::warning('Password change failed - incorrect current password', [
                 'user_id' => $user->id,
-                'email' => $user->email
+                'email' => $user->email,
             ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'The current password is incorrect.',
                 'errors' => [
-                    'current_password' => ['The current password is incorrect.']
-                ]
+                    'current_password' => ['The current password is incorrect.'],
+                ],
             ], 422);
         }
 
@@ -251,12 +253,12 @@ class ProfileController extends Controller
 
         \Log::info('Password changed successfully', [
             'user_id' => $user->id,
-            'email' => $user->email
+            'email' => $user->email,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Password updated successfully!'
+            'message' => 'Password updated successfully!',
         ]);
     }
 
@@ -287,12 +289,12 @@ class ProfileController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('tagline', 'like', "%{$search}%")
-                  ->orWhere('bio', 'like', "%{$search}%")
-                  ->orWhere('job_title', 'like', "%{$search}%")
-                  ->orWhere('company', 'like', "%{$search}%")
-                  ->orWhere('location_current', 'like', "%{$search}%")
-                  ->orWhere('location_next', 'like', "%{$search}%");
+                    ->orWhere('tagline', 'like', "%{$search}%")
+                    ->orWhere('bio', 'like', "%{$search}%")
+                    ->orWhere('job_title', 'like', "%{$search}%")
+                    ->orWhere('company', 'like', "%{$search}%")
+                    ->orWhere('location_current', 'like', "%{$search}%")
+                    ->orWhere('location_next', 'like', "%{$search}%");
             });
         }
 

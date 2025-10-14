@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use App\Services\MarkdownService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
-use App\Services\MarkdownService;
 
 class Article extends Model
 {
@@ -42,7 +42,7 @@ class Article extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($article) {
             if (empty($article->slug)) {
                 $article->slug = Str::slug($article->title);
@@ -91,6 +91,7 @@ class Article extends Model
     public function getParsedContentAttribute(): string
     {
         $markdownService = app(MarkdownService::class);
+
         return $markdownService->parse($this->content);
     }
 
@@ -102,8 +103,9 @@ class Article extends Model
         if (empty($this->excerpt)) {
             return '';
         }
-        
+
         $markdownService = app(MarkdownService::class);
+
         return $markdownService->parseInline($this->excerpt);
     }
 }

@@ -28,7 +28,7 @@ return new class extends Migration
             $table->date('last_updated')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
-            
+
             $table->index(['city_id', 'category', 'is_active']);
             $table->index(['category', 'price_range']);
         });

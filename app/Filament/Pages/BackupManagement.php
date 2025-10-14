@@ -2,22 +2,22 @@
 
 namespace App\Filament\Pages;
 
-use Filament\Pages\Page;
-use Filament\Actions\Action;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Artisan;
 use Carbon\Carbon;
+use Filament\Actions\Action;
+use Filament\Pages\Page;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Storage;
 
 class BackupManagement extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
-    
+
     protected static string $view = 'filament.pages.backup-management';
-    
+
     protected static ?string $navigationLabel = 'Backup Management';
-    
+
     protected static ?string $title = 'Backup Management';
-    
+
     protected static ?int $navigationSort = 10;
 
     protected function getHeaderActions(): array
@@ -32,7 +32,7 @@ class BackupManagement extends Page
                     $this->dispatch('backup-created');
                 })
                 ->successNotificationTitle('Backup created successfully!'),
-                
+
             Action::make('create_users_backup')
                 ->label('Backup Users Only')
                 ->icon('heroicon-o-users')
@@ -42,7 +42,7 @@ class BackupManagement extends Page
                     $this->dispatch('backup-created');
                 })
                 ->successNotificationTitle('Users backup created successfully!'),
-                
+
             Action::make('create_jobs_backup')
                 ->label('Backup Job Board')
                 ->icon('heroicon-o-briefcase')
@@ -54,7 +54,7 @@ class BackupManagement extends Page
                     $this->dispatch('backup-created');
                 })
                 ->successNotificationTitle('Job board backup created successfully!'),
-                
+
             Action::make('create_security_logs_backup')
                 ->label('Backup Security Logs')
                 ->icon('heroicon-o-shield-check')
@@ -64,7 +64,7 @@ class BackupManagement extends Page
                     $this->dispatch('backup-created');
                 })
                 ->successNotificationTitle('Security logs backup created successfully!'),
-                
+
             Action::make('restore_from_backup')
                 ->label('Restore from Backup')
                 ->icon('heroicon-o-arrow-uturn-left')
@@ -83,12 +83,12 @@ class BackupManagement extends Page
     {
         $backupDir = 'backups';
         $backups = Storage::disk('local')->directories($backupDir);
-        
+
         // Sort by name (timestamp) descending
-        usort($backups, function($a, $b) {
+        usort($backups, function ($a, $b) {
             return strcmp(basename($b), basename($a));
         });
-        
+
         $backupList = [];
         foreach ($backups as $backup) {
             $backupName = basename($backup);
@@ -97,7 +97,7 @@ class BackupManagement extends Page
             foreach ($files as $file) {
                 $size += Storage::disk('local')->size($file);
             }
-            
+
             $backupList[] = [
                 'name' => $backupName,
                 'date' => Carbon::createFromFormat('Y-m-d_H-i-s', $backupName)->format('M j, Y H:i'),
@@ -106,7 +106,7 @@ class BackupManagement extends Page
                 'path' => $backup,
             ];
         }
-        
+
         return $backupList;
     }
 
@@ -120,17 +120,17 @@ class BackupManagement extends Page
     {
         $backupPath = "backups/{$backupName}";
         $files = Storage::disk('local')->allFiles($backupPath);
-        
+
         return response()->streamDownload(function () use ($files) {
-            $zip = new \ZipArchive();
+            $zip = new \ZipArchive;
             $tempFile = tempnam(sys_get_temp_dir(), 'backup_');
             $zip->open($tempFile, \ZipArchive::CREATE);
-            
+
             foreach ($files as $file) {
                 $content = Storage::disk('local')->get($file);
                 $zip->addFromString(basename($file), $content);
             }
-            
+
             $zip->close();
             echo file_get_contents($tempFile);
             unlink($tempFile);
@@ -142,16 +142,16 @@ class BackupManagement extends Page
         $backupDir = 'backups';
         $backups = Storage::disk('local')->directories($backupDir);
         $cutoffDate = Carbon::now()->subDays(30);
-        
+
         foreach ($backups as $backup) {
             $backupName = basename($backup);
             $backupDate = Carbon::createFromFormat('Y-m-d_H-i-s', $backupName);
-            
+
             if ($backupDate->lt($cutoffDate)) {
                 Storage::disk('local')->deleteDirectory($backup);
             }
         }
-        
+
         $this->dispatch('backups-cleaned');
     }
 
@@ -159,40 +159,41 @@ class BackupManagement extends Page
     {
         try {
             // Log that the method was called
-            \Log::info('Restore method called with backup: ' . $backupName);
-            
+            \Log::info('Restore method called with backup: '.$backupName);
+
             $backupPath = "backups/{$backupName}";
-            
+
             // Check if backup exists in local storage
-            if (!Storage::disk('local')->exists($backupPath)) {
-                \Log::error('Backup not found: ' . $backupPath);
-                $this->dispatch('backup-restore-failed', 'Backup not found: ' . $backupPath);
+            if (! Storage::disk('local')->exists($backupPath)) {
+                \Log::error('Backup not found: '.$backupPath);
+                $this->dispatch('backup-restore-failed', 'Backup not found: '.$backupPath);
+
                 return;
             }
-            
+
             \Log::info('Backup found, starting restore process...');
-            
+
             // Run restore command
             $exitCode = Artisan::call('restore:data', [
                 'backup_path' => $backupPath,
-                '--confirm' => true
+                '--confirm' => true,
             ]);
-            
+
             // Get the command output
             $output = Artisan::output();
-            
-            \Log::info('Restore command completed with exit code: ' . $exitCode);
-            \Log::info('Restore output: ' . $output);
-            
+
+            \Log::info('Restore command completed with exit code: '.$exitCode);
+            \Log::info('Restore output: '.$output);
+
             if ($exitCode === 0) {
                 $this->dispatch('backup-restored');
             } else {
-                $this->dispatch('backup-restore-failed', 'Restore command failed with exit code: ' . $exitCode . '. Output: ' . $output);
+                $this->dispatch('backup-restore-failed', 'Restore command failed with exit code: '.$exitCode.'. Output: '.$output);
             }
-            
+
         } catch (\Exception $e) {
-            \Log::error('Restore exception: ' . $e->getMessage());
-            $this->dispatch('backup-restore-failed', 'Exception: ' . $e->getMessage());
+            \Log::error('Restore exception: '.$e->getMessage());
+            $this->dispatch('backup-restore-failed', 'Exception: '.$e->getMessage());
         }
     }
 
@@ -202,9 +203,9 @@ class BackupManagement extends Page
         $bytes = max($bytes, 0);
         $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
         $pow = min($pow, count($units) - 1);
-        
+
         $bytes /= pow(1024, $pow);
-        
-        return round($bytes, 2) . ' ' . $units[$pow];
+
+        return round($bytes, 2).' '.$units[$pow];
     }
 }

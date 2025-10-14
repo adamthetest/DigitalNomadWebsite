@@ -3,16 +3,13 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\DealResource\Pages;
-use App\Filament\Resources\DealResource\RelationManagers;
 use App\Models\Deal;
-use App\Models\AffiliateLink;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class DealResource extends Resource
 {
@@ -38,7 +35,7 @@ class DealResource extends Resource
                             ->required()
                             ->searchable()
                             ->preload(),
-                        
+
                         Forms\Components\TextInput::make('title')
                             ->required()
                             ->maxLength(255)
@@ -49,23 +46,23 @@ class DealResource extends Resource
                                 }
                                 $set('slug', \Illuminate\Support\Str::slug($state));
                             }),
-                        
+
                         Forms\Components\TextInput::make('slug')
                             ->required()
                             ->maxLength(255)
                             ->unique(Deal::class, 'slug', ignoreRecord: true),
-                        
+
                         Forms\Components\Textarea::make('description')
                             ->rows(3),
-                        
+
                         Forms\Components\TextInput::make('deal_url')
                             ->url()
                             ->label('Deal URL'),
-                        
+
                         Forms\Components\TextInput::make('provider')
                             ->maxLength(255)
                             ->placeholder('e.g., SafetyWing, Airbnb'),
-                        
+
                         Forms\Components\Select::make('category')
                             ->options([
                                 'insurance' => 'Insurance',
@@ -77,49 +74,49 @@ class DealResource extends Resource
                                 'shopping' => 'Shopping',
                                 'utilities' => 'Utilities',
                             ]),
-                        
+
                         Forms\Components\TextInput::make('original_price')
                             ->numeric()
                             ->step(0.01)
                             ->label('Original Price'),
-                        
+
                         Forms\Components\TextInput::make('discounted_price')
                             ->numeric()
                             ->step(0.01)
                             ->label('Discounted Price'),
-                        
+
                         Forms\Components\TextInput::make('discount_percentage')
                             ->numeric()
                             ->step(0.01)
                             ->label('Discount Percentage'),
-                        
+
                         Forms\Components\TextInput::make('currency')
                             ->maxLength(3)
                             ->default('USD'),
-                        
+
                         Forms\Components\TextInput::make('promo_code')
                             ->maxLength(255)
                             ->label('Promo Code'),
-                        
+
                         Forms\Components\DateTimePicker::make('valid_from')
                             ->label('Valid From')
                             ->default(now()),
-                        
+
                         Forms\Components\DateTimePicker::make('valid_until')
                             ->label('Valid Until')
                             ->default(now()->addMonths(3)),
-                        
+
                         Forms\Components\TagsInput::make('terms_conditions')
                             ->placeholder('Add terms and conditions...'),
-                        
+
                         Forms\Components\FileUpload::make('image')
                             ->image()
                             ->directory('deals')
                             ->visibility('public'),
-                        
+
                         Forms\Components\Toggle::make('is_featured')
                             ->label('Featured Deal'),
-                        
+
                         Forms\Components\Toggle::make('is_active')
                             ->label('Active')
                             ->default(true),
@@ -135,19 +132,19 @@ class DealResource extends Resource
                 Tables\Columns\ImageColumn::make('image')
                     ->circular()
                     ->size(40),
-                
+
                 Tables\Columns\TextColumn::make('title')
                     ->searchable()
                     ->sortable()
                     ->limit(50),
-                
+
                 Tables\Columns\TextColumn::make('affiliateLink.name')
                     ->label('Affiliate Link')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('provider')
                     ->sortable(),
-                
+
                 Tables\Columns\BadgeColumn::make('category')
                     ->colors([
                         'primary' => 'insurance',
@@ -156,53 +153,53 @@ class DealResource extends Resource
                         'info' => 'coworking',
                         'secondary' => 'food',
                     ]),
-                
+
                 Tables\Columns\TextColumn::make('original_price')
                     ->label('Original Price')
                     ->money('USD')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('discounted_price')
                     ->label('Discounted Price')
                     ->money('USD')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('discount_percentage')
                     ->label('Discount')
                     ->numeric()
                     ->sortable()
-                    ->formatStateUsing(fn ($state) => $state ? $state . '%' : '-'),
-                
+                    ->formatStateUsing(fn ($state) => $state ? $state.'%' : '-'),
+
                 Tables\Columns\TextColumn::make('promo_code')
                     ->label('Promo Code')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('valid_from')
                     ->date()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('valid_until')
                     ->date()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('click_count')
                     ->label('Clicks')
                     ->numeric()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('conversion_count')
                     ->label('Conversions')
                     ->numeric()
                     ->sortable(),
-                
+
                 Tables\Columns\IconColumn::make('is_featured')
                     ->boolean()
                     ->label('Featured'),
-                
+
                 Tables\Columns\IconColumn::make('is_active')
                     ->boolean()
                     ->label('Active'),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -213,7 +210,7 @@ class DealResource extends Resource
                     ->relationship('affiliateLink', 'name')
                     ->searchable()
                     ->preload(),
-                
+
                 Tables\Filters\SelectFilter::make('category')
                     ->options([
                         'insurance' => 'Insurance',
@@ -225,13 +222,13 @@ class DealResource extends Resource
                         'shopping' => 'Shopping',
                         'utilities' => 'Utilities',
                     ]),
-                
+
                 Tables\Filters\TernaryFilter::make('is_featured')
                     ->label('Featured Deals'),
-                
+
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label('Active Deals'),
-                
+
                 Tables\Filters\Filter::make('valid_now')
                     ->query(fn (Builder $query): Builder => $query->where('valid_from', '<=', now())->where('valid_until', '>=', now()))
                     ->label('Currently Valid'),

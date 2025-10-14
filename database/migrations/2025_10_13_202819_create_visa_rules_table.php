@@ -27,7 +27,7 @@ return new class extends Migration
             $table->date('last_updated')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
-            
+
             $table->index(['country_id', 'nationality', 'is_active']);
             $table->index(['visa_type', 'is_active']);
             $table->unique(['country_id', 'nationality']);

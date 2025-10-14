@@ -2,18 +2,17 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Models\City;
-use App\Models\Neighborhood;
-use App\Models\CoworkingSpace;
-use App\Models\CostItem;
-use App\Models\VisaRule;
-use App\Models\Article;
-use App\Models\User;
 use App\Models\AffiliateLink;
+use App\Models\Article;
+use App\Models\City;
+use App\Models\CostItem;
+use App\Models\CoworkingSpace;
 use App\Models\Deal;
+use App\Models\Neighborhood;
 use App\Models\NewsletterSubscriber;
+use App\Models\User;
+use App\Models\VisaRule;
+use Illuminate\Database\Seeder;
 
 class SampleDataSeeder extends Seeder
 {

@@ -4,10 +4,9 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -128,10 +127,10 @@ class User extends Authenticatable
     public function getProfileImageUrlAttribute(): string
     {
         if ($this->profile_image) {
-            return asset('storage/' . $this->profile_image);
+            return asset('storage/'.$this->profile_image);
         }
-        
-        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=7F9CF5&background=EBF4FF';
+
+        return 'https://ui-avatars.com/api/?name='.urlencode($this->name).'&color=7F9CF5&background=EBF4FF';
     }
 
     /**
@@ -147,10 +146,10 @@ class User extends Authenticatable
      */
     public function getSocialLinksAttribute(): array
     {
-        if (!$this->show_social_links) {
+        if (! $this->show_social_links) {
             return [];
         }
-        
+
         return array_filter([
             'website' => $this->website,
             'twitter' => $this->twitter,
@@ -166,7 +165,7 @@ class User extends Authenticatable
      */
     public function hasCompleteProfile(): bool
     {
-        return !empty($this->bio) && !empty($this->location_current) && !empty($this->profile_image) && !empty($this->tagline);
+        return ! empty($this->bio) && ! empty($this->location_current) && ! empty($this->profile_image) && ! empty($this->tagline);
     }
 
     /**
@@ -176,13 +175,13 @@ class User extends Authenticatable
     {
         $fields = ['bio', 'tagline', 'location_current', 'profile_image', 'job_title', 'skills', 'work_type'];
         $completed = 0;
-        
+
         foreach ($fields as $field) {
-            if (!empty($this->$field)) {
+            if (! empty($this->$field)) {
                 $completed++;
             }
         }
-        
+
         return round(($completed / count($fields)) * 100);
     }
 
@@ -191,12 +190,13 @@ class User extends Authenticatable
      */
     public function getCurrentLocationAttribute(): string
     {
-        if (!$this->location_precise && $this->location_current) {
+        if (! $this->location_precise && $this->location_current) {
             // Return only country if location_precise is false
             $parts = explode(',', $this->location_current);
+
             return trim(end($parts)) ?? $this->location_current;
         }
-        
+
         return $this->location_current ?? $this->location ?? 'Location not set';
     }
 
@@ -206,19 +206,19 @@ class User extends Authenticatable
     public function getVerificationBadgesAttribute(): array
     {
         $badges = [];
-        
+
         if ($this->email_verified_at) {
             $badges[] = 'email_verified';
         }
-        
+
         if ($this->id_verified) {
             $badges[] = 'id_verified';
         }
-        
+
         if ($this->premium_status) {
             $badges[] = 'premium';
         }
-        
+
         return $badges;
     }
 
@@ -244,14 +244,14 @@ class User extends Authenticatable
     public function addToTravelTimeline(string $city, string $country, ?string $arrivedAt = null, ?string $leftAt = null): void
     {
         $timeline = $this->travel_timeline ?? [];
-        
+
         $timeline[] = [
             'city' => $city,
             'country' => $country,
             'arrived_at' => $arrivedAt ?? now()->toDateString(),
             'left_at' => $leftAt,
         ];
-        
+
         $this->update(['travel_timeline' => $timeline]);
     }
 
@@ -293,7 +293,7 @@ class User extends Authenticatable
     public function scopeByLocation($query, string $location)
     {
         return $query->where('location_current', 'like', "%{$location}%")
-                    ->orWhere('location_next', 'like', "%{$location}%");
+            ->orWhere('location_next', 'like', "%{$location}%");
     }
 
     /**

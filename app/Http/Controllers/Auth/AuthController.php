@@ -34,7 +34,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
-            
+
             // Log successful login
             SecurityLog::logSuccessfulLogin(Auth::user(), $request->ip());
 

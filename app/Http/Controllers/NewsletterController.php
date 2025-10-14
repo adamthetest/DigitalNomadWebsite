@@ -4,9 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\NewsletterSubscriber;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 
 class NewsletterController extends Controller
 {
@@ -72,6 +71,7 @@ class NewsletterController extends Controller
 
             if ($subscriber) {
                 $subscriber->unsubscribe();
+
                 return view('newsletter.unsubscribed', compact('subscriber'));
             }
         }
@@ -101,6 +101,7 @@ class NewsletterController extends Controller
 
         if ($subscriber) {
             $subscriber->unsubscribe();
+
             return view('newsletter.unsubscribed', compact('subscriber'));
         }
 
@@ -137,7 +138,7 @@ class NewsletterController extends Controller
             });
         } catch (\Exception $e) {
             // Log error but don't fail the subscription
-            \Log::error('Failed to send welcome email: ' . $e->getMessage());
+            \Log::error('Failed to send welcome email: '.$e->getMessage());
         }
     }
 

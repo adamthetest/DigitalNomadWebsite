@@ -40,7 +40,7 @@ return new class extends Migration
             $table->string('location')->nullable(); // For hybrid/onsite jobs
             $table->json('experience_level')->nullable(); // e.g., ["entry", "mid", "senior"]
             $table->timestamps();
-            
+
             $table->index(['is_active', 'featured', 'published_at']);
             $table->index(['company_id', 'is_active']);
             $table->index(['type', 'remote_type']);

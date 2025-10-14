@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\City;
 use App\Models\Article;
+use App\Models\City;
 use App\Models\Deal;
-use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {

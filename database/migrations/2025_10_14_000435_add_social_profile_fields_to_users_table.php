@@ -19,20 +19,20 @@ return new class extends Migration
             $table->json('skills')->nullable()->after('company');
             $table->enum('work_type', ['freelancer', 'employee', 'entrepreneur'])->nullable()->after('skills');
             $table->string('availability')->nullable()->after('work_type');
-            
+
             // Nomad Lifestyle Info
             $table->string('location_current')->nullable()->after('location');
             $table->string('location_next')->nullable()->after('location_current');
             $table->json('travel_timeline')->nullable()->after('location_next');
-            
+
             // Additional Social Links
             $table->string('behance')->nullable()->after('github');
-            
+
             // Verification & Status
             $table->boolean('id_verified')->default(false)->after('is_public');
             $table->boolean('premium_status')->default(false)->after('id_verified');
             $table->timestamp('last_active')->nullable()->after('premium_status');
-            
+
             // Privacy Controls
             $table->enum('visibility', ['public', 'members', 'hidden'])->default('public')->after('premium_status');
             $table->boolean('location_precise')->default(true)->after('visibility');

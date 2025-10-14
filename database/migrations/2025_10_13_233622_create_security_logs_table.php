@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('url')->nullable();
             $table->string('method')->nullable();
             $table->timestamps();
-            
+
             $table->index(['ip_address', 'created_at']);
             $table->index(['event_type', 'created_at']);
             $table->index(['severity', 'created_at']);

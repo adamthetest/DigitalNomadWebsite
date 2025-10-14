@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\City;
-use App\Models\CoworkingSpace;
-use App\Models\CostItem;
-use App\Models\Deal;
 use App\Models\Article;
+use App\Models\City;
+use App\Models\CostItem;
+use App\Models\CoworkingSpace;
+use App\Models\Deal;
 use Illuminate\Http\Request;
 
 class CityController extends Controller
@@ -26,10 +26,10 @@ class CityController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhereHas('country', function ($countryQuery) use ($search) {
-                      $countryQuery->where('name', 'like', "%{$search}%");
-                  });
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('country', function ($countryQuery) use ($search) {
+                        $countryQuery->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -106,10 +106,10 @@ class CityController extends Controller
         }
 
         $cities = $query->paginate(12);
-        
+
         // Get countries for filter dropdown
         $countries = \App\Models\Country::orderBy('name')->get();
-        
+
         // Get continents for filter dropdown
         $continents = \App\Models\Country::distinct()
             ->pluck('continent')
@@ -126,22 +126,22 @@ class CityController extends Controller
     public function searchSuggestions(Request $request)
     {
         $query = $request->get('q', '');
-        
+
         if (strlen($query) < 2) {
             return response()->json([]);
         }
-        
+
         $cities = City::with('country')
             ->where('is_active', true)
             ->where(function ($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
-                  ->orWhereHas('country', function ($countryQuery) use ($query) {
-                      $countryQuery->where('name', 'like', "%{$query}%");
-                  });
+                    ->orWhereHas('country', function ($countryQuery) use ($query) {
+                        $countryQuery->where('name', 'like', "%{$query}%");
+                    });
             })
             ->limit(10)
             ->get();
-        
+
         $suggestions = $cities->map(function ($city) {
             return [
                 'id' => $city->id,
@@ -153,7 +153,7 @@ class CityController extends Controller
                 'safety' => $city->safety_score,
             ];
         });
-        
+
         return response()->json($suggestions);
     }
 
@@ -163,12 +163,12 @@ class CityController extends Controller
     public function show(City $city)
     {
         // Ensure city is active
-        if (!$city->is_active) {
+        if (! $city->is_active) {
             abort(404);
         }
 
         $city->load('country', 'neighborhoods');
-        
+
         // Get related data
         $coworkingSpaces = CoworkingSpace::where('city_id', $city->id)
             ->where('is_active', true)
@@ -201,20 +201,20 @@ class CityController extends Controller
             ->where('id', '!=', $city->id)
             ->where(function ($q) use ($city) {
                 $q->where('country_id', $city->country_id)
-                  ->orWhereBetween('cost_of_living_index', [
-                      $city->cost_of_living_index - 200,
-                      $city->cost_of_living_index + 200
-                  ]);
+                    ->orWhereBetween('cost_of_living_index', [
+                        $city->cost_of_living_index - 200,
+                        $city->cost_of_living_index + 200,
+                    ]);
             })
             ->limit(4)
             ->get();
 
         return view('cities.show', compact(
-            'city', 
-            'coworkingSpaces', 
-            'costItems', 
-            'deals', 
-            'articles', 
+            'city',
+            'coworkingSpaces',
+            'costItems',
+            'deals',
+            'articles',
             'similarCities'
         ));
     }

@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -11,7 +10,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class UserResource extends Resource
 {
@@ -179,7 +177,7 @@ class UserResource extends Resource
                             ->displayFormat('M j, Y g:i A')
                             ->disabled(),
                     ])->columns(2),
-                
+
                 Forms\Components\Section::make('Security')
                     ->schema([
                         Forms\Components\TextInput::make('password')
@@ -325,7 +323,7 @@ class UserResource extends Resource
                     ->label('Verify ID')
                     ->icon('heroicon-o-shield-check')
                     ->color('success')
-                    ->visible(fn (User $record): bool => !$record->id_verified)
+                    ->visible(fn (User $record): bool => ! $record->id_verified)
                     ->action(function (User $record) {
                         $record->update(['id_verified' => true]);
                     })
@@ -335,7 +333,7 @@ class UserResource extends Resource
                     ->icon(fn (User $record): string => $record->premium_status ? 'heroicon-o-star' : 'heroicon-o-star')
                     ->color(fn (User $record): string => $record->premium_status ? 'gray' : 'warning')
                     ->action(function (User $record) {
-                        $record->update(['premium_status' => !$record->premium_status]);
+                        $record->update(['premium_status' => ! $record->premium_status]);
                     })
                     ->requiresConfirmation(),
             ])

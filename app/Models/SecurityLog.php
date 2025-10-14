@@ -38,11 +38,11 @@ class SecurityLog extends Model
         string $eventType,
         string $message,
         string $severity = 'info',
-        string $ipAddress = null,
-        string $userAgent = null,
-        int $userId = null,
-        string $url = null,
-        string $method = null,
+        ?string $ipAddress = null,
+        ?string $userAgent = null,
+        ?int $userId = null,
+        ?string $url = null,
+        ?string $method = null,
         array $metadata = []
     ): self {
         return static::create([
@@ -61,7 +61,7 @@ class SecurityLog extends Model
     /**
      * Log a failed login attempt.
      */
-    public static function logFailedLogin(string $email, string $ipAddress = null): self
+    public static function logFailedLogin(string $email, ?string $ipAddress = null): self
     {
         return static::logEvent(
             'failed_login',
@@ -79,7 +79,7 @@ class SecurityLog extends Model
     /**
      * Log a successful login.
      */
-    public static function logSuccessfulLogin(User $user, string $ipAddress = null): self
+    public static function logSuccessfulLogin(User $user, ?string $ipAddress = null): self
     {
         return static::logEvent(
             'successful_login',
@@ -94,11 +94,11 @@ class SecurityLog extends Model
     /**
      * Log banned IP access attempt.
      */
-    public static function logBannedAccess(string $ipAddress = null): self
+    public static function logBannedAccess(?string $ipAddress = null): self
     {
         return static::logEvent(
             'banned_access',
-            "Access attempt from banned IP: " . ($ipAddress ?? request()->ip()),
+            'Access attempt from banned IP: '.($ipAddress ?? request()->ip()),
             'critical',
             $ipAddress
         );
@@ -107,7 +107,7 @@ class SecurityLog extends Model
     /**
      * Log admin access.
      */
-    public static function logAdminAccess(User $user, string $ipAddress = null): self
+    public static function logAdminAccess(User $user, ?string $ipAddress = null): self
     {
         return static::logEvent(
             'admin_access',

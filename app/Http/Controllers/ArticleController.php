@@ -22,8 +22,8 @@ class ArticleController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('excerpt', 'like', "%{$search}%")
-                  ->orWhere('content', 'like', "%{$search}%");
+                    ->orWhere('excerpt', 'like', "%{$search}%")
+                    ->orWhere('content', 'like', "%{$search}%");
             });
         }
 
@@ -38,10 +38,10 @@ class ArticleController extends Controller
         }
 
         $articles = $query->paginate(12);
-        
+
         // Get cities for filter dropdown
         $cities = City::where('is_active', true)->orderBy('name')->get();
-        
+
         // Get types
         $types = Article::where('status', 'published')
             ->distinct()
@@ -64,13 +64,13 @@ class ArticleController extends Controller
         }
 
         $article->load('city.country');
-        
+
         // Get related articles
         $relatedArticles = Article::where('status', 'published')
             ->where('id', '!=', $article->id)
             ->where(function ($q) use ($article) {
                 $q->where('city_id', $article->city_id)
-                  ->orWhere('type', $article->type);
+                    ->orWhere('type', $article->type);
             })
             ->orderBy('published_at', 'desc')
             ->limit(3)

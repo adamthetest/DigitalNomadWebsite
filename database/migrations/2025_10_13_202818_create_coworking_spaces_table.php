@@ -45,7 +45,7 @@ return new class extends Migration
             $table->boolean('is_verified')->default(false);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
-            
+
             $table->index(['city_id', 'type', 'is_active']);
             $table->index(['neighborhood_id', 'is_active']);
             $table->index(['wifi_speed_mbps', 'is_active']);

@@ -23,7 +23,7 @@ class CalculatorController extends Controller
 
         if ($request->filled('city_id')) {
             $selectedCity = City::find($request->city_id);
-            
+
             if ($selectedCity) {
                 $costItems = CostItem::where('city_id', $selectedCity->id)
                     ->orderBy('category')
@@ -32,7 +32,7 @@ class CalculatorController extends Controller
 
                 // Group by category
                 $costBreakdown = $costItems->groupBy('category');
-                
+
                 // Calculate total
                 $totalCost = $costItems->sum('price');
             }
@@ -49,25 +49,25 @@ class CalculatorController extends Controller
         $request->validate([
             'city_id' => 'required|exists:cities,id',
             'custom_costs' => 'array',
-            'custom_costs.*' => 'numeric|min:0'
+            'custom_costs.*' => 'numeric|min:0',
         ]);
 
         $city = City::find($request->city_id);
         $costItems = CostItem::where('city_id', $city->id)->get();
-        
+
         $costBreakdown = [];
         $totalCost = 0;
 
         foreach ($costItems as $item) {
             $customPrice = $request->input("custom_costs.{$item->id}", $item->price);
-            
+
             $costBreakdown[$item->category][] = [
                 'name' => $item->name,
                 'price' => $customPrice,
                 'original_price' => $item->price,
-                'is_custom' => $customPrice != $item->price
+                'is_custom' => $customPrice != $item->price,
             ];
-            
+
             $totalCost += $customPrice;
         }
 
@@ -81,7 +81,7 @@ class CalculatorController extends Controller
     {
         $request->validate([
             'cities' => 'required|array|min:2|max:4',
-            'cities.*' => 'exists:cities,id'
+            'cities.*' => 'exists:cities,id',
         ]);
 
         $cities = City::whereIn('id', $request->cities)->get();
@@ -90,11 +90,11 @@ class CalculatorController extends Controller
         foreach ($cities as $city) {
             $costItems = CostItem::where('city_id', $city->id)->get();
             $totalCost = $costItems->sum('price');
-            
+
             $comparison[] = [
                 'city' => $city,
                 'total_cost' => $totalCost,
-                'cost_items' => $costItems->groupBy('category')
+                'cost_items' => $costItems->groupBy('category'),
             ];
         }
 

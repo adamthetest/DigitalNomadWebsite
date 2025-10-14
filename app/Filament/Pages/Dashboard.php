@@ -2,11 +2,6 @@
 
 namespace App\Filament\Pages;
 
-use App\Models\User;
-use App\Models\City;
-use App\Models\Article;
-use App\Models\Deal;
-use App\Models\NewsletterSubscriber;
 use Filament\Pages\Dashboard as BaseDashboard;
 
 class Dashboard extends BaseDashboard
@@ -24,7 +19,7 @@ class Dashboard extends BaseDashboard
         ];
     }
 
-    public function getColumns(): int | string | array
+    public function getColumns(): int|string|array
     {
         return [
             'sm' => 1,

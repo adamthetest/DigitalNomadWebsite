@@ -3,16 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CostItemResource\Pages;
-use App\Filament\Resources\CostItemResource\RelationManagers;
 use App\Models\CostItem;
-use App\Models\City;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CostItemResource extends Resource
 {
@@ -38,45 +34,45 @@ class CostItemResource extends Resource
                             ->required()
                             ->searchable()
                             ->preload(),
-                        
+
                         Forms\Components\TextInput::make('category')
                             ->required()
                             ->maxLength(255)
                             ->placeholder('e.g., accommodation, food, transport'),
-                        
+
                         Forms\Components\TextInput::make('name')
                             ->required()
                             ->maxLength(255)
                             ->placeholder('e.g., 1-bedroom apartment, Street food meal'),
-                        
+
                         Forms\Components\Textarea::make('description')
                             ->rows(3)
                             ->placeholder('Brief description of the cost item'),
-                        
+
                         Forms\Components\TextInput::make('price_min')
                             ->numeric()
                             ->step(0.01)
                             ->label('Minimum Price'),
-                        
+
                         Forms\Components\TextInput::make('price_max')
                             ->numeric()
                             ->step(0.01)
                             ->label('Maximum Price'),
-                        
+
                         Forms\Components\TextInput::make('price_average')
                             ->numeric()
                             ->step(0.01)
                             ->label('Average Price'),
-                        
+
                         Forms\Components\TextInput::make('currency')
                             ->maxLength(3)
                             ->default('USD')
                             ->placeholder('USD, EUR, THB, etc.'),
-                        
+
                         Forms\Components\TextInput::make('unit')
                             ->maxLength(255)
                             ->placeholder('per month, per meal, per night, etc.'),
-                        
+
                         Forms\Components\Select::make('price_range')
                             ->options([
                                 'budget' => 'Budget',
@@ -84,18 +80,18 @@ class CostItemResource extends Resource
                                 'luxury' => 'Luxury',
                             ])
                             ->placeholder('Select price range'),
-                        
+
                         Forms\Components\TagsInput::make('details')
                             ->placeholder('Add pricing details...'),
-                        
+
                         Forms\Components\Textarea::make('notes')
                             ->rows(3)
                             ->placeholder('Additional notes about pricing'),
-                        
+
                         Forms\Components\DatePicker::make('last_updated')
                             ->label('Last Updated')
                             ->default(now()),
-                        
+
                         Forms\Components\Toggle::make('is_active')
                             ->label('Active')
                             ->default(true),
@@ -112,11 +108,11 @@ class CostItemResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->limit(50),
-                
+
                 Tables\Columns\TextColumn::make('city.name')
                     ->label('City')
                     ->sortable(),
-                
+
                 Tables\Columns\BadgeColumn::make('category')
                     ->colors([
                         'primary' => 'accommodation',
@@ -125,43 +121,43 @@ class CostItemResource extends Resource
                         'info' => 'entertainment',
                         'secondary' => 'coworking',
                     ]),
-                
+
                 Tables\Columns\TextColumn::make('price_average')
                     ->label('Average Price')
                     ->money('USD')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('price_min')
                     ->label('Min Price')
                     ->money('USD')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('price_max')
                     ->label('Max Price')
                     ->money('USD')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('currency')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('unit')
                     ->sortable(),
-                
+
                 Tables\Columns\BadgeColumn::make('price_range')
                     ->colors([
                         'success' => 'budget',
                         'warning' => 'mid_range',
                         'danger' => 'luxury',
                     ]),
-                
+
                 Tables\Columns\TextColumn::make('last_updated')
                     ->date()
                     ->sortable(),
-                
+
                 Tables\Columns\IconColumn::make('is_active')
                     ->boolean()
                     ->label('Active'),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -172,7 +168,7 @@ class CostItemResource extends Resource
                     ->relationship('city', 'name')
                     ->searchable()
                     ->preload(),
-                
+
                 Tables\Filters\SelectFilter::make('category')
                     ->options([
                         'accommodation' => 'Accommodation',
@@ -183,14 +179,14 @@ class CostItemResource extends Resource
                         'utilities' => 'Utilities',
                         'shopping' => 'Shopping',
                     ]),
-                
+
                 Tables\Filters\SelectFilter::make('price_range')
                     ->options([
                         'budget' => 'Budget',
                         'mid_range' => 'Mid Range',
                         'luxury' => 'Luxury',
                     ]),
-                
+
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label('Active Items'),
             ])

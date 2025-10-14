@@ -25,7 +25,7 @@ return new class extends Migration
             $table->timestamp('subscribed_at');
             $table->timestamp('unsubscribed_at')->nullable();
             $table->timestamps();
-            
+
             $table->index(['status', 'subscribed_at']);
             $table->index(['country_code', 'status']);
         });

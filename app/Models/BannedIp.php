@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Carbon\Carbon;
 
 class BannedIp extends Model
 {
@@ -36,7 +36,7 @@ class BannedIp extends Model
      */
     public function isActive(): bool
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return false;
         }
 
@@ -56,7 +56,7 @@ class BannedIp extends Model
             ->where('is_active', true)
             ->where(function ($query) {
                 $query->whereNull('expires_at')
-                      ->orWhere('expires_at', '>', now());
+                    ->orWhere('expires_at', '>', now());
             })
             ->exists();
     }
@@ -64,7 +64,7 @@ class BannedIp extends Model
     /**
      * Ban an IP address.
      */
-    public static function banIp(string $ipAddress, string $reason = null, int $bannedBy = null, Carbon $expiresAt = null): self
+    public static function banIp(string $ipAddress, ?string $reason = null, ?int $bannedBy = null, ?Carbon $expiresAt = null): self
     {
         return static::create([
             'ip_address' => $ipAddress,
@@ -93,7 +93,7 @@ class BannedIp extends Model
         return $query->where('is_active', true)
             ->where(function ($q) {
                 $q->whereNull('expires_at')
-                  ->orWhere('expires_at', '>', now());
+                    ->orWhere('expires_at', '>', now());
             });
     }
 

@@ -42,7 +42,7 @@ class City extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($city) {
             if (empty($city->slug)) {
                 $city->slug = Str::slug($city->name);

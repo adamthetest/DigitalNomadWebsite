@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Job;
 use App\Models\Company;
+use App\Models\Job;
 use App\Models\JobUserInteraction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,10 +25,10 @@ class JobController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhereHas('company', function ($companyQuery) use ($search) {
-                      $companyQuery->where('name', 'like', "%{$search}%");
-                  });
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhereHas('company', function ($companyQuery) use ($search) {
+                        $companyQuery->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -44,8 +44,8 @@ class JobController extends Controller
 
         // Filter by salary range
         if ($request->filled('salary_min') || $request->filled('salary_max')) {
-            $min = $request->filled('salary_min') ? (int)$request->salary_min : 0;
-            $max = $request->filled('salary_max') ? (int)$request->salary_max : null;
+            $min = $request->filled('salary_min') ? (int) $request->salary_min : 0;
+            $max = $request->filled('salary_max') ? (int) $request->salary_max : null;
             $query->bySalaryRange($min, $max);
         }
 
@@ -127,7 +127,7 @@ class JobController extends Controller
     public function show(Job $job)
     {
         // Check if job is active and published
-        if (!$job->is_active || !$job->isPublished()) {
+        if (! $job->is_active || ! $job->isPublished()) {
             abort(404);
         }
 
@@ -160,7 +160,7 @@ class JobController extends Controller
      */
     public function toggleSave(Request $request, Job $job)
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return response()->json(['error' => 'Authentication required'], 401);
         }
 
@@ -194,12 +194,12 @@ class JobController extends Controller
      */
     public function apply(Request $request, Job $job)
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login')->with('error', 'Please login to apply for jobs.');
         }
 
         $user = Auth::user();
-        
+
         // Check if user already applied
         $existingInteraction = JobUserInteraction::where('user_id', $user->id)
             ->where('job_id', $job->id)
@@ -236,7 +236,7 @@ class JobController extends Controller
     public function company(Company $company)
     {
         $company->load('activeJobs');
-        
+
         $jobs = $company->activeJobs()
             ->published()
             ->notExpired()

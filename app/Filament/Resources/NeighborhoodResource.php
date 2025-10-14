@@ -3,16 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\NeighborhoodResource\Pages;
-use App\Filament\Resources\NeighborhoodResource\RelationManagers;
 use App\Models\Neighborhood;
-use App\Models\City;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class NeighborhoodResource extends Resource
 {
@@ -38,7 +34,7 @@ class NeighborhoodResource extends Resource
                             ->required()
                             ->searchable()
                             ->preload(),
-                        
+
                         Forms\Components\TextInput::make('name')
                             ->required()
                             ->maxLength(255)
@@ -49,23 +45,23 @@ class NeighborhoodResource extends Resource
                                 }
                                 $set('slug', \Illuminate\Support\Str::slug($state));
                             }),
-                        
+
                         Forms\Components\TextInput::make('slug')
                             ->required()
                             ->maxLength(255)
                             ->unique(Neighborhood::class, 'slug', ignoreRecord: true),
-                        
+
                         Forms\Components\Textarea::make('description')
                             ->rows(3),
-                        
+
                         Forms\Components\TextInput::make('latitude')
                             ->numeric()
                             ->step(0.00000001),
-                        
+
                         Forms\Components\TextInput::make('longitude')
                             ->numeric()
                             ->step(0.00000001),
-                        
+
                         Forms\Components\Select::make('type')
                             ->options([
                                 'business' => 'Business',
@@ -74,30 +70,30 @@ class NeighborhoodResource extends Resource
                                 'tourist' => 'Tourist',
                                 'mixed' => 'Mixed',
                             ]),
-                        
+
                         Forms\Components\Select::make('cost_level')
                             ->options([
                                 'low' => 'Low',
                                 'medium' => 'Medium',
                                 'high' => 'High',
                             ]),
-                        
+
                         Forms\Components\TextInput::make('safety_score')
                             ->numeric()
                             ->label('Safety Score (1-10)')
                             ->minValue(1)
                             ->maxValue(10),
-                        
+
                         Forms\Components\TextInput::make('internet_speed_mbps')
                             ->numeric()
                             ->label('Internet Speed (Mbps)'),
-                        
+
                         Forms\Components\TagsInput::make('amenities')
                             ->placeholder('Add amenities...'),
-                        
+
                         Forms\Components\TagsInput::make('transportation')
                             ->placeholder('Add transportation options...'),
-                        
+
                         Forms\Components\Toggle::make('is_active')
                             ->label('Active')
                             ->default(true),
@@ -113,11 +109,11 @@ class NeighborhoodResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('city.name')
                     ->label('City')
                     ->sortable(),
-                
+
                 Tables\Columns\BadgeColumn::make('type')
                     ->colors([
                         'primary' => 'business',
@@ -126,30 +122,30 @@ class NeighborhoodResource extends Resource
                         'info' => 'tourist',
                         'secondary' => 'mixed',
                     ]),
-                
+
                 Tables\Columns\BadgeColumn::make('cost_level')
                     ->colors([
                         'success' => 'low',
                         'warning' => 'medium',
                         'danger' => 'high',
                     ]),
-                
+
                 Tables\Columns\TextColumn::make('safety_score')
                     ->label('Safety Score')
                     ->numeric()
                     ->sortable()
-                    ->formatStateUsing(fn ($state) => $state ? $state . '/10' : '-'),
-                
+                    ->formatStateUsing(fn ($state) => $state ? $state.'/10' : '-'),
+
                 Tables\Columns\TextColumn::make('internet_speed_mbps')
                     ->label('Internet Speed')
                     ->numeric()
                     ->sortable()
-                    ->formatStateUsing(fn ($state) => $state ? $state . ' Mbps' : '-'),
-                
+                    ->formatStateUsing(fn ($state) => $state ? $state.' Mbps' : '-'),
+
                 Tables\Columns\IconColumn::make('is_active')
                     ->boolean()
                     ->label('Active'),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -160,7 +156,7 @@ class NeighborhoodResource extends Resource
                     ->relationship('city', 'name')
                     ->searchable()
                     ->preload(),
-                
+
                 Tables\Filters\SelectFilter::make('type')
                     ->options([
                         'business' => 'Business',
@@ -169,14 +165,14 @@ class NeighborhoodResource extends Resource
                         'tourist' => 'Tourist',
                         'mixed' => 'Mixed',
                     ]),
-                
+
                 Tables\Filters\SelectFilter::make('cost_level')
                     ->options([
                         'low' => 'Low',
                         'medium' => 'Medium',
                         'high' => 'High',
                     ]),
-                
+
                 Tables\Filters\TernaryFilter::make('is_active')
                     ->label('Active Neighborhoods'),
             ])

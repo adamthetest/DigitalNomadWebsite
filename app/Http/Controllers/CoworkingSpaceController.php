@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CoworkingSpace;
 use App\Models\City;
+use App\Models\CoworkingSpace;
 use Illuminate\Http\Request;
 
 class CoworkingSpaceController extends Controller
@@ -27,7 +27,7 @@ class CoworkingSpaceController extends Controller
     public function show(CoworkingSpace $coworkingSpace)
     {
         // Ensure coworking space is active
-        if (!$coworkingSpace->is_active) {
+        if (! $coworkingSpace->is_active) {
             abort(404);
         }
 

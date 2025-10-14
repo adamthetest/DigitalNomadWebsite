@@ -48,13 +48,14 @@ class ScrapeJobs extends Command
      */
     private function scrapeRemoteOK(int $limit): int
     {
-        $this->info("Scraping from RemoteOK...");
-        
+        $this->info('Scraping from RemoteOK...');
+
         try {
             $response = Http::timeout(30)->get('https://remoteok.io/api');
-            
-            if (!$response->successful()) {
+
+            if (! $response->successful()) {
                 $this->error("Failed to fetch from RemoteOK: HTTP {$response->status()}");
+
                 return 0;
             }
 
@@ -68,11 +69,13 @@ class ScrapeJobs extends Command
             }
 
             $this->info("RemoteOK: {$scraped} jobs processed");
+
             return $scraped;
 
         } catch (\Exception $e) {
-            $this->error("Error scraping RemoteOK: " . $e->getMessage());
-            Log::error("RemoteOK scraping error: " . $e->getMessage());
+            $this->error('Error scraping RemoteOK: '.$e->getMessage());
+            Log::error('RemoteOK scraping error: '.$e->getMessage());
+
             return 0;
         }
     }
@@ -121,7 +124,8 @@ class ScrapeJobs extends Command
             return true;
 
         } catch (\Exception $e) {
-            Log::error("Error processing RemoteOK job: " . $e->getMessage());
+            Log::error('Error processing RemoteOK job: '.$e->getMessage());
+
             return false;
         }
     }
@@ -131,13 +135,14 @@ class ScrapeJobs extends Command
      */
     private function scrapeWeWorkRemotely(int $limit): int
     {
-        $this->info("Scraping from WeWorkRemotely...");
-        
+        $this->info('Scraping from WeWorkRemotely...');
+
         try {
             $response = Http::timeout(30)->get('https://weworkremotely.com/categories/remote-programming-jobs.rss');
-            
-            if (!$response->successful()) {
+
+            if (! $response->successful()) {
                 $this->error("Failed to fetch from WeWorkRemotely: HTTP {$response->status()}");
+
                 return 0;
             }
 
@@ -157,11 +162,13 @@ class ScrapeJobs extends Command
             }
 
             $this->info("WeWorkRemotely: {$scraped} jobs processed");
+
             return $scraped;
 
         } catch (\Exception $e) {
-            $this->error("Error scraping WeWorkRemotely: " . $e->getMessage());
-            Log::error("WeWorkRemotely scraping error: " . $e->getMessage());
+            $this->error('Error scraping WeWorkRemotely: '.$e->getMessage());
+            Log::error('WeWorkRemotely scraping error: '.$e->getMessage());
+
             return 0;
         }
     }
@@ -217,7 +224,8 @@ class ScrapeJobs extends Command
             return true;
 
         } catch (\Exception $e) {
-            Log::error("Error processing WeWorkRemotely job: " . $e->getMessage());
+            Log::error('Error processing WeWorkRemotely job: '.$e->getMessage());
+
             return false;
         }
     }
@@ -228,8 +236,8 @@ class ScrapeJobs extends Command
     private function findOrCreateCompany(string $name): Company
     {
         $company = Company::where('name', $name)->first();
-        
-        if (!$company) {
+
+        if (! $company) {
             $company = Company::create([
                 'name' => $name,
                 'slug' => \Str::slug($name),
@@ -251,7 +259,7 @@ class ScrapeJobs extends Command
         $description = strip_tags($description);
         $description = html_entity_decode($description);
         $description = preg_replace('/\s+/', ' ', $description);
-        
+
         return trim($description);
     }
 
@@ -261,19 +269,19 @@ class ScrapeJobs extends Command
     private function mapJobType(array $tags): string
     {
         $tagString = strtolower(implode(' ', $tags));
-        
+
         if (str_contains($tagString, 'part-time') || str_contains($tagString, 'part time')) {
             return 'part-time';
         }
-        
+
         if (str_contains($tagString, 'contract')) {
             return 'contract';
         }
-        
+
         if (str_contains($tagString, 'freelance')) {
             return 'freelance';
         }
-        
+
         return 'full-time';
     }
 
@@ -282,14 +290,14 @@ class ScrapeJobs extends Command
      */
     private function extractSalary(?string $salary): ?int
     {
-        if (!$salary) {
+        if (! $salary) {
             return null;
         }
 
         // Extract numbers from salary string
         preg_match('/[\d,]+/', $salary, $matches);
-        
-        if (!empty($matches)) {
+
+        if (! empty($matches)) {
             return (int) str_replace(',', '', $matches[0]);
         }
 
@@ -317,7 +325,7 @@ class ScrapeJobs extends Command
         $commonTags = [
             'JavaScript', 'Python', 'React', 'Node.js', 'PHP', 'Java', 'Ruby',
             'AWS', 'Docker', 'Kubernetes', 'PostgreSQL', 'MySQL', 'MongoDB',
-            'Frontend', 'Backend', 'Full Stack', 'DevOps', 'UI/UX', 'Design'
+            'Frontend', 'Backend', 'Full Stack', 'DevOps', 'UI/UX', 'Design',
         ];
 
         $foundTags = [];

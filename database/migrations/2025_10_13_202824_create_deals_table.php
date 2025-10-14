@@ -34,7 +34,7 @@ return new class extends Migration
             $table->integer('click_count')->default(0);
             $table->integer('conversion_count')->default(0);
             $table->timestamps();
-            
+
             $table->index(['category', 'is_active']);
             $table->index(['valid_from', 'valid_until', 'is_active']);
             $table->index(['is_featured', 'is_active']);

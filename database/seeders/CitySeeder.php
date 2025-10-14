@@ -2,10 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\City;
-use App\Models\Country;
+use Illuminate\Database\Seeder;
 
 class CitySeeder extends Seeder
 {
@@ -36,12 +34,12 @@ class CitySeeder extends Seeder
                     'Great street food scene',
                     'Modern public transport',
                     'Vibrant nightlife',
-                    'Rich cultural heritage'
+                    'Rich cultural heritage',
                 ]),
                 'images' => json_encode([
                     'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800',
                     'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800',
-                    'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800'
+                    'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
                 ]),
                 'is_featured' => true,
                 'is_active' => true,
@@ -66,16 +64,16 @@ class CitySeeder extends Seeder
                     'Mountain scenery',
                     'Temple culture',
                     'Night markets',
-                    'Coworking community'
+                    'Coworking community',
                 ]),
                 'images' => json_encode([
                     'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800',
-                    'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800'
+                    'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800',
                 ]),
                 'is_featured' => true,
                 'is_active' => true,
             ],
-            
+
             // Portugal
             [
                 'country_id' => 2, // Portugal
@@ -97,11 +95,11 @@ class CitySeeder extends Seeder
                     'Growing tech scene',
                     'Great weather',
                     'Coastal location',
-                    'Rich culture'
+                    'Rich culture',
                 ]),
                 'images' => json_encode([
                     'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800',
-                    'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800'
+                    'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800',
                 ]),
                 'is_featured' => true,
                 'is_active' => true,
@@ -126,16 +124,16 @@ class CitySeeder extends Seeder
                     'Port wine culture',
                     'Creative community',
                     'River views',
-                    'Authentic Portuguese experience'
+                    'Authentic Portuguese experience',
                 ]),
                 'images' => json_encode([
                     'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800',
-                    'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800'
+                    'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800',
                 ]),
                 'is_featured' => false,
                 'is_active' => true,
             ],
-            
+
             // Spain
             [
                 'country_id' => 3, // Spain
@@ -157,16 +155,16 @@ class CitySeeder extends Seeder
                     'Beach access',
                     'International community',
                     'Great food scene',
-                    'Cultural attractions'
+                    'Cultural attractions',
                 ]),
                 'images' => json_encode([
                     'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800',
-                    'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800'
+                    'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800',
                 ]),
                 'is_featured' => true,
                 'is_active' => true,
             ],
-            
+
             // Mexico
             [
                 'country_id' => 4, // Mexico
@@ -188,11 +186,11 @@ class CitySeeder extends Seeder
                     'Affordable living',
                     'Historic center',
                     'Art scene',
-                    'Growing nomad community'
+                    'Growing nomad community',
                 ]),
                 'images' => json_encode([
                     'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800',
-                    'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800'
+                    'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800',
                 ]),
                 'is_featured' => true,
                 'is_active' => true,
@@ -217,16 +215,16 @@ class CitySeeder extends Seeder
                     'Nomad community',
                     'Water activities',
                     'International restaurants',
-                    'Relaxed atmosphere'
+                    'Relaxed atmosphere',
                 ]),
                 'images' => json_encode([
                     'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800',
-                    'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800'
+                    'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800',
                 ]),
                 'is_featured' => true,
                 'is_active' => true,
             ],
-            
+
             // Colombia
             [
                 'country_id' => 5, // Colombia
@@ -248,11 +246,11 @@ class CitySeeder extends Seeder
                     'Innovation hub',
                     'Friendly locals',
                     'Modern infrastructure',
-                    'Growing tech scene'
+                    'Growing tech scene',
                 ]),
                 'images' => json_encode([
                     'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800',
-                    'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800'
+                    'https://images.unsplash.com/photo-1528181304800-259b08848526?w=800',
                 ]),
                 'is_featured' => true,
                 'is_active' => true,

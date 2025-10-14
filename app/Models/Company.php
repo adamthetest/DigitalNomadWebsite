@@ -58,10 +58,10 @@ class Company extends Model
     public function getLogoUrlAttribute(): string
     {
         if ($this->logo) {
-            return asset('storage/' . $this->logo);
+            return asset('storage/'.$this->logo);
         }
-        
-        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=7F9CF5&background=EBF4FF';
+
+        return 'https://ui-avatars.com/api/?name='.urlencode($this->name).'&color=7F9CF5&background=EBF4FF';
     }
 
     /**

@@ -22,7 +22,7 @@ class MarkdownService
         if ($this->isHtml($content)) {
             return $content;
         }
-        
+
         // Otherwise, parse as Markdown
         return $this->converter->convert($content)->getContent();
     }
@@ -33,9 +33,10 @@ class MarkdownService
         if ($this->isHtml($content)) {
             return $content;
         }
-        
+
         // Otherwise, parse as Markdown and strip paragraph tags for inline use
         $html = $this->converter->convert($content)->getContent();
+
         return trim(strip_tags($html, '<strong><em><code><a>'));
     }
 

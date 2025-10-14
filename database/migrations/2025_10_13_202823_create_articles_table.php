@@ -31,7 +31,7 @@ return new class extends Migration
             $table->boolean('is_pinned')->default(false);
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
-            
+
             $table->index(['status', 'published_at']);
             $table->index(['city_id', 'status']);
             $table->index(['type', 'status']);

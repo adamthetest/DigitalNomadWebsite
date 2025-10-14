@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SecurityLogResource\Pages;
-use App\Filament\Resources\SecurityLogResource\RelationManagers;
 use App\Models\SecurityLog;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -11,7 +10,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class SecurityLogResource extends Resource
 {
@@ -123,6 +121,7 @@ class SecurityLogResource extends Resource
                     ->limit(60)
                     ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
                         $state = $column->getState();
+
                         return strlen($state) > 60 ? $state : null;
                     }),
                 Tables\Columns\TextColumn::make('user.name')
@@ -135,6 +134,7 @@ class SecurityLogResource extends Resource
                     ->limit(30)
                     ->tooltip(function (Tables\Columns\TextColumn $column): ?string {
                         $state = $column->getState();
+
                         return strlen($state) > 30 ? $state : null;
                     }),
                 Tables\Columns\TextColumn::make('method')

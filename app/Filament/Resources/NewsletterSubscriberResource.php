@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\NewsletterSubscriberResource\Pages;
-use App\Filament\Resources\NewsletterSubscriberResource\RelationManagers;
 use App\Models\NewsletterSubscriber;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -11,7 +10,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class NewsletterSubscriberResource extends Resource
 {
@@ -36,21 +34,21 @@ class NewsletterSubscriberResource extends Resource
                             ->email()
                             ->maxLength(255)
                             ->unique(NewsletterSubscriber::class, 'email', ignoreRecord: true),
-                        
+
                         Forms\Components\TextInput::make('first_name')
                             ->maxLength(255),
-                        
+
                         Forms\Components\TextInput::make('last_name')
                             ->maxLength(255),
-                        
+
                         Forms\Components\TextInput::make('country_code')
                             ->maxLength(2)
                             ->label('Country Code')
                             ->placeholder('e.g., US, UK, CA'),
-                        
+
                         Forms\Components\TagsInput::make('interests')
                             ->placeholder('Add interests...'),
-                        
+
                         Forms\Components\Select::make('status')
                             ->options([
                                 'subscribed' => 'Subscribed',
@@ -60,21 +58,21 @@ class NewsletterSubscriberResource extends Resource
                             ])
                             ->required()
                             ->default('subscribed'),
-                        
+
                         Forms\Components\TextInput::make('source')
                             ->maxLength(255)
                             ->placeholder('e.g., homepage, blog, social'),
-                        
+
                         Forms\Components\TagsInput::make('utm_data')
                             ->placeholder('Add UTM data...'),
-                        
+
                         Forms\Components\DateTimePicker::make('last_email_sent')
                             ->label('Last Email Sent'),
-                        
+
                         Forms\Components\DateTimePicker::make('subscribed_at')
                             ->label('Subscribed At')
                             ->default(now()),
-                        
+
                         Forms\Components\DateTimePicker::make('unsubscribed_at')
                             ->label('Unsubscribed At'),
                     ])
@@ -89,19 +87,19 @@ class NewsletterSubscriberResource extends Resource
                 Tables\Columns\TextColumn::make('email')
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('first_name')
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('last_name')
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('country_code')
                     ->label('Country')
                     ->sortable(),
-                
+
                 Tables\Columns\BadgeColumn::make('status')
                     ->colors([
                         'success' => 'subscribed',
@@ -109,25 +107,25 @@ class NewsletterSubscriberResource extends Resource
                         'warning' => 'bounced',
                         'secondary' => 'complained',
                     ]),
-                
+
                 Tables\Columns\TextColumn::make('source')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('last_email_sent')
                     ->label('Last Email')
                     ->dateTime()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('subscribed_at')
                     ->label('Subscribed')
                     ->dateTime()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('unsubscribed_at')
                     ->label('Unsubscribed')
                     ->dateTime()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -141,7 +139,7 @@ class NewsletterSubscriberResource extends Resource
                         'bounced' => 'Bounced',
                         'complained' => 'Complained',
                     ]),
-                
+
                 Tables\Filters\SelectFilter::make('source')
                     ->options([
                         'homepage' => 'Homepage',
@@ -150,11 +148,11 @@ class NewsletterSubscriberResource extends Resource
                         'referral' => 'Referral',
                         'other' => 'Other',
                     ]),
-                
+
                 Tables\Filters\Filter::make('subscribed_recently')
                     ->query(fn (Builder $query): Builder => $query->where('subscribed_at', '>=', now()->subDays(30)))
                     ->label('Subscribed in Last 30 Days'),
-                
+
                 Tables\Filters\Filter::make('never_emailed')
                     ->query(fn (Builder $query): Builder => $query->whereNull('last_email_sent'))
                     ->label('Never Emailed'),

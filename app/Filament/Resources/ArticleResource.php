@@ -3,17 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ArticleResource\Pages;
-use App\Filament\Resources\ArticleResource\RelationManagers;
 use App\Models\Article;
-use App\Models\City;
-use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ArticleResource extends Resource
 {
@@ -43,20 +38,20 @@ class ArticleResource extends Resource
                                 }
                                 $set('slug', \Illuminate\Support\Str::slug($state));
                             }),
-                        
+
                         Forms\Components\TextInput::make('slug')
                             ->required()
                             ->maxLength(255)
                             ->unique(Article::class, 'slug', ignoreRecord: true),
-                        
+
                         Forms\Components\Textarea::make('excerpt')
                             ->maxLength(500)
                             ->rows(3),
-                        
+
                         Forms\Components\RichEditor::make('content')
                             ->required()
                             ->columnSpanFull(),
-                        
+
                         Forms\Components\Select::make('user_id')
                             ->label('Author')
                             ->relationship('user', 'name')
@@ -64,13 +59,13 @@ class ArticleResource extends Resource
                             ->required()
                             ->searchable()
                             ->preload(),
-                        
+
                         Forms\Components\Select::make('city_id')
                             ->label('Related City')
                             ->relationship('city', 'name')
                             ->searchable()
                             ->preload(),
-                        
+
                         Forms\Components\Select::make('type')
                             ->options([
                                 'guide' => 'Guide',
@@ -81,7 +76,7 @@ class ArticleResource extends Resource
                             ])
                             ->required()
                             ->default('guide'),
-                        
+
                         Forms\Components\Select::make('status')
                             ->options([
                                 'draft' => 'Draft',
@@ -90,21 +85,21 @@ class ArticleResource extends Resource
                             ])
                             ->required()
                             ->default('draft'),
-                        
+
                         Forms\Components\TagsInput::make('tags')
                             ->placeholder('Add tags...'),
-                        
+
                         Forms\Components\FileUpload::make('featured_image')
                             ->image()
                             ->directory('articles')
                             ->visibility('public'),
-                        
+
                         Forms\Components\Toggle::make('is_featured')
                             ->label('Featured Article'),
-                        
+
                         Forms\Components\Toggle::make('is_pinned')
                             ->label('Pinned Article'),
-                        
+
                         Forms\Components\DateTimePicker::make('published_at')
                             ->label('Publish Date')
                             ->default(now()),
@@ -120,20 +115,20 @@ class ArticleResource extends Resource
                 Tables\Columns\ImageColumn::make('featured_image')
                     ->circular()
                     ->size(40),
-                
+
                 Tables\Columns\TextColumn::make('title')
                     ->searchable()
                     ->sortable()
                     ->limit(50),
-                
+
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Author')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('city.name')
                     ->label('City')
                     ->sortable(),
-                
+
                 Tables\Columns\BadgeColumn::make('type')
                     ->colors([
                         'primary' => 'guide',
@@ -142,26 +137,26 @@ class ArticleResource extends Resource
                         'info' => 'comparison',
                         'secondary' => 'tips',
                     ]),
-                
+
                 Tables\Columns\BadgeColumn::make('status')
                     ->colors([
                         'warning' => 'draft',
                         'success' => 'published',
                         'danger' => 'archived',
                     ]),
-                
+
                 Tables\Columns\IconColumn::make('is_featured')
                     ->boolean()
                     ->label('Featured'),
-                
+
                 Tables\Columns\TextColumn::make('view_count')
                     ->label('Views')
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('published_at')
                     ->dateTime()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -174,7 +169,7 @@ class ArticleResource extends Resource
                         'published' => 'Published',
                         'archived' => 'Archived',
                     ]),
-                
+
                 Tables\Filters\SelectFilter::make('type')
                     ->options([
                         'guide' => 'Guide',
@@ -183,7 +178,7 @@ class ArticleResource extends Resource
                         'comparison' => 'Comparison',
                         'tips' => 'Tips',
                     ]),
-                
+
                 Tables\Filters\TernaryFilter::make('is_featured')
                     ->label('Featured Articles'),
             ])

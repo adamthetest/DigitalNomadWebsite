@@ -23,8 +23,8 @@ class DealController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('category', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('category', 'like', "%{$search}%");
             });
         }
 
@@ -39,7 +39,7 @@ class DealController extends Controller
         }
 
         $deals = $query->paginate(12);
-        
+
         // Get categories
         $categories = Deal::where('is_active', true)
             ->where('valid_from', '<=', now())
@@ -59,10 +59,10 @@ class DealController extends Controller
     public function show(Deal $deal)
     {
         // Ensure deal is active and valid
-        if (!$deal->is_active || $deal->valid_from > now() || $deal->valid_until < now()) {
+        if (! $deal->is_active || $deal->valid_from > now() || $deal->valid_until < now()) {
             abort(404);
         }
-        
+
         // Get related deals
         $relatedDeals = Deal::where('is_active', true)
             ->where('id', '!=', $deal->id)
@@ -93,7 +93,7 @@ class DealController extends Controller
     {
         // Increment click count
         $deal->increment('click_count');
-        
+
         return response()->json(['success' => true]);
     }
 }

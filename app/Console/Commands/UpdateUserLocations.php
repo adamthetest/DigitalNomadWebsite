@@ -35,13 +35,14 @@ class UpdateUserLocations extends Command
         $users = User::where('last_active', '>=', now()->subDays(7))
             ->where(function ($query) {
                 $query->whereNull('location_current')
-                      ->orWhere('location_current', '');
+                    ->orWhere('location_current', '');
             })
             ->limit($limit)
             ->get();
 
         if ($users->isEmpty()) {
             $this->info('No users found that need location updates.');
+
             return;
         }
 
@@ -53,19 +54,19 @@ class UpdateUserLocations extends Command
                 // In a real implementation, you would get the user's IP from their last activity
                 // For now, we'll simulate this with a placeholder
                 $location = $this->getLocationFromIP('127.0.0.1'); // Placeholder IP
-                
+
                 if ($location) {
                     $user->update([
                         'location_current' => $location,
-                        'last_active' => now()
+                        'last_active' => now(),
                     ]);
                     $updated++;
                     $this->line("Updated location for {$user->name}: {$location}");
                 }
             } catch (\Exception $e) {
                 $errors++;
-                Log::error("Failed to update location for user {$user->id}: " . $e->getMessage());
-                $this->error("Failed to update location for {$user->name}: " . $e->getMessage());
+                Log::error("Failed to update location for user {$user->id}: ".$e->getMessage());
+                $this->error("Failed to update location for {$user->name}: ".$e->getMessage());
             }
         }
 
@@ -80,16 +81,16 @@ class UpdateUserLocations extends Command
         try {
             // Using ipapi.co as a free geolocation service
             $response = Http::timeout(10)->get("http://ipapi.co/{$ip}/json/");
-            
+
             if ($response->successful()) {
                 $data = $response->json();
-                
+
                 if (isset($data['city']) && isset($data['country_name'])) {
-                    return $data['city'] . ', ' . $data['country_name'];
+                    return $data['city'].', '.$data['country_name'];
                 }
             }
         } catch (\Exception $e) {
-            Log::error("Geolocation API error: " . $e->getMessage());
+            Log::error('Geolocation API error: '.$e->getMessage());
         }
 
         return null;

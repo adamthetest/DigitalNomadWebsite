@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\JobResource\Pages;
-use App\Filament\Resources\JobResource\RelationManagers;
 use App\Models\Job;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -11,7 +10,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class JobResource extends Resource
 {
@@ -262,7 +260,7 @@ class JobResource extends Resource
                     ->label('Feature')
                     ->icon('heroicon-o-star')
                     ->color('warning')
-                    ->visible(fn (Job $record): bool => !$record->featured)
+                    ->visible(fn (Job $record): bool => ! $record->featured)
                     ->action(function (Job $record) {
                         $record->update(['featured' => true]);
                     })

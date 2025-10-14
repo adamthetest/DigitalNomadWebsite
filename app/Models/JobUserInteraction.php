@@ -108,7 +108,7 @@ class JobUserInteraction extends Model
      */
     public function getStatusLabelAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'saved' => 'Saved',
             'applied' => 'Applied',
             'rejected' => 'Rejected',
@@ -124,7 +124,7 @@ class JobUserInteraction extends Model
      */
     public function getStatusColorAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'saved' => 'blue',
             'applied' => 'yellow',
             'rejected' => 'red',
