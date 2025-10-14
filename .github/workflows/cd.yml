@@ -1,0 +1,120 @@
+name: CD
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  APP_ENV: production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, dom, fileinfo, mysql, sqlite3, pdo_mysql, pdo_sqlite, bcmath, gd, zip, curl, intl, xml, json, iconv, openssl, tokenizer, ctype, fileinfo, pdo, session, simplexml, xmlreader, xmlwriter, zip, zlib
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install Composer dependencies
+      run: composer install --no-dev --no-progress --prefer-dist --optimize-autoloader
+
+    - name: Install NPM dependencies
+      run: npm ci
+
+    - name: Build assets
+      run: npm run build
+
+    - name: Create deployment artifact
+      run: |
+        tar -czf deployment.tar.gz \
+          --exclude='.git' \
+          --exclude='node_modules' \
+          --exclude='tests' \
+          --exclude='.github' \
+          --exclude='storage/logs' \
+          --exclude='storage/framework/cache' \
+          --exclude='storage/framework/sessions' \
+          --exclude='storage/framework/views' \
+          --exclude='bootstrap/cache' \
+          .
+
+    - name: Deploy to production
+      # Replace this step with your actual deployment method
+      # Examples: FTP, SSH, Docker, cloud platforms, etc.
+      run: |
+        echo "Deployment artifact created: deployment.tar.gz"
+        echo "Configure your deployment method here"
+        echo "Common deployment targets:"
+        echo "- FTP/SFTP servers"
+        echo "- SSH servers"
+        echo "- Docker containers"
+        echo "- Cloud platforms (AWS, GCP, Azure)"
+        echo "- PaaS services (Heroku, Railway, DigitalOcean App Platform)"
+
+    # Example deployment steps for different platforms:
+    
+    # For SSH deployment:
+    # - name: Deploy via SSH
+    #   uses: appleboy/ssh-action@v1.0.3
+    #   with:
+    #     host: ${{ secrets.HOST }}
+    #     username: ${{ secrets.USERNAME }}
+    #     key: ${{ secrets.SSH_KEY }}
+    #     script: |
+    #       cd /var/www/html
+    #       tar -xzf deployment.tar.gz
+    #       composer install --no-dev --optimize-autoloader
+    #       php artisan migrate --force
+    #       php artisan config:cache
+    #       php artisan route:cache
+    #       php artisan view:cache
+    #       php artisan queue:restart
+
+    # For Docker deployment:
+    # - name: Build Docker image
+    #   run: docker build -t digital-nomad-website:${{ github.sha }} .
+    # - name: Push to registry
+    #   run: docker push your-registry/digital-nomad-website:${{ github.sha }}
+
+    # For cloud platform deployment:
+    # - name: Deploy to cloud platform
+    #   uses: your-cloud-provider-action@v1
+    #   with:
+    #     api-key: ${{ secrets.CLOUD_API_KEY }}
+    #     project: digital-nomad-website
+    #     artifact: deployment.tar.gz
+
+  post-deploy:
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: always()
+
+    steps:
+    - name: Notify deployment status
+      run: |
+        if [ "${{ needs.deploy.result }}" == "success" ]; then
+          echo "✅ Deployment successful!"
+          # Add notification logic here (Slack, Discord, email, etc.)
+        else
+          echo "❌ Deployment failed!"
+          # Add failure notification logic here
+        fi
+
+    - name: Health check
+      run: |
+        echo "Performing post-deployment health checks..."
+        # Add health check logic here
+        # Example: curl -f https://your-domain.com/health || exit 1
