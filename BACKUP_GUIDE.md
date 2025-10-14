@@ -17,6 +17,9 @@ php artisan backup:data --type=articles
 php artisan backup:data --type=deals
 php artisan backup:data --type=newsletter
 php artisan backup:data --type=favorites
+php artisan backup:data --type=companies
+php artisan backup:data --type=jobs
+php artisan backup:data --type=job_interactions
 
 # Backup in different formats
 php artisan backup:data --format=json    # JSON format (default)
@@ -54,6 +57,9 @@ storage/app/private/backups/
 │   ├── cost_items.json
 │   ├── visa_rules.json
 │   ├── affiliate_links.json
+│   ├── companies.json
+│   ├── jobs.json
+│   ├── job_user_interactions.json
 │   └── backup_summary.json
 └── 2025-10-13_22-57-56/
     └── users.json
@@ -65,6 +71,11 @@ storage/app/private/backups/
 - User ID, name, email
 - Email verification status
 - Created/updated timestamps
+- **Social Profile Fields**: bio, location, website, social links
+- **Professional Details**: tagline, job_title, company, skills, work_type, availability
+- **Nomad Lifestyle**: location_current, location_next, travel_timeline
+- **Verification & Status**: id_verified, premium_status, last_active, visibility
+- **Privacy Controls**: location_precise, show_social_links
 - **Note**: Passwords are NOT backed up for security
 
 ### Cities Table
@@ -105,6 +116,25 @@ storage/app/private/backups/
 ### Affiliate Links
 - Affiliate link data
 - Tracking information
+
+### Companies (Job Board)
+- Company profiles and information
+- Verification status and subscription plans
+- Industry, size, headquarters, and remote policies
+- Benefits and tech stack information
+
+### Jobs (Job Board)
+- Job postings with full details
+- Company relationships
+- Salary information and job types
+- Skills, requirements, and application details
+- Featured status and expiration dates
+
+### Job User Interactions (Job Board)
+- User job applications and saved jobs
+- Application status tracking
+- User and job relationships
+- Application notes and timestamps
 
 ## 🔧 Backup Formats
 

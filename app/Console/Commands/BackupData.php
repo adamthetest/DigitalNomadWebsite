@@ -14,7 +14,7 @@ class BackupData extends Command
      *
      * @var string
      */
-    protected $signature = 'backup:data {--type=all : Type of backup (all, users, cities, articles, deals, newsletter, favorites)} {--format=json : Backup format (json, csv, sql)}';
+    protected $signature = 'backup:data {--type=all : Type of backup (all, users, cities, articles, deals, newsletter, favorites, companies, jobs, job_interactions)} {--format=json : Backup format (json, csv, sql)}';
 
     /**
      * The console command description.
@@ -64,8 +64,17 @@ class BackupData extends Command
                 case 'favorites':
                     $this->backupFavorites($backupDir, $format);
                     break;
+                case 'companies':
+                    $this->backupCompanies($backupDir, $format);
+                    break;
+                case 'jobs':
+                    $this->backupJobs($backupDir, $format);
+                    break;
+                case 'job_interactions':
+                    $this->backupJobInteractions($backupDir, $format);
+                    break;
                 default:
-                    $this->error("Invalid backup type. Available types: all, users, cities, articles, deals, newsletter, favorites");
+                    $this->error("Invalid backup type. Available types: all, users, cities, articles, deals, newsletter, favorites, companies, jobs, job_interactions");
                     return 1;
             }
             
@@ -94,6 +103,9 @@ class BackupData extends Command
         $this->backupCostItems($backupDir, $format);
         $this->backupVisaRules($backupDir, $format);
         $this->backupAffiliateLinks($backupDir, $format);
+        $this->backupCompanies($backupDir, $format);
+        $this->backupJobs($backupDir, $format);
+        $this->backupJobInteractions($backupDir, $format);
         
         // Create backup summary
         $this->createBackupSummary($backupDir);
@@ -104,7 +116,16 @@ class BackupData extends Command
         $this->info("Backing up users...");
         
         $users = DB::table('users')
-            ->select('id', 'name', 'email', 'email_verified_at', 'created_at', 'updated_at')
+            ->select(
+                'id', 'name', 'email', 'email_verified_at', 'bio', 'location', 'website', 
+                'twitter', 'linkedin', 'github', 'instagram', 'youtube', 'tiktok', 
+                'is_public', 'created_at', 'updated_at',
+                // Social profile fields
+                'tagline', 'job_title', 'company', 'skills', 'work_type', 'availability',
+                'location_current', 'location_next', 'travel_timeline', 'behance',
+                'id_verified', 'premium_status', 'last_active', 'visibility',
+                'location_precise', 'show_social_links'
+            )
             ->get();
             
         $this->saveData($backupDir, 'users', $users, $format);
@@ -238,6 +259,53 @@ class BackupData extends Command
         $this->info("✅ Affiliate links backed up: " . $affiliateLinks->count() . " records");
     }
     
+    private function backupCompanies($backupDir, $format)
+    {
+        $this->info("Backing up companies...");
+        
+        $companies = DB::table('companies')->get();
+        $this->saveData($backupDir, 'companies', $companies, $format);
+        $this->info("✅ Companies backed up: " . $companies->count() . " records");
+    }
+    
+    private function backupJobs($backupDir, $format)
+    {
+        $this->info("Backing up jobs...");
+        
+        $jobs = DB::table('jobs')
+            ->join('companies', 'jobs.company_id', '=', 'companies.id')
+            ->select(
+                'jobs.*',
+                'companies.name as company_name',
+                'companies.slug as company_slug'
+            )
+            ->get();
+            
+        $this->saveData($backupDir, 'jobs', $jobs, $format);
+        $this->info("✅ Jobs backed up: " . $jobs->count() . " records");
+    }
+    
+    private function backupJobInteractions($backupDir, $format)
+    {
+        $this->info("Backing up job user interactions...");
+        
+        $interactions = DB::table('job_user_interactions')
+            ->join('users', 'job_user_interactions.user_id', '=', 'users.id')
+            ->join('jobs', 'job_user_interactions.job_id', '=', 'jobs.id')
+            ->join('companies', 'jobs.company_id', '=', 'companies.id')
+            ->select(
+                'job_user_interactions.*',
+                'users.name as user_name',
+                'users.email as user_email',
+                'jobs.title as job_title',
+                'companies.name as company_name'
+            )
+            ->get();
+            
+        $this->saveData($backupDir, 'job_user_interactions', $interactions, $format);
+        $this->info("✅ Job interactions backed up: " . $interactions->count() . " records");
+    }
+    
     private function saveData($backupDir, $tableName, $data, $format)
     {
         switch ($format) {
@@ -335,7 +403,10 @@ class BackupData extends Command
                 'coworking_spaces',
                 'cost_items',
                 'visa_rules',
-                'affiliate_links'
+                'affiliate_links',
+                'companies',
+                'jobs',
+                'job_user_interactions'
             ],
             'total_records' => $this->getTotalRecords(),
             'backup_location' => $backupDir
@@ -346,7 +417,7 @@ class BackupData extends Command
     
     private function getTotalRecords()
     {
-        $tables = ['users', 'cities', 'articles', 'deals', 'newsletter_subscribers', 'favorites', 'coworking_spaces', 'cost_items', 'visa_rules', 'affiliate_links'];
+        $tables = ['users', 'cities', 'articles', 'deals', 'newsletter_subscribers', 'favorites', 'coworking_spaces', 'cost_items', 'visa_rules', 'affiliate_links', 'companies', 'jobs', 'job_user_interactions'];
         $total = 0;
         
         foreach ($tables as $table) {
