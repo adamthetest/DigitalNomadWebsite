@@ -41,7 +41,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2'
+        php-version: '8.4'
 
     - name: Install Composer dependencies
       run: composer install --no-progress --prefer-dist
@@ -99,12 +99,13 @@ jobs:
       uses: github/codeql-action/init@v4
       with:
         languages: ${{ matrix.language }}
+        queries: security-and-quality
 
     - name: Setup PHP
       if: matrix.language == 'php'
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2'
+        php-version: '8.4'
 
     - name: Setup Node.js
       if: matrix.language == 'javascript'
@@ -136,7 +137,7 @@ jobs:
       uses: trufflesecurity/trufflehog@main
       with:
         path: ./
-        base: main
+        base: HEAD~1
         head: HEAD
         extra_args: --debug --only-verified
 
@@ -150,7 +151,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.2'
+        php-version: '8.4'
         extensions: mbstring, dom, fileinfo, mysql, sqlite3, pdo_mysql, pdo_sqlite, bcmath, gd, zip, curl, intl, xml, json, iconv, openssl, tokenizer, ctype, fileinfo, pdo, session, simplexml, xmlreader, xmlwriter, zip, zlib
 
     - name: Setup Node.js
