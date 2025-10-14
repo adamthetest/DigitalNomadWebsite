@@ -129,9 +129,9 @@
                     <div>
                         <h4 class="text-sm font-medium text-gray-900 mb-2">Profile Information</h4>
                         <p class="text-sm text-gray-600 mb-4">Update your personal information and preferences.</p>
-                        <button class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors">
+                        <a href="{{ route('profile.edit') }}" class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors inline-block">
                             Edit Profile
-                        </button>
+                        </a>
                     </div>
                     <div>
                         <h4 class="text-sm font-medium text-gray-900 mb-2">Security</h4>
