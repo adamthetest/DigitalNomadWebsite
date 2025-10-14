@@ -58,17 +58,27 @@ jobs:
 
     - name: Create deployment artifact
       run: |
-        tar -czf deployment.tar.gz \
-          --exclude='.git' \
-          --exclude='node_modules' \
-          --exclude='tests' \
-          --exclude='.github' \
-          --exclude='storage/logs' \
-          --exclude='storage/framework/cache' \
-          --exclude='storage/framework/sessions' \
-          --exclude='storage/framework/views' \
-          --exclude='bootstrap/cache' \
-          .
+        # Create a clean deployment directory
+        mkdir -p deployment
+        
+        # Copy files to deployment directory, excluding unnecessary files
+        rsync -av --exclude='.git' \
+                  --exclude='node_modules' \
+                  --exclude='tests' \
+                  --exclude='.github' \
+                  --exclude='storage/logs' \
+                  --exclude='storage/framework/cache' \
+                  --exclude='storage/framework/sessions' \
+                  --exclude='storage/framework/views' \
+                  --exclude='bootstrap/cache' \
+                  --exclude='deployment' \
+                  . deployment/
+        
+        # Create tar archive from the clean directory
+        tar -czf deployment.tar.gz -C deployment .
+        
+        # Clean up
+        rm -rf deployment
 
     - name: Deploy to production
       # Replace this step with your actual deployment method
