@@ -19,8 +19,8 @@ class JobUserInteractionFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => null, // Will be set explicitly in tests
-            'job_id' => null, // Will be set explicitly in tests
+            'user_id' => User::factory(),
+            'job_id' => Job::factory(),
             'status' => fake()->randomElement(['saved', 'applied', 'rejected', 'shortlisted', 'interviewed', 'offered']),
             'applied_at' => fake()->optional()->dateTimeBetween('-1 month', 'now'),
             'application_data' => fake()->optional()->randomElements([

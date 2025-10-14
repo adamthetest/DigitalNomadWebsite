@@ -121,21 +121,27 @@ class BackupController extends Controller
     }
 
     /**
-     * Cleanup old backups (older than 30 days).
+     * Cleanup old backups (keep last 5, delete the rest).
      */
     public function cleanup(Request $request)
     {
         try {
             $backupDir = 'backups';
             $directories = Storage::directories($backupDir);
+            
+            // Sort backups by name (timestamp) descending (newest first)
+            usort($directories, function ($a, $b) {
+                return strcmp(basename($b), basename($a));
+            });
+            
+            $keepCount = 5; // Keep the last 5 backups
             $deletedCount = 0;
-            $cutoffDate = Carbon::now()->subDays(30);
-
-            foreach ($directories as $directory) {
-                $backupName = basename($directory);
-                $backupDate = Carbon::createFromFormat('Y-m-d_H-i-s', $backupName);
-
-                if ($backupDate->lt($cutoffDate)) {
+            
+            // Delete all backups except the last 5
+            if (count($directories) > $keepCount) {
+                $backupsToDelete = array_slice($directories, $keepCount);
+                
+                foreach ($backupsToDelete as $directory) {
                     Storage::deleteDirectory($directory);
                     $deletedCount++;
                 }
@@ -145,12 +151,12 @@ class BackupController extends Controller
             if ($request->ajax()) {
                 return response()->json([
                     'success' => true,
-                    'message' => "Cleaned up {$deletedCount} old backups successfully!",
+                    'message' => "✅ Cleanup completed! Deleted {$deletedCount} old backups. Kept the last 5 backups.",
                 ]);
             }
 
             // Handle regular form submissions
-            return redirect()->back()->with('success', "Cleaned up {$deletedCount} old backups successfully!");
+            return redirect()->back()->with('success', "✅ Cleanup completed! Deleted {$deletedCount} old backups. Kept the last 5 backups.");
 
         } catch (\Exception $e) {
             // Handle AJAX requests
@@ -174,16 +180,28 @@ class BackupController extends Controller
         try {
             Storage::deleteDirectory("backups/{$backupDir}");
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Backup deleted successfully!',
-            ]);
+            // Handle AJAX requests
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Backup deleted successfully!',
+                ]);
+            }
+
+            // Handle regular form submissions
+            return redirect()->back()->with('success', 'Backup deleted successfully!');
 
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to delete backup: '.$e->getMessage(),
-            ], 500);
+            // Handle AJAX requests
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete backup: '.$e->getMessage(),
+                ], 500);
+            }
+
+            // Handle regular form submissions
+            return redirect()->back()->with('error', 'Failed to delete backup: '.$e->getMessage());
         }
     }
 

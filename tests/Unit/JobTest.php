@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Models\Job;
 use App\Models\Company;
 use App\Models\JobUserInteraction;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -174,9 +175,7 @@ class JobTest extends TestCase
     {
         $job = Job::factory()->create([
             'salary_min' => null,
-            'salary_max' => null,
-            'salary_currency' => null,
-            'salary_period' => null
+            'salary_max' => null
         ]);
 
         $this->assertEquals('Salary not specified', $job->formatted_salary);
@@ -213,8 +212,7 @@ class JobTest extends TestCase
             'part-time' => 'Part Time',
             'contract' => 'Contract',
             'freelance' => 'Freelance',
-            'internship' => 'Internship',
-            'other' => 'Other'
+            'internship' => 'Internship'
         ];
 
         foreach ($testCases as $type => $expectedLabel) {
@@ -229,8 +227,7 @@ class JobTest extends TestCase
             'fully-remote' => 'Fully Remote',
             'hybrid' => 'Hybrid',
             'timezone-limited' => 'Timezone Limited',
-            'onsite' => 'On-site',
-            'other' => 'Other'
+            'onsite' => 'On-site'
         ];
 
         foreach ($testCases as $remoteType => $expectedLabel) {

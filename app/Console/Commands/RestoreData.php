@@ -90,7 +90,7 @@ class RestoreData extends Command
             'newsletter_subscribers',
             'affiliate_links',
             'visa_rules',
-            'jobs',
+            'job_postings',
             'favorites',
             'job_user_interactions',
             'security_logs',
@@ -106,17 +106,20 @@ class RestoreData extends Command
         ];
 
         foreach ($tables as $table) {
-            if (Storage::exists("{$backupPath}/{$table}.json")) {
-                $this->restoreTable($backupPath, $table);
+            // Handle special case where jobs are saved as jobs.json but restored to job_postings table
+            $backupFile = $table === 'job_postings' ? 'jobs.json' : "{$table}.json";
+            
+            if (Storage::exists("{$backupPath}/{$backupFile}")) {
+                $this->restoreTable($backupPath, $table, $backupFile);
             }
         }
     }
 
-    private function restoreTable($backupPath, $table)
+    private function restoreTable($backupPath, $table, $backupFile = null)
     {
         $this->info("Restoring {$table}...");
 
-        $jsonFile = "{$backupPath}/{$table}.json";
+        $jsonFile = $backupFile ? "{$backupPath}/{$backupFile}" : "{$backupPath}/{$table}.json";
 
         if (! Storage::exists($jsonFile)) {
             $this->warn("⚠️  No backup file found for table: {$table}");

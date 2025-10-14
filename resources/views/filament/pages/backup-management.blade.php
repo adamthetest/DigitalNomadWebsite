@@ -117,6 +117,25 @@
             </div>
         </div>
 
+        <!-- Restore Information -->
+        <div class="bg-blue-50 rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold mb-4" style="color: black !important;">📥 Restore Options</h3>
+            <div class="space-y-3">
+                <p class="text-sm" style="color: black !important;">
+                    <strong>From Existing Backups:</strong> Use the "Restore from Backup" button in the header to select from your saved backups.
+                </p>
+                <p class="text-sm" style="color: black !important;">
+                    <strong>From Uploaded File:</strong> Use the "Upload & Restore" button in the header to upload a backup ZIP file or folder.
+                </p>
+                <p class="text-sm text-gray-600">
+                    💡 <strong>Tip:</strong> You can download any backup using the "Download" button in the table below, then upload it later for restoration.
+                </p>
+                <p class="text-sm text-gray-600">
+                    📁 <strong>Supported Formats:</strong> ZIP files, backup folders (must contain backup_summary.json)
+                </p>
+            </div>
+        </div>
+
         <!-- Backup List -->
         <div class="bg-white rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200">
@@ -146,19 +165,23 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <button wire:click="downloadBackup('{{ $backup['name'] }}')" 
-                                            class="text-blue-600 hover:text-blue-900 mr-3">
+                                            class="text-blue-600 hover:text-blue-900 mr-3" style="color: black !important;">
                                         Download
                                     </button>
                                     <button wire:click="restoreFromBackup('{{ $backup['name'] }}')" 
                                             wire:confirm="⚠️ WARNING: This will overwrite ALL existing data with data from this backup. Are you absolutely sure you want to continue?"
-                                            class="text-orange-600 hover:text-orange-900 mr-3">
+                                            class="text-orange-600 hover:text-orange-900 mr-3" style="color: black !important;">
                                         Restore
                                     </button>
-                                    <button wire:click="deleteBackup('{{ $backup['name'] }}')" 
-                                            wire:confirm="Are you sure you want to delete this backup?"
-                                            class="text-red-600 hover:text-red-900">
-                                        Delete
-                                    </button>
+                                    <form method="POST" action="{{ route('filament.admin.backup.delete', $backup['name']) }}" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" 
+                                                onclick="return confirm('Are you sure you want to delete this backup?')"
+                                                class="text-red-600 hover:text-red-900" style="color: black !important;">
+                                            Delete
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         @empty
@@ -178,10 +201,10 @@
             <h3 class="text-lg font-semibold mb-4" style="color: black !important;">Maintenance</h3>
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm" style="color: black !important;">Clean up backups older than 30 days to free up storage space.</p>
+                    <p class="text-sm" style="color: black !important;">Keep the last 5 backups and delete all others to free up storage space.</p>
                 </div>
                 <button wire:click="cleanupOldBackups" 
-                        wire:confirm="Are you sure you want to delete backups older than 30 days?"
+                        wire:confirm="Are you sure you want to delete all backups except the last 5?"
                         class="bg-red-600 px-4 py-2 rounded-lg hover:bg-red-700 transition-colors" style="color: black !important;">
                     Cleanup Old Backups
                 </button>
@@ -198,7 +221,9 @@
             
             Livewire.on('backup-deleted', () => {
                 // Refresh the page to remove deleted backup
-                window.location.reload();
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000); // Small delay to show the success message
             });
             
             Livewire.on('backups-cleaned', () => {
@@ -217,6 +242,27 @@
                 console.error('Restore failed:', error);
                 alert('❌ Restore failed: ' + error);
             });
+        });
+
+        // Handle AJAX delete responses
+        document.addEventListener('DOMContentLoaded', function() {
+            // Intercept any AJAX calls to backup delete endpoints
+            const originalFetch = window.fetch;
+            window.fetch = function(...args) {
+                return originalFetch.apply(this, args).then(response => {
+                    if (response.url.includes('/backups/') && response.url.includes('DELETE')) {
+                        response.clone().json().then(data => {
+                            if (data.success) {
+                                // Show success message and refresh page
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 500);
+                            }
+                        });
+                    }
+                    return response;
+                });
+            };
         });
     </script>
 </x-filament-panels::page>

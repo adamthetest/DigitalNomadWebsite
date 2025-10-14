@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\City;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,8 +19,8 @@ class ArticleFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => null, // Will be set explicitly in tests
-            'city_id' => null, // Will be set explicitly in tests
+            'user_id' => User::factory(),
+            'city_id' => City::factory(),
             'title' => fake()->sentence(),
             'slug' => fake()->slug(),
             'excerpt' => fake()->paragraph(),

@@ -48,33 +48,43 @@ class BackupData extends Command
                     break;
                 case 'users':
                     $this->backupUsers($backupDir, $format);
+                    $this->createBackupSummary($backupDir, 'users');
                     break;
                 case 'cities':
                     $this->backupCities($backupDir, $format);
+                    $this->createBackupSummary($backupDir, 'cities');
                     break;
                 case 'articles':
                     $this->backupArticles($backupDir, $format);
+                    $this->createBackupSummary($backupDir, 'articles');
                     break;
                 case 'deals':
                     $this->backupDeals($backupDir, $format);
+                    $this->createBackupSummary($backupDir, 'deals');
                     break;
                 case 'newsletter':
                     $this->backupNewsletter($backupDir, $format);
+                    $this->createBackupSummary($backupDir, 'newsletter');
                     break;
                 case 'favorites':
                     $this->backupFavorites($backupDir, $format);
+                    $this->createBackupSummary($backupDir, 'favorites');
                     break;
                 case 'companies':
                     $this->backupCompanies($backupDir, $format);
+                    $this->createBackupSummary($backupDir, 'companies');
                     break;
                 case 'jobs':
                     $this->backupJobs($backupDir, $format);
+                    $this->createBackupSummary($backupDir, 'jobs');
                     break;
                 case 'job_interactions':
                     $this->backupJobInteractions($backupDir, $format);
+                    $this->createBackupSummary($backupDir, 'job_interactions');
                     break;
                 case 'security_logs':
                     $this->backupSecurityLogs($backupDir, $format);
+                    $this->createBackupSummary($backupDir, 'security_logs');
                     break;
                 case 'countries':
                     $this->backupCountries($backupDir, $format);
@@ -315,10 +325,10 @@ class BackupData extends Command
     {
         $this->info('Backing up jobs...');
 
-        $jobs = DB::table('jobs')
-            ->join('companies', 'jobs.company_id', '=', 'companies.id')
+        $jobs = DB::table('job_postings')
+            ->join('companies', 'job_postings.company_id', '=', 'companies.id')
             ->select(
-                'jobs.*',
+                'job_postings.*',
                 'companies.name as company_name',
                 'companies.slug as company_slug'
             )
@@ -334,13 +344,13 @@ class BackupData extends Command
 
         $interactions = DB::table('job_user_interactions')
             ->join('users', 'job_user_interactions.user_id', '=', 'users.id')
-            ->join('jobs', 'job_user_interactions.job_id', '=', 'jobs.id')
-            ->join('companies', 'jobs.company_id', '=', 'companies.id')
+            ->join('job_postings', 'job_user_interactions.job_id', '=', 'job_postings.id')
+            ->join('companies', 'job_postings.company_id', '=', 'companies.id')
             ->select(
                 'job_user_interactions.*',
                 'users.name as user_name',
                 'users.email as user_email',
-                'jobs.title as job_title',
+                'job_postings.title as job_title',
                 'companies.name as company_name'
             )
             ->get();
@@ -529,47 +539,51 @@ class BackupData extends Command
         return $sql;
     }
 
-    private function createBackupSummary($backupDir)
+    private function createBackupSummary($backupDir, $backupType = 'all')
     {
+        // Get list of files in backup directory to determine what was actually backed up
+        $files = Storage::files($backupDir);
+        $tablesBackedUp = [];
+        
+        foreach ($files as $file) {
+            $filename = basename($file);
+            if ($filename !== 'backup_summary.json' && pathinfo($filename, PATHINFO_EXTENSION) === 'json') {
+                $tableName = pathinfo($filename, PATHINFO_FILENAME);
+                $tablesBackedUp[] = $tableName;
+            }
+        }
+
         $summary = [
             'backup_date' => Carbon::now()->toISOString(),
-            'backup_type' => 'all',
-            'tables_backed_up' => [
-                'users',
-                'cities',
-                'countries',
-                'neighborhoods',
-                'articles',
-                'deals',
-                'newsletter_subscribers',
-                'favorites',
-                'coworking_spaces',
-                'cost_items',
-                'visa_rules',
-                'affiliate_links',
-                'companies',
-                'jobs',
-                'job_user_interactions',
-                'security_logs',
-                'banned_ips',
-                'cache',
-                'sessions',
-                'password_reset_tokens',
-            ],
+            'backup_type' => $backupType,
+            'tables_backed_up' => $tablesBackedUp,
             'total_records' => $this->getTotalRecords(),
             'backup_location' => $backupDir,
+            'backup_format' => 'json',
+            'version' => '1.0',
         ];
 
         Storage::put("{$backupDir}/backup_summary.json", json_encode($summary, JSON_PRETTY_PRINT));
+        $this->info('✅ Backup summary created: backup_summary.json');
     }
 
     private function getTotalRecords()
     {
-        $tables = ['users', 'cities', 'articles', 'deals', 'newsletter_subscribers', 'favorites', 'coworking_spaces', 'cost_items', 'visa_rules', 'affiliate_links', 'companies', 'jobs', 'job_user_interactions'];
+        $tables = [
+            'users', 'cities', 'countries', 'neighborhoods', 'articles', 'deals', 
+            'newsletter_subscribers', 'favorites', 'coworking_spaces', 'cost_items', 
+            'visa_rules', 'affiliate_links', 'companies', 'job_postings', 'job_user_interactions',
+            'security_logs', 'banned_ips', 'cache', 'sessions', 'password_reset_tokens'
+        ];
         $total = 0;
 
         foreach ($tables as $table) {
-            $total += DB::table($table)->count();
+            try {
+                $total += DB::table($table)->count();
+            } catch (\Exception $e) {
+                // Skip tables that don't exist or have issues
+                $this->warn("Could not count records in table {$table}: " . $e->getMessage());
+            }
         }
 
         return $total;

@@ -148,9 +148,9 @@ class CityController extends Controller
                 'name' => $city->name,
                 'country' => $city->country->name,
                 'url' => route('cities.show', $city),
-                'cost' => $city->cost_of_living_index,
-                'internet' => $city->internet_speed_mbps,
-                'safety' => $city->safety_score,
+                'cost' => (int) $city->cost_of_living_index,
+                'internet' => (int) $city->internet_speed_mbps,
+                'safety' => (int) $city->safety_score,
             ];
         });
 

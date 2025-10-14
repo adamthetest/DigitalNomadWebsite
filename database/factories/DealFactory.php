@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\City;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,18 +17,25 @@ class DealFactory extends Factory
     public function definition(): array
     {
         return [
-            'city_id' => City::factory(),
             'title' => fake()->sentence(),
+            'slug' => fake()->unique()->slug(),
             'description' => fake()->paragraphs(2, true),
+            'deal_url' => fake()->url(),
+            'provider' => fake()->company(),
+            'category' => fake()->randomElement(['accommodation', 'transport', 'insurance', 'banking', 'vpn', 'gear', 'other']),
             'original_price' => fake()->numberBetween(50, 500),
             'discounted_price' => fake()->numberBetween(20, 300),
             'currency' => fake()->randomElement(['USD', 'EUR', 'THB', 'GBP']),
             'discount_percentage' => fake()->numberBetween(10, 70),
+            'promo_code' => fake()->optional()->regexify('[A-Z0-9]{6,10}'),
             'valid_from' => fake()->dateTimeBetween('-1 month', 'now'),
             'valid_until' => fake()->dateTimeBetween('now', '+3 months'),
-            'terms_conditions' => fake()->paragraph(),
+            'terms_conditions' => fake()->optional()->paragraph(),
+            'image' => fake()->optional()->imageUrl(400, 300, 'business'),
             'is_featured' => fake()->boolean(20),
             'is_active' => true,
+            'click_count' => fake()->numberBetween(0, 1000),
+            'conversion_count' => fake()->numberBetween(0, 100),
         ];
     }
 

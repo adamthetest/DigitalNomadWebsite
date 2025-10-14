@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('job_user_interactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('job_id')->constrained()->onDelete('cascade');
+            $table->foreignId('job_id')->constrained('job_postings')->onDelete('cascade');
             $table->enum('status', ['saved', 'applied', 'rejected', 'shortlisted', 'interviewed', 'offered'])->default('saved');
             $table->text('notes')->nullable();
             $table->timestamp('applied_at')->nullable();

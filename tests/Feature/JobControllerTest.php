@@ -63,7 +63,7 @@ class JobControllerTest extends TestCase
     {
         $company = Company::factory()->create(['name' => 'Tech Corp']);
         $job1 = Job::factory()->create([
-            'title' => 'Developer',
+            'title' => 'Tech Lead',
             'company_id' => $company->id,
             'is_active' => true,
             'published_at' => now()->subDay()

@@ -18,7 +18,7 @@ class CityFactory extends Factory
     public function definition(): array
     {
         return [
-            'country_id' => null, // Will be set explicitly in tests
+            'country_id' => Country::factory(),
             'name' => fake()->city(),
             'slug' => null, // Let the model generate it from name
             'latitude' => fake()->latitude(),

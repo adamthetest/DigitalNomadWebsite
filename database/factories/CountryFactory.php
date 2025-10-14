@@ -17,8 +17,8 @@ class CountryFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->country(),
-            'code' => fake()->countryCode(),
+            'name' => fake()->unique()->country(),
+            'code' => fake()->unique()->countryCode(),
             'currency_code' => fake()->currencyCode(),
             'currency_symbol' => fake()->randomElement(['$', '€', '£', '¥', '₹', '₽']),
             'timezone' => fake()->timezone(),

@@ -22,7 +22,7 @@
             
             <form method="POST" action="{{ route('filament.admin.backup.cleanup') }}" class="inline">
                 @csrf
-                <button type="submit" onclick="return confirm('Are you sure you want to delete backups older than 30 days?')" 
+                <button type="submit" onclick="return confirm('Are you sure you want to delete all backups except the last 5?')" 
                         class="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700 transition-colors">
                     🗑️ Cleanup Old Backups
                 </button>

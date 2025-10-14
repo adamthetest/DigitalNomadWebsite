@@ -21,7 +21,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Public city routes
 Route::get('/cities', [CityController::class, 'index'])->name('cities.index');
-Route::get('/cities/search/suggestions', [CityController::class, 'searchSuggestions'])->name('cities.search-suggestions');
+Route::get('/cities/search-suggestions', [CityController::class, 'searchSuggestions'])->name('cities.search-suggestions');
 Route::get('/cities/{city}', [CityController::class, 'show'])->name('cities.show');
 
 // Calculator routes
@@ -55,7 +55,8 @@ Route::get('/profiles', [ProfileController::class, 'index'])->name('profiles.ind
 Route::get('/discover', [ProfileController::class, 'discover'])->name('profiles.discover');
 Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
 Route::get('/jobs/{job}', [JobController::class, 'show'])->name('jobs.show');
-Route::get('/companies/{company}', [JobController::class, 'company'])->name('jobs.company');
+Route::get('/jobs/company/{company}', [JobController::class, 'company'])->name('jobs.company');
+Route::get('/companies/{company}', [JobController::class, 'company'])->name('companies.show');
 
 // Authenticated job routes
 Route::middleware('auth')->group(function () {
