@@ -191,7 +191,7 @@ jobs:
         touch database/database.sqlite
 
     - name: Run Database Migrations
-      run: php artisan migrate --force
+      run: php artisan migrate:fresh --force
 
     - name: Build assets
       run: npm run build

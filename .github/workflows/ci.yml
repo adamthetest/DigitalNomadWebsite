@@ -78,6 +78,15 @@ jobs:
         mkdir -p database
         touch database/database.sqlite
 
+    - name: Run Database Migrations
+      env:
+        DB_CONNECTION: sqlite
+        DB_DATABASE: database/database.sqlite
+      run: php artisan migrate:fresh --force
+
+    - name: Build assets
+      run: npm run build
+
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       env:
         DB_CONNECTION: sqlite
@@ -86,9 +95,6 @@ jobs:
 
     - name: Run Laravel Pint (Code Style)
       run: ./vendor/bin/pint --test
-
-    - name: Build assets
-      run: npm run build
 
   security:
     runs-on: ubuntu-latest
@@ -147,7 +153,7 @@ jobs:
         touch database/database.sqlite
 
     - name: Run Database Migrations
-      run: php artisan migrate --force
+      run: php artisan migrate:fresh --force
 
     - name: Build assets
       run: npm run build
