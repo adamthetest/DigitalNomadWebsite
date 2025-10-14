@@ -54,6 +54,16 @@ class BackupManagement extends Page
                     $this->dispatch('backup-created');
                 })
                 ->successNotificationTitle('Job board backup created successfully!'),
+                
+            Action::make('create_security_logs_backup')
+                ->label('Backup Security Logs')
+                ->icon('heroicon-o-shield-check')
+                ->color('danger')
+                ->action(function () {
+                    Artisan::call('backup:data', ['--type' => 'security_logs']);
+                    $this->dispatch('backup-created');
+                })
+                ->successNotificationTitle('Security logs backup created successfully!'),
         ];
     }
 

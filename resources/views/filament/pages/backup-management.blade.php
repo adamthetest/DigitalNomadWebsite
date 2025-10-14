@@ -84,7 +84,7 @@
         <!-- Backup Actions -->
         <div class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-semibold mb-4" style="color: black !important;">Quick Backup Actions</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <button wire:click="create_backup" class="bg-blue-600 px-4 py-3 rounded-lg hover:bg-blue-700 transition-colors" style="color: black !important;">
                     <div class="flex items-center justify-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,6 +109,15 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6"></path>
                         </svg>
                         Backup Job Board
+                    </div>
+                </button>
+
+                <button wire:click="create_security_logs_backup" class="bg-red-600 px-4 py-3 rounded-lg hover:bg-red-700 transition-colors" style="color: black !important;">
+                    <div class="flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                        Backup Security Logs
                     </div>
                 </button>
             </div>

@@ -14,7 +14,7 @@ class BackupData extends Command
      *
      * @var string
      */
-    protected $signature = 'backup:data {--type=all : Type of backup (all, users, cities, articles, deals, newsletter, favorites, companies, jobs, job_interactions)} {--format=json : Backup format (json, csv, sql)}';
+    protected $signature = 'backup:data {--type=all : Type of backup (all, users, cities, countries, neighborhoods, articles, deals, newsletter, favorites, companies, jobs, job_interactions, security_logs, banned_ips, cache, sessions, password_reset_tokens)} {--format=json : Backup format (json, csv, sql)}';
 
     /**
      * The console command description.
@@ -73,8 +73,29 @@ class BackupData extends Command
                 case 'job_interactions':
                     $this->backupJobInteractions($backupDir, $format);
                     break;
+                case 'security_logs':
+                    $this->backupSecurityLogs($backupDir, $format);
+                    break;
+                case 'countries':
+                    $this->backupCountries($backupDir, $format);
+                    break;
+                case 'neighborhoods':
+                    $this->backupNeighborhoods($backupDir, $format);
+                    break;
+                case 'banned_ips':
+                    $this->backupBannedIps($backupDir, $format);
+                    break;
+                case 'cache':
+                    $this->backupCache($backupDir, $format);
+                    break;
+                case 'sessions':
+                    $this->backupSessions($backupDir, $format);
+                    break;
+                case 'password_reset_tokens':
+                    $this->backupPasswordResetTokens($backupDir, $format);
+                    break;
                 default:
-                    $this->error("Invalid backup type. Available types: all, users, cities, articles, deals, newsletter, favorites, companies, jobs, job_interactions");
+                    $this->error("Invalid backup type. Available types: all, users, cities, countries, neighborhoods, articles, deals, newsletter, favorites, companies, jobs, job_interactions, security_logs, banned_ips, cache, sessions, password_reset_tokens");
                     return 1;
             }
             
@@ -95,6 +116,8 @@ class BackupData extends Command
         
         $this->backupUsers($backupDir, $format);
         $this->backupCities($backupDir, $format);
+        $this->backupCountries($backupDir, $format);
+        $this->backupNeighborhoods($backupDir, $format);
         $this->backupArticles($backupDir, $format);
         $this->backupDeals($backupDir, $format);
         $this->backupNewsletter($backupDir, $format);
@@ -106,6 +129,11 @@ class BackupData extends Command
         $this->backupCompanies($backupDir, $format);
         $this->backupJobs($backupDir, $format);
         $this->backupJobInteractions($backupDir, $format);
+        $this->backupSecurityLogs($backupDir, $format);
+        $this->backupBannedIps($backupDir, $format);
+        $this->backupCache($backupDir, $format);
+        $this->backupSessions($backupDir, $format);
+        $this->backupPasswordResetTokens($backupDir, $format);
         
         // Create backup summary
         $this->createBackupSummary($backupDir);
@@ -306,6 +334,104 @@ class BackupData extends Command
         $this->info("✅ Job interactions backed up: " . $interactions->count() . " records");
     }
     
+    private function backupSecurityLogs($backupDir, $format)
+    {
+        $this->info("Backing up security logs...");
+        
+        $securityLogs = DB::table('security_logs')
+            ->leftJoin('users', 'security_logs.user_id', '=', 'users.id')
+            ->select(
+                'security_logs.*',
+                'users.name as user_name',
+                'users.email as user_email'
+            )
+            ->orderBy('security_logs.created_at', 'desc')
+            ->get();
+            
+        $this->saveData($backupDir, 'security_logs', $securityLogs, $format);
+        $this->info("✅ Security logs backed up: " . $securityLogs->count() . " records");
+    }
+    
+    private function backupCountries($backupDir, $format)
+    {
+        $this->info("Backing up countries...");
+        
+        $countries = DB::table('countries')->get();
+            
+        $this->saveData($backupDir, 'countries', $countries, $format);
+        $this->info("✅ Countries backed up: " . $countries->count() . " records");
+    }
+    
+    private function backupNeighborhoods($backupDir, $format)
+    {
+        $this->info("Backing up neighborhoods...");
+        
+        $neighborhoods = DB::table('neighborhoods')
+            ->leftJoin('cities', 'neighborhoods.city_id', '=', 'cities.id')
+            ->select(
+                'neighborhoods.*',
+                'cities.name as city_name'
+            )
+            ->get();
+            
+        $this->saveData($backupDir, 'neighborhoods', $neighborhoods, $format);
+        $this->info("✅ Neighborhoods backed up: " . $neighborhoods->count() . " records");
+    }
+    
+    private function backupBannedIps($backupDir, $format)
+    {
+        $this->info("Backing up banned IPs...");
+        
+        $bannedIps = DB::table('banned_ips')
+            ->leftJoin('users', 'banned_ips.banned_by', '=', 'users.id')
+            ->select(
+                'banned_ips.*',
+                'users.name as banned_by_name',
+                'users.email as banned_by_email'
+            )
+            ->get();
+            
+        $this->saveData($backupDir, 'banned_ips', $bannedIps, $format);
+        $this->info("✅ Banned IPs backed up: " . $bannedIps->count() . " records");
+    }
+    
+    private function backupCache($backupDir, $format)
+    {
+        $this->info("Backing up cache...");
+        
+        $cache = DB::table('cache')->get();
+            
+        $this->saveData($backupDir, 'cache', $cache, $format);
+        $this->info("✅ Cache backed up: " . $cache->count() . " records");
+    }
+    
+    private function backupSessions($backupDir, $format)
+    {
+        $this->info("Backing up sessions...");
+        
+        $sessions = DB::table('sessions')
+            ->leftJoin('users', 'sessions.user_id', '=', 'users.id')
+            ->select(
+                'sessions.*',
+                'users.name as user_name',
+                'users.email as user_email'
+            )
+            ->get();
+            
+        $this->saveData($backupDir, 'sessions', $sessions, $format);
+        $this->info("✅ Sessions backed up: " . $sessions->count() . " records");
+    }
+    
+    private function backupPasswordResetTokens($backupDir, $format)
+    {
+        $this->info("Backing up password reset tokens...");
+        
+        $tokens = DB::table('password_reset_tokens')->get();
+            
+        $this->saveData($backupDir, 'password_reset_tokens', $tokens, $format);
+        $this->info("✅ Password reset tokens backed up: " . $tokens->count() . " records");
+    }
+    
     private function saveData($backupDir, $tableName, $data, $format)
     {
         switch ($format) {
@@ -396,6 +522,8 @@ class BackupData extends Command
             'tables_backed_up' => [
                 'users',
                 'cities',
+                'countries',
+                'neighborhoods',
                 'articles',
                 'deals',
                 'newsletter_subscribers',
@@ -406,7 +534,12 @@ class BackupData extends Command
                 'affiliate_links',
                 'companies',
                 'jobs',
-                'job_user_interactions'
+                'job_user_interactions',
+                'security_logs',
+                'banned_ips',
+                'cache',
+                'sessions',
+                'password_reset_tokens'
             ],
             'total_records' => $this->getTotalRecords(),
             'backup_location' => $backupDir
