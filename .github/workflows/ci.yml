@@ -146,16 +146,17 @@ jobs:
         mkdir -p database
         touch database/database.sqlite
 
+    - name: Run Database Migrations
+      run: php artisan migrate --force
+
     - name: Build assets
       run: npm run build
 
     - name: Start Laravel server
-      run: php artisan serve --host=0.0.0.0 --port=8000 &
-      env:
-        APP_URL: http://localhost:8000
-
-    - name: Wait for Laravel server
-      run: sleep 10
+      run: |
+        php artisan serve --host=0.0.0.0 --port=8000 &
+        sleep 10
+        curl -f http://localhost:8000 || exit 1
 
     - name: Run Lighthouse CI
       uses: treosh/lighthouse-ci-action@v12
