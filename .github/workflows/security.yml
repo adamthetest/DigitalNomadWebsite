@@ -9,10 +9,32 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
+    inputs:
+      scan_type:
+        description: 'Type of security scan to run'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+        - full
+        - dependencies
+        - codeql
+        - secrets
+        - lighthouse
+      environment:
+        description: 'Environment to scan'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - development
+        - staging
+        - production
 
 jobs:
   dependency-scan:
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'dependencies' }}
     steps:
     - uses: actions/checkout@v5
 
@@ -35,6 +57,7 @@ jobs:
 
   npm-audit:
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'dependencies' }}
     steps:
     - uses: actions/checkout@v5
 
@@ -58,6 +81,7 @@ jobs:
 
   codeql-analysis:
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'codeql' }}
     permissions:
       actions: read
       contents: read
@@ -102,6 +126,7 @@ jobs:
 
   secret-scan:
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'secrets' }}
     steps:
     - uses: actions/checkout@v5
       with:
@@ -117,7 +142,7 @@ jobs:
 
   lighthouse-security:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: ${{ github.event_name == 'pull_request' || github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'lighthouse' }}
     
     steps:
     - uses: actions/checkout@v5
