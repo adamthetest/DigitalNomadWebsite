@@ -64,13 +64,25 @@ class BackupManagement extends Page
                     $this->dispatch('backup-created');
                 })
                 ->successNotificationTitle('Security logs backup created successfully!'),
+                
+            Action::make('restore_from_backup')
+                ->label('Restore from Backup')
+                ->icon('heroicon-o-arrow-uturn-left')
+                ->color('warning')
+                ->action(function () {
+                    $this->dispatch('open-restore-modal');
+                })
+                ->requiresConfirmation()
+                ->modalHeading('Restore from Backup')
+                ->modalDescription('This will overwrite all existing data with data from a backup. Are you sure you want to continue?')
+                ->modalSubmitActionLabel('Yes, Restore'),
         ];
     }
 
     public function getBackups(): array
     {
         $backupDir = 'backups';
-        $backups = Storage::directories($backupDir);
+        $backups = Storage::disk('local')->directories($backupDir);
         
         // Sort by name (timestamp) descending
         usort($backups, function($a, $b) {
@@ -80,10 +92,10 @@ class BackupManagement extends Page
         $backupList = [];
         foreach ($backups as $backup) {
             $backupName = basename($backup);
-            $files = Storage::allFiles($backup);
+            $files = Storage::disk('local')->allFiles($backup);
             $size = 0;
             foreach ($files as $file) {
-                $size += Storage::size($file);
+                $size += Storage::disk('local')->size($file);
             }
             
             $backupList[] = [
@@ -100,14 +112,14 @@ class BackupManagement extends Page
 
     public function deleteBackup(string $backupName): void
     {
-        Storage::deleteDirectory("backups/{$backupName}");
+        Storage::disk('local')->deleteDirectory("backups/{$backupName}");
         $this->dispatch('backup-deleted');
     }
 
     public function downloadBackup(string $backupName): \Symfony\Component\HttpFoundation\StreamedResponse
     {
         $backupPath = "backups/{$backupName}";
-        $files = Storage::allFiles($backupPath);
+        $files = Storage::disk('local')->allFiles($backupPath);
         
         return response()->streamDownload(function () use ($files) {
             $zip = new \ZipArchive();
@@ -115,7 +127,7 @@ class BackupManagement extends Page
             $zip->open($tempFile, \ZipArchive::CREATE);
             
             foreach ($files as $file) {
-                $content = Storage::get($file);
+                $content = Storage::disk('local')->get($file);
                 $zip->addFromString(basename($file), $content);
             }
             
@@ -128,7 +140,7 @@ class BackupManagement extends Page
     public function cleanupOldBackups(): void
     {
         $backupDir = 'backups';
-        $backups = Storage::directories($backupDir);
+        $backups = Storage::disk('local')->directories($backupDir);
         $cutoffDate = Carbon::now()->subDays(30);
         
         foreach ($backups as $backup) {
@@ -136,11 +148,52 @@ class BackupManagement extends Page
             $backupDate = Carbon::createFromFormat('Y-m-d_H-i-s', $backupName);
             
             if ($backupDate->lt($cutoffDate)) {
-                Storage::deleteDirectory($backup);
+                Storage::disk('local')->deleteDirectory($backup);
             }
         }
         
         $this->dispatch('backups-cleaned');
+    }
+
+    public function restoreFromBackup(string $backupName): void
+    {
+        try {
+            // Log that the method was called
+            \Log::info('Restore method called with backup: ' . $backupName);
+            
+            $backupPath = "backups/{$backupName}";
+            
+            // Check if backup exists in local storage
+            if (!Storage::disk('local')->exists($backupPath)) {
+                \Log::error('Backup not found: ' . $backupPath);
+                $this->dispatch('backup-restore-failed', 'Backup not found: ' . $backupPath);
+                return;
+            }
+            
+            \Log::info('Backup found, starting restore process...');
+            
+            // Run restore command
+            $exitCode = Artisan::call('restore:data', [
+                'backup_path' => $backupPath,
+                '--confirm' => true
+            ]);
+            
+            // Get the command output
+            $output = Artisan::output();
+            
+            \Log::info('Restore command completed with exit code: ' . $exitCode);
+            \Log::info('Restore output: ' . $output);
+            
+            if ($exitCode === 0) {
+                $this->dispatch('backup-restored');
+            } else {
+                $this->dispatch('backup-restore-failed', 'Restore command failed with exit code: ' . $exitCode . '. Output: ' . $output);
+            }
+            
+        } catch (\Exception $e) {
+            \Log::error('Restore exception: ' . $e->getMessage());
+            $this->dispatch('backup-restore-failed', 'Exception: ' . $e->getMessage());
+        }
     }
 
     private function formatBytes(int $bytes): string

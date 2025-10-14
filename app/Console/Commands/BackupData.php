@@ -145,9 +145,10 @@ class BackupData extends Command
         
         $users = DB::table('users')
             ->select(
-                'id', 'name', 'email', 'email_verified_at', 'bio', 'location', 'website', 
+                'id', 'name', 'email', 'email_verified_at', 'password', 'remember_token',
+                'bio', 'location', 'profile_image', 'website', 
                 'twitter', 'linkedin', 'github', 'instagram', 'youtube', 'tiktok', 
-                'is_public', 'created_at', 'updated_at',
+                'is_public', 'timezone', 'created_at', 'updated_at',
                 // Social profile fields
                 'tagline', 'job_title', 'company', 'skills', 'work_type', 'availability',
                 'location_current', 'location_next', 'travel_timeline', 'behance',
@@ -156,8 +157,19 @@ class BackupData extends Command
             )
             ->get();
             
+        // Encrypt sensitive data (passwords and tokens)
+        $users = $users->map(function ($user) {
+            if ($user->password) {
+                $user->password = encrypt($user->password);
+            }
+            if ($user->remember_token) {
+                $user->remember_token = encrypt($user->remember_token);
+            }
+            return $user;
+        });
+            
         $this->saveData($backupDir, 'users', $users, $format);
-        $this->info("✅ Users backed up: " . $users->count() . " records");
+        $this->info("✅ Users backed up: " . $users->count() . " records (passwords encrypted)");
     }
     
     private function backupCities($backupDir, $format)

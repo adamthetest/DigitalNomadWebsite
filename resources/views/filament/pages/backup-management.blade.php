@@ -155,6 +155,11 @@
                                             class="text-blue-600 hover:text-blue-900 mr-3">
                                         Download
                                     </button>
+                                    <button wire:click="restoreFromBackup('{{ $backup['name'] }}')" 
+                                            wire:confirm="⚠️ WARNING: This will overwrite ALL existing data with data from this backup. Are you absolutely sure you want to continue?"
+                                            class="text-orange-600 hover:text-orange-900 mr-3">
+                                        Restore
+                                    </button>
                                     <button wire:click="deleteBackup('{{ $backup['name'] }}')" 
                                             wire:confirm="Are you sure you want to delete this backup?"
                                             class="text-red-600 hover:text-red-900">
@@ -205,6 +210,18 @@
             Livewire.on('backups-cleaned', () => {
                 // Refresh the page to show cleaned backups
                 window.location.reload();
+            });
+            
+            Livewire.on('backup-restored', () => {
+                // Show success message and refresh
+                alert('✅ Backup restored successfully!');
+                window.location.reload();
+            });
+            
+            Livewire.on('backup-restore-failed', (error) => {
+                // Show detailed error message
+                console.error('Restore failed:', error);
+                alert('❌ Restore failed: ' + error);
             });
         });
     </script>
