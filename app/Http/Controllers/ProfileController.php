@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules;
 
 class ProfileController extends Controller
 {
@@ -192,6 +194,70 @@ class ProfileController extends Controller
         ];
 
         return view('profiles.index', compact('users', 'workTypes', 'sortOptions'));
+    }
+
+    /**
+     * Update the user's password.
+     */
+    public function updatePassword(Request $request)
+    {
+        $user = Auth::user();
+        
+        // Debug: Log everything
+        \Log::info('Password change request - DEBUG', [
+            'user_id' => $user ? $user->id : 'null',
+            'email' => $user ? $user->email : 'null',
+            'request_method' => $request->method(),
+            'request_data' => $request->only(['current_password', 'password', 'password_confirmation']),
+            'all_request_data' => $request->all(),
+            'has_current_password' => $request->has('current_password'),
+            'current_password_value' => $request->input('current_password'),
+            'content_type' => $request->header('Content-Type'),
+            'is_json' => $request->isJson(),
+            'is_form' => $request->is('*')
+        ]);
+
+        if (!$user) {
+            \Log::error('No authenticated user for password change');
+            return response()->json([
+                'success' => false,
+                'message' => 'You must be logged in to change your password.'
+            ], 401);
+        }
+
+        $request->validate([
+            'current_password' => 'required',
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        // Check if current password is correct
+        if (!Hash::check($request->current_password, $user->password)) {
+            \Log::warning('Password change failed - incorrect current password', [
+                'user_id' => $user->id,
+                'email' => $user->email
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'The current password is incorrect.',
+                'errors' => [
+                    'current_password' => ['The current password is incorrect.']
+                ]
+            ], 422);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        \Log::info('Password changed successfully', [
+            'user_id' => $user->id,
+            'email' => $user->email
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password updated successfully!'
+        ]);
     }
 
     /**
