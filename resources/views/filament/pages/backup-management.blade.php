@@ -52,13 +52,7 @@
                     <div class="ml-4">
                         <p class="text-sm font-medium" style="color: black !important;">Total Size</p>
                         <p class="text-sm font-semibold" style="color: black !important;">
-                            @php
-                                $totalSize = 0;
-                                foreach($this->getBackups() as $backup) {
-                                    $totalSize += str_replace([' KB', ' MB', ' GB', ' B'], '', $backup['size']);
-                                }
-                            @endphp
-                            {{ number_format($totalSize, 2) }} MB
+                            {{ $this->getTotalBackupSize() }}
                         </p>
                     </div>
                 </div>

@@ -137,6 +137,31 @@ class BackupManagement extends Page
         }, "backup_{$backupName}.zip");
     }
 
+    public function getTotalBackupSize(): string
+    {
+        $backups = $this->getBackups();
+        $totalSizeBytes = 0;
+
+        foreach ($backups as $backup) {
+            $sizeStr = $backup['size'];
+            $sizeValue = (float) str_replace([' KB', ' MB', ' GB', ' B'], '', $sizeStr);
+            
+            if (strpos($sizeStr, 'GB') !== false) {
+                $totalSizeBytes += $sizeValue * 1024 * 1024 * 1024;
+            } elseif (strpos($sizeStr, 'MB') !== false) {
+                $totalSizeBytes += $sizeValue * 1024 * 1024;
+            } elseif (strpos($sizeStr, 'KB') !== false) {
+                $totalSizeBytes += $sizeValue * 1024;
+            } else {
+                $totalSizeBytes += $sizeValue;
+            }
+        }
+
+        // Convert to MB
+        $totalSizeMB = $totalSizeBytes / (1024 * 1024);
+        return number_format($totalSizeMB, 2) . ' MB';
+    }
+
     public function cleanupOldBackups(): void
     {
         $backupDir = 'backups';
