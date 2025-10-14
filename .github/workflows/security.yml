@@ -34,7 +34,7 @@ on:
 jobs:
   dependency-scan:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'dependencies' }}
+    if: ${{ github.event_name == 'push' || github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'dependencies' }}
     steps:
     - uses: actions/checkout@v5
 
@@ -57,7 +57,7 @@ jobs:
 
   npm-audit:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'dependencies' }}
+    if: ${{ github.event_name == 'push' || github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'dependencies' }}
     steps:
     - uses: actions/checkout@v5
 
@@ -81,7 +81,7 @@ jobs:
 
   codeql-analysis:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'codeql' }}
+    if: ${{ github.event_name == 'push' || github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'codeql' }}
     permissions:
       actions: read
       contents: read
@@ -110,7 +110,7 @@ jobs:
 
   php-static-analysis:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'codeql' }}
+    if: ${{ github.event_name == 'push' || github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'codeql' }}
     
     steps:
     - uses: actions/checkout@v5
@@ -137,7 +137,7 @@ jobs:
 
   secret-scan:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'secrets' }}
+    if: ${{ github.event_name == 'push' || github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'secrets' }}
     steps:
     - uses: actions/checkout@v5
       with:
@@ -153,7 +153,7 @@ jobs:
 
   lighthouse-security:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' || github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'lighthouse' }}
+    if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' || github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'lighthouse' }}
     
     steps:
     - uses: actions/checkout@v5
