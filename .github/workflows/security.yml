@@ -87,43 +87,53 @@ jobs:
       contents: read
       security-events: write
 
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'php', 'javascript' ]
-
     steps:
     - uses: actions/checkout@v5
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v4
       with:
-        languages: ${{ matrix.language }}
+        languages: javascript
         queries: security-and-quality
 
-    - name: Setup PHP
-      if: matrix.language == 'php'
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.4'
-
     - name: Setup Node.js
-      if: matrix.language == 'javascript'
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
 
-    - name: Install Composer dependencies
-      if: matrix.language == 'php'
-      run: composer install --no-progress --prefer-dist
-
     - name: Install NPM dependencies
-      if: matrix.language == 'javascript'
       run: npm ci
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4
+
+  php-static-analysis:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'codeql' }}
+    
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.4'
+        extensions: mbstring, dom, fileinfo, mysql, sqlite3, pdo_mysql, pdo_sqlite, bcmath, gd, zip, curl, intl, xml, json, iconv, openssl, tokenizer, ctype, fileinfo, pdo, session, simplexml, xmlreader, xmlwriter, zip, zlib
+
+    - name: Install Composer dependencies
+      run: composer install --no-progress --prefer-dist
+
+    - name: Run PHPStan Static Analysis
+      run: |
+        composer require --dev phpstan/phpstan --no-interaction
+        ./vendor/bin/phpstan analyse app/ --level=5 --no-progress
+
+    - name: Run Psalm Static Analysis
+      run: |
+        composer require --dev vimeo/psalm --no-interaction
+        ./vendor/bin/psalm --init
+        ./vendor/bin/psalm --no-progress
 
   secret-scan:
     runs-on: ubuntu-latest
