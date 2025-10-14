@@ -10,6 +10,8 @@ use Carbon\Carbon;
 
 class Job extends Model
 {
+    protected $table = 'job_postings';
+    
     protected $fillable = [
         'title',
         'description',
