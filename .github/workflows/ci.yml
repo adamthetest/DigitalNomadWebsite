@@ -31,7 +31,7 @@ jobs:
         coverage: xdebug
 
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: '20'
         cache: 'npm'
@@ -99,7 +99,7 @@ jobs:
         extensions: mbstring, dom, fileinfo, mysql, sqlite3, pdo_mysql, pdo_sqlite, bcmath, gd, zip, curl, intl, xml, json, iconv, openssl, tokenizer, ctype, fileinfo, pdo, session, simplexml, xmlreader, xmlwriter, zip, zlib
 
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: '20'
         cache: 'npm'
