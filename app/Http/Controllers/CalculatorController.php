@@ -76,6 +76,7 @@ class CalculatorController extends Controller
 
     /**
      * Compare cost of living between multiple cities
+     *
      * @return \Illuminate\View\View
      */
     public function compare(Request $request)

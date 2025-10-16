@@ -54,6 +54,7 @@ class CoworkingSpaceController extends Controller
 
     /**
      * Get coworking spaces for a specific city.
+     *
      * @return \Illuminate\View\View
      */
     public function byCity(City $city)

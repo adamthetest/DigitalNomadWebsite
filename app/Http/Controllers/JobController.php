@@ -232,7 +232,7 @@ class JobController extends Controller
 
     /**
      * Show jobs for a specific company
-     * @param Company $company
+     *
      * @return \Illuminate\View\View
      */
     public function company(Company $company)
