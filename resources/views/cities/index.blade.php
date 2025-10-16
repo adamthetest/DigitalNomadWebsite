@@ -303,19 +303,24 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize the map
-    const map = L.map('citiesMap').setView([20, 0], 2);
+document.addEventListener('DOMContentLoaded', async function() {
+    // Only log in development
+    if (window.location.hostname === 'localhost') {
+        console.log('🗺️ Initializing cities map...');
+    }
     
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19
-    }).addTo(map);
+        // Initialize the map
+        const map = SimpleMap.initializeMap('citiesMap', 20, 0, 2);
+    
+    if (!map) {
+        console.error('❌ Failed to initialize cities map');
+        return;
+    }
     
     // Add markers for each city
     const markers = [];
     @foreach($cities as $city)
+        @if($city->latitude && $city->longitude)
         const marker{{ $city->id }} = L.marker([{{ $city->latitude }}, {{ $city->longitude }}])
             .addTo(map)
             .bindPopup(`
@@ -339,7 +344,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     </a>
                 </div>
             `);
-        markers.push(marker{{ $city->id }});
+            markers.push(marker{{ $city->id }});
+        @endif
     @endforeach
     
     // Fit map to show all markers

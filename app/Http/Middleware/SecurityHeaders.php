@@ -38,10 +38,10 @@ class SecurityHeaders
         // Content Security Policy - prevent XSS and code injection
         $csp = "default-src 'self'; ".
                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; ".
-               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; ".
-               "font-src 'self' https://fonts.gstatic.com; ".
-               "img-src 'self' data: https:; ".
-               "connect-src 'self' ws: wss:; ".
+               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.bunny.net https://cdn.jsdelivr.net https://unpkg.com; ".
+               "font-src 'self' https://fonts.gstatic.com https://fonts.bunny.net; ".
+               "img-src 'self' data: https: https://*.tile.openstreetmap.org https://*.tile.osm.org; ".
+               "connect-src 'self' ws: wss: https://*.tile.openstreetmap.org https://*.tile.osm.org; ".
                "frame-ancestors 'none';";
         $response->headers->set('Content-Security-Policy', $csp);
 
@@ -64,6 +64,9 @@ class SecurityHeaders
         if ($request->secure()) {
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
         }
+        
+        // Cross-Origin-Opener-Policy - prevent cross-origin attacks
+        $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin');
 
         return $response;
     }

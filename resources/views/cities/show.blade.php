@@ -240,36 +240,42 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize the map
-    const map = L.map('cityMap').setView([{{ $city->latitude }}, {{ $city->longitude }}], 12);
+document.addEventListener('DOMContentLoaded', async function() {
+    // Only log in development
+    if (window.location.hostname === 'localhost') {
+        console.log('🗺️ Initializing city map...');
+    }
     
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19
-    }).addTo(map);
-    
-    // Add a marker for the city
-    const cityMarker = L.marker([{{ $city->latitude }}, {{ $city->longitude }}])
-        .addTo(map)
-        .bindPopup(`
-            <div class="text-center">
-                <h3 class="font-bold text-lg">{{ $city->name }}</h3>
-                <p class="text-sm text-gray-600">{{ $city->country->name }}</p>
-                @if($city->description)
-                    <p class="text-sm mt-2">{{ Str::limit($city->description, 100) }}</p>
-                @endif
-            </div>
-        `);
-    
-    // Add markers for coworking spaces if they exist
-    @if($coworkingSpaces->count() > 0)
-        @foreach($coworkingSpaces as $space)
-            @if($space->latitude && $space->longitude)
-                L.marker([{{ $space->latitude }}, {{ $space->longitude }}], {
-                    icon: L.divIcon({
-                        className: 'coworking-marker',
+        // Check if city has coordinates
+        @if($city->latitude && $city->longitude)
+            // Initialize the map
+            const map = SimpleMap.initializeMap('cityMap', {{ $city->latitude }}, {{ $city->longitude }}, 12);
+        
+        if (!map) {
+            console.error('❌ Failed to initialize city map');
+            return;
+        }
+        
+        // Add a marker for the city
+        const cityMarker = L.marker([{{ $city->latitude }}, {{ $city->longitude }}])
+            .addTo(map)
+            .bindPopup(`
+                <div class="text-center">
+                    <h3 class="font-bold text-lg">{{ $city->name }}</h3>
+                    <p class="text-sm text-gray-600">{{ $city->country->name }}</p>
+                    @if($city->description)
+                        <p class="text-sm mt-2">{{ Str::limit($city->description, 100) }}</p>
+                    @endif
+                </div>
+            `);
+        
+        // Add markers for coworking spaces if they exist
+        @if($coworkingSpaces->count() > 0)
+            @foreach($coworkingSpaces as $space)
+                @if($space->latitude && $space->longitude)
+                    L.marker([{{ $space->latitude }}, {{ $space->longitude }}], {
+                        icon: L.divIcon({
+                            className: 'coworking-marker',
                         html: '<div style="background-color: #3B82F6; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>',
                         iconSize: [20, 20],
                         iconAnchor: [10, 10]
@@ -287,10 +293,14 @@ document.addEventListener('DOMContentLoaded', function() {
         @endforeach
     @endif
     
-    // Fit map to show all markers
-    if (map.getBounds().isValid()) {
-        map.fitBounds(map.getBounds(), { padding: [20, 20] });
-    }
+        // Fit map to show all markers
+        if (map.getBounds().isValid()) {
+            map.fitBounds(map.getBounds(), { padding: [20, 20] });
+        }
+    @else
+            // Show error message if no coordinates
+            SimpleMap.showMapError('cityMap', 'City coordinates not available');
+    @endif
 });
 
 function toggleFavorite(favoritableId, favoritableType, category) {

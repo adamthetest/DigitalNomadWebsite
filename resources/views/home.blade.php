@@ -187,43 +187,49 @@
 </section>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize the home page map
-    const map = L.map('homeMap').setView([20, 0], 2);
+document.addEventListener('DOMContentLoaded', async function() {
+    // Only log in development
+    if (window.location.hostname === 'localhost') {
+        console.log('🗺️ Initializing home page map...');
+    }
     
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19
-    }).addTo(map);
+        // Initialize the home page map
+        const map = SimpleMap.initializeMap('homeMap', 20, 0, 2);
+    
+    if (!map) {
+        console.error('❌ Failed to initialize home page map');
+        return;
+    }
     
     // Add markers for featured cities
     const markers = [];
     @foreach($featuredCities as $city)
-        const marker{{ $city->id }} = L.marker([{{ $city->latitude }}, {{ $city->longitude }}])
-            .addTo(map)
-            .bindPopup(`
-                <div class="text-center">
-                    <h3 class="font-bold text-lg">{{ $city->name }}</h3>
-                    <p class="text-sm text-gray-600">{{ $city->country->name }}</p>
-                    <div class="mt-2 space-y-1">
-                        @if($city->cost_of_living_index)
-                            <p class="text-sm"><span class="font-semibold">Cost:</span> ${{ $city->cost_of_living_index }}/month</p>
-                        @endif
-                        @if($city->internet_speed)
-                            <p class="text-sm"><span class="font-semibold">Internet:</span> {{ $city->internet_speed }} Mbps</p>
-                        @endif
-                        @if($city->safety_score)
-                            <p class="text-sm"><span class="font-semibold">Safety:</span> {{ $city->safety_score }}/10</p>
-                        @endif
+        @if($city->latitude && $city->longitude)
+            const marker{{ $city->id }} = L.marker([{{ $city->latitude }}, {{ $city->longitude }}])
+                .addTo(map)
+                .bindPopup(`
+                    <div class="text-center">
+                        <h3 class="font-bold text-lg">{{ $city->name }}</h3>
+                        <p class="text-sm text-gray-600">{{ $city->country->name }}</p>
+                        <div class="mt-2 space-y-1">
+                            @if($city->cost_of_living_index)
+                                <p class="text-sm"><span class="font-semibold">Cost:</span> ${{ $city->cost_of_living_index }}/month</p>
+                            @endif
+                            @if($city->internet_speed)
+                                <p class="text-sm"><span class="font-semibold">Internet:</span> {{ $city->internet_speed }} Mbps</p>
+                            @endif
+                            @if($city->safety_score)
+                                <p class="text-sm"><span class="font-semibold">Safety:</span> {{ $city->safety_score }}/10</p>
+                            @endif
+                        </div>
+                        <a href="{{ route('cities.show', $city) }}" 
+                           class="inline-block mt-2 bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+                            Explore City
+                        </a>
                     </div>
-                    <a href="{{ route('cities.show', $city) }}" 
-                       class="inline-block mt-2 bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
-                        Explore City
-                    </a>
-                </div>
-            `);
-        markers.push(marker{{ $city->id }});
+                `);
+            markers.push(marker{{ $city->id }});
+        @endif
     @endforeach
     
     // Fit map to show all markers

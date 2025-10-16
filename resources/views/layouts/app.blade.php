@@ -18,6 +18,67 @@
     <!-- Leaflet Maps -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Simple Map Initialization -->
+    <script>
+        /**
+         * Simple Map Initialization
+         * 
+         * Provides a clean, error-free map initialization without console logging.
+         */
+
+        class SimpleMap {
+            static initializeMap(containerId, lat, lng, zoom = 12) {
+                try {
+                    // Check if Leaflet is loaded
+                    if (typeof L === 'undefined') {
+                        this.showMapError(containerId, 'Map library not loaded');
+                        return null;
+                    }
+
+                    // Check if container exists
+                    const container = document.getElementById(containerId);
+                    if (!container) {
+                        this.showMapError(containerId, 'Map container not found');
+                        return null;
+                    }
+
+                    // Initialize map
+                    const map = L.map(containerId).setView([lat, lng], zoom);
+                    
+                    // Add tile layer
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                        maxZoom: 19
+                    }).addTo(map);
+
+                    return map;
+
+                } catch (error) {
+                    this.showMapError(containerId, 'Failed to initialize map');
+                    return null;
+                }
+            }
+
+            static showMapError(containerId, message) {
+                const container = document.getElementById(containerId);
+                if (container) {
+                    container.innerHTML = `
+                        <div class="flex items-center justify-center h-full bg-gray-100 rounded-lg">
+                            <div class="text-center p-8">
+                                <div class="text-6xl mb-4">🗺️</div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">Map Unavailable</h3>
+                                <p class="text-gray-600 mb-4">${message}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Make SimpleMap available globally
+        window.SimpleMap = SimpleMap;
+    </script>
 </head>
 <body class="font-sans antialiased bg-gray-50">
     <!-- Navigation -->

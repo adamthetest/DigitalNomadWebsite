@@ -223,28 +223,38 @@
 
 @if($coworkingSpace->latitude && $coworkingSpace->longitude)
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize the map
-    const map = L.map('spaceMap').setView([{{ $coworkingSpace->latitude }}, {{ $coworkingSpace->longitude }}], 15);
+document.addEventListener('DOMContentLoaded', async function() {
+    // Only log in development
+    if (window.location.hostname === 'localhost') {
+        console.log('🗺️ Initializing coworking space map...');
+    }
     
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19
-    }).addTo(map);
-    
-    // Add a marker for the coworking space
-    L.marker([{{ $coworkingSpace->latitude }}, {{ $coworkingSpace->longitude }}])
-        .addTo(map)
-        .bindPopup(`
-            <div class="text-center">
-                <h3 class="font-bold text-lg">{{ $coworkingSpace->name }}</h3>
-                <p class="text-sm text-gray-600">{{ $coworkingSpace->address }}</p>
-                @if($coworkingSpace->monthly_rate)
-                    <p class="text-sm font-semibold text-green-600 mt-2">${{ $coworkingSpace->monthly_rate }}/month</p>
-                @endif
-            </div>
-        `);
+        // Check if coworking space has coordinates
+        @if($coworkingSpace->latitude && $coworkingSpace->longitude)
+            // Initialize the map
+            const map = SimpleMap.initializeMap('spaceMap', {{ $coworkingSpace->latitude }}, {{ $coworkingSpace->longitude }}, 15);
+        
+        if (!map) {
+            console.error('❌ Failed to initialize coworking space map');
+            return;
+        }
+        
+        // Add a marker for the coworking space
+        L.marker([{{ $coworkingSpace->latitude }}, {{ $coworkingSpace->longitude }}])
+            .addTo(map)
+            .bindPopup(`
+                <div class="text-center">
+                    <h3 class="font-bold text-lg">{{ $coworkingSpace->name }}</h3>
+                    <p class="text-sm text-gray-600">{{ $coworkingSpace->address }}</p>
+                    @if($coworkingSpace->monthly_rate)
+                        <p class="text-sm font-semibold text-green-600 mt-2">${{ $coworkingSpace->monthly_rate }}/month</p>
+                    @endif
+                </div>
+            `);
+    @else
+        // Show error message if no coordinates
+        SimpleMap.showMapError('spaceMap', 'Coworking space coordinates not available');
+    @endif
 });
 </script>
 @endif
