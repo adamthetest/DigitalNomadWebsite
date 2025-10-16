@@ -1,0 +1,85 @@
+#!/bin/bash
+
+# Git pre-push hook to run quality checks before pushing
+# This script runs Laravel Pint, PHPStan, and tests before allowing a push
+# 
+# To install this hook:
+# 1. Copy this file to .git/hooks/pre-push
+# 2. Make it executable: chmod +x .git/hooks/pre-push
+#
+# Usage: This hook runs automatically before every git push
+
+set -e  # Exit on any error
+
+echo "🚀 Running pre-push quality checks..."
+echo "=================================="
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+print_status() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Check if we're in a Laravel project
+if [ ! -f "artisan" ]; then
+    print_error "This doesn't appear to be a Laravel project (artisan file not found)"
+    exit 1
+fi
+
+# Check if composer dependencies are installed
+if [ ! -d "vendor" ]; then
+    print_error "Composer dependencies not installed. Run 'composer install' first."
+    exit 1
+fi
+
+print_status "Running Laravel Pint (Code Style Check)..."
+if ./vendor/bin/pint --test; then
+    print_success "Laravel Pint passed ✅"
+else
+    print_error "Laravel Pint failed ❌"
+    print_warning "Run './vendor/bin/pint' to fix style issues"
+    exit 1
+fi
+
+print_status "Running PHPStan (Static Analysis)..."
+if ./vendor/bin/phpstan analyse app --memory-limit=512M; then
+    print_success "PHPStan passed ✅"
+else
+    print_error "PHPStan failed ❌"
+    print_warning "Fix static analysis issues before pushing"
+    exit 1
+fi
+
+print_status "Running Tests..."
+if php artisan test; then
+    print_success "Tests passed ✅"
+else
+    print_error "Tests failed ❌"
+    print_warning "Fix failing tests before pushing"
+    exit 1
+fi
+
+echo ""
+print_success "All quality checks passed! 🎉"
+print_status "Proceeding with push..."
+echo "=================================="
+
+exit 0
