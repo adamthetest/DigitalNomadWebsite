@@ -28,7 +28,7 @@ class UpdateUserLocations extends Command
      */
     public function handle()
     {
-        $limit = $this->option('limit');
+        $limit = (int) $this->option('limit');
         $this->info("Updating locations for up to {$limit} active users...");
 
         // Get users who have been active recently and don't have precise location set

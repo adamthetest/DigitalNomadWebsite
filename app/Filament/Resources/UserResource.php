@@ -253,6 +253,7 @@ class UserResource extends Resource
                         'public' => 'success',
                         'members' => 'warning',
                         'hidden' => 'danger',
+                        default => 'gray',
                     })
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('last_active')

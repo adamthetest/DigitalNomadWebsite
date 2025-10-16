@@ -82,7 +82,7 @@ class BannedIp extends Model
     public static function unbanIp(string $ipAddress): bool
     {
         return static::where('ip_address', $ipAddress)
-            ->update(['is_active' => false]);
+            ->update(['is_active' => false]) > 0;
     }
 
     /**

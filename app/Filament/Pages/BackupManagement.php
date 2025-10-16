@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class BackupManagement extends Page
@@ -405,12 +406,8 @@ class BackupManagement extends Page
             $this->dispatch('backup-restore-failed', 'Exception: '.$e->getMessage());
 
             // Cleanup on error
-            if (isset($extractPath)) {
-                Storage::disk('local')->deleteDirectory($extractPath);
-            }
-            if (isset($filePath)) {
-                Storage::disk('local')->delete($filePath);
-            }
+            Storage::disk('local')->deleteDirectory($extractPath);
+            Storage::disk('local')->delete($filePath);
         }
     }
 

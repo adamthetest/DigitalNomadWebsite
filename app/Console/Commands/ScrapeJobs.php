@@ -7,6 +7,7 @@ use App\Models\Job;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class ScrapeJobs extends Command
 {
@@ -29,7 +30,7 @@ class ScrapeJobs extends Command
      */
     public function handle()
     {
-        $limit = $this->option('limit');
+        $limit = (int) $this->option('limit');
         $this->info("Starting job scraping process (limit: {$limit} per source)...");
 
         $totalScraped = 0;
@@ -240,7 +241,7 @@ class ScrapeJobs extends Command
         if (! $company) {
             $company = Company::create([
                 'name' => $name,
-                'slug' => \Str::slug($name),
+                'slug' => Str::slug($name),
                 'verified' => false,
                 'subscription_plan' => 'basic',
                 'is_active' => true,

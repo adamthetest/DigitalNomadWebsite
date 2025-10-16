@@ -43,7 +43,7 @@ class SuggestSkills extends Command
      */
     public function handle()
     {
-        $limit = $this->option('limit');
+        $limit = (int) $this->option('limit');
         $this->info("Suggesting skills for up to {$limit} users...");
 
         // Get users who have bio or job title but few or no skills

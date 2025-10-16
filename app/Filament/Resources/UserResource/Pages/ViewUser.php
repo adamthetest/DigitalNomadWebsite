@@ -18,7 +18,7 @@ class ViewUser extends ViewRecord
                 ->label('Verify Email')
                 ->icon('heroicon-o-check-circle')
                 ->color('success')
-                ->visible(fn (): bool => is_null($this->record->email_verified_at))
+                ->visible(fn (): bool => $this->record instanceof \App\Models\User && is_null($this->record->email_verified_at))
                 ->action(function () {
                     $this->record->update(['email_verified_at' => now()]);
                 })

@@ -164,6 +164,7 @@ class JobResource extends Resource
                         'contract' => 'info',
                         'freelance' => 'gray',
                         'internship' => 'purple',
+                        default => 'gray',
                     }),
                 Tables\Columns\TextColumn::make('remote_type')
                     ->label('Remote')
@@ -173,6 +174,7 @@ class JobResource extends Resource
                         'hybrid' => 'warning',
                         'timezone-limited' => 'info',
                         'onsite' => 'danger',
+                        default => 'gray',
                     }),
                 Tables\Columns\TextColumn::make('formatted_salary')
                     ->label('Salary')
@@ -199,6 +201,7 @@ class JobResource extends Resource
                         'manual' => 'success',
                         'scraped' => 'info',
                         'api' => 'warning',
+                        default => 'gray',
                     }),
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Active')

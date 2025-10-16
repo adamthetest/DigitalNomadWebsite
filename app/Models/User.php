@@ -182,7 +182,7 @@ class User extends Authenticatable
             }
         }
 
-        return round(($completed / count($fields)) * 100);
+        return (int) round(($completed / count($fields)) * 100);
     }
 
     /**
@@ -194,7 +194,7 @@ class User extends Authenticatable
             // Return only country if location_precise is false
             $parts = explode(',', $this->location_current);
 
-            return trim(end($parts)) ?? $this->location_current;
+            return trim(end($parts)) ?: $this->location_current;
         }
 
         return $this->location_current ?? $this->location ?? 'Location not set';
@@ -227,7 +227,7 @@ class User extends Authenticatable
      */
     public function isOnline(): bool
     {
-        return $this->last_active && $this->last_active->isAfter(now()->subMinutes(15));
+        return $this->last_active?->isAfter(now()->subMinutes(15)) ?? false;
     }
 
     /**

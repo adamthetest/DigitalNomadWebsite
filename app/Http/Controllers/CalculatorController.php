@@ -59,13 +59,13 @@ class CalculatorController extends Controller
         $totalCost = 0;
 
         foreach ($costItems as $item) {
-            $customPrice = $request->input("custom_costs.{$item->id}", $item->price);
+            $customPrice = $request->input("custom_costs.{$item->id}", $item->price_average);
 
             $costBreakdown[$item->category][] = [
                 'name' => $item->name,
                 'price' => $customPrice,
-                'original_price' => $item->price,
-                'is_custom' => $customPrice != $item->price,
+                'original_price' => $item->price_average,
+                'is_custom' => $customPrice != $item->price_average,
             ];
 
             $totalCost += $customPrice;
@@ -75,7 +75,8 @@ class CalculatorController extends Controller
     }
 
     /**
-     * Compare costs between multiple cities.
+     * Compare cost of living between multiple cities
+     * @return \Illuminate\View\View
      */
     public function compare(Request $request)
     {

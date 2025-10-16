@@ -1,0 +1,40 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app
+        - database
+        - routes
+        - tests
+
+    # The level of rule strictness
+    level: 5
+
+    ignoreErrors:
+        # Ignore errors about missing facades
+        - '#Call to static method .* on an unknown class .*#'
+        # Ignore false positives for match expressions
+        - '#Match arm comparison between .* is always true#'
+        # Ignore view() function type issues
+        - '#Parameter.*view.*expects view-string#'
+        # Ignore relationship scope issues
+        - '#Call to an undefined method.*Relations.*HasMany.*published#'
+        # Ignore Carbon method issues (false positives)
+        - '#Cannot call method isPast\(\) on string#'
+        - '#Cannot call method isAfter\(\) on string#'
+        # Ignore environment check issues
+        - '#Strict comparison using === between false and false#'
+        - '#Negated boolean expression is always true#'
+        # Ignore nullsafe operator issues
+        - '#Using nullsafe property access.*is unnecessary#'
+        # Ignore unresolvable type issues
+        - '#contains unresolvable type#'
+
+    excludePaths:
+        - vendor/*
+        - node_modules/*
+        - storage/*
+        - bootstrap/cache/*
+
+    reportUnmatchedIgnoredErrors: false

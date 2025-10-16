@@ -122,6 +122,7 @@ class CompanyResource extends Resource
                         'basic' => 'gray',
                         'premium' => 'warning',
                         'enterprise' => 'success',
+                        default => 'gray',
                     }),
                 Tables\Columns\TextColumn::make('jobs_count')
                     ->label('Active Jobs')

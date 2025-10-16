@@ -99,7 +99,7 @@ class Job extends Model
      */
     public function isExpired(): bool
     {
-        return $this->expires_at && $this->expires_at->isPast();
+        return $this->expires_at?->isPast() ?? false;
     }
 
     /**
@@ -107,7 +107,7 @@ class Job extends Model
      */
     public function isPublished(): bool
     {
-        return $this->published_at && $this->published_at->isPast();
+        return $this->published_at?->isPast() ?? false;
     }
 
     /**
