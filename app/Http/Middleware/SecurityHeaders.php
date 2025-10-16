@@ -64,7 +64,7 @@ class SecurityHeaders
         if ($request->secure()) {
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
         }
-        
+
         // Cross-Origin-Opener-Policy - prevent cross-origin attacks
         $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin');
 
