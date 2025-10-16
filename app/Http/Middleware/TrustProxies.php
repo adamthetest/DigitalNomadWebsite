@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 /**
  * Trust Proxies Middleware
- * 
+ *
  * Configures which proxies should be trusted by the application
  * to handle HTTPS requests behind load balancers or reverse proxies.
  */
