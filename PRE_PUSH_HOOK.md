@@ -4,11 +4,12 @@ This project includes a Git pre-push hook that automatically runs quality checks
 
 ## What the Hook Does
 
-The pre-push hook runs three essential quality checks in sequence:
+The pre-push hook runs four essential quality checks in sequence:
 
 1. **Laravel Pint** - Code style formatting and validation
-2. **PHPStan** - Static analysis for type safety and error detection  
-3. **Tests** - Unit and feature test suite execution
+2. **PHPStan** - Static analysis for type safety and error detection
+3. **Security Audit** - Comprehensive security vulnerability scanning
+4. **Tests** - Unit and feature test suite execution
 
 If any of these checks fail, the push is blocked and you'll need to fix the issues before pushing.
 
@@ -53,6 +54,8 @@ When you push, you'll see output like this:
 [SUCCESS] Laravel Pint passed ✅
 [INFO] Running PHPStan (Static Analysis)...
 [SUCCESS] PHPStan passed ✅
+[INFO] Running Security Audit...
+[SUCCESS] Security audit passed ✅
 [INFO] Running Tests...
 [SUCCESS] Tests passed ✅
 
@@ -71,6 +74,19 @@ If any check fails, you'll see error messages and the push will be blocked:
 ```
 
 Fix the issues and try pushing again.
+
+## Security Audit Details
+
+The security audit performs comprehensive security checks including:
+
+- **Dependency Vulnerabilities**: Scans Composer and NPM packages for known security issues
+- **Configuration Security**: Validates environment and application security settings
+- **Authentication & Authorization**: Checks password hashing, session management, and access controls
+- **Input/Output Security**: Validates input validation and XSS protection
+- **Infrastructure Security**: Checks file permissions, CSRF protection, and security headers
+- **Code Security**: Reviews for SQL injection, file upload security, and other vulnerabilities
+
+The audit generates a security score (0-100) and provides actionable recommendations for improvement.
 
 ## Bypassing the Hook (Not Recommended)
 

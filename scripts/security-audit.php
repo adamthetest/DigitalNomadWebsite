@@ -171,7 +171,7 @@ class SecurityAudit
                 $sessionDriver = trim($matches[1]);
             }
         }
-        
+
         if ($sessionDriver === 'file') {
             $this->recommendations[] = "Consider using 'redis' or 'database' session driver for better security";
             echo "  ⚠️  Using file session driver (consider redis/database)\n";
@@ -201,7 +201,7 @@ class SecurityAudit
                 $perms = fileperms($fullPath) & 0777;
                 $expectedOctal = $expectedPerms[0];
                 $expectedDecimal = $expectedPerms[1];
-                
+
                 if ($perms !== $expectedDecimal && $perms !== $expectedOctal) {
                     $this->recommendations[] = "Set correct permissions for {$path} (current: {$perms}, expected: {$expectedOctal})";
                     $this->score -= 5;
@@ -256,7 +256,7 @@ class SecurityAudit
 
         // Check password hashing
         $hasPasswordHashing = false;
-        
+
         // Check User model for password casting
         if (file_exists(__DIR__.'/../app/Models/User.php')) {
             $userModel = file_get_contents(__DIR__.'/../app/Models/User.php');
@@ -264,7 +264,7 @@ class SecurityAudit
                 $hasPasswordHashing = true;
             }
         }
-        
+
         // Check registration controller
         if (file_exists(__DIR__.'/../app/Http/Controllers/Auth/RegisterController.php')) {
             $registerController = file_get_contents(__DIR__.'/../app/Http/Controllers/Auth/RegisterController.php');
@@ -272,7 +272,7 @@ class SecurityAudit
                 $hasPasswordHashing = true;
             }
         }
-        
+
         // Check password reset controller
         if (file_exists(__DIR__.'/../app/Http/Controllers/Auth/PasswordResetController.php')) {
             $passwordResetController = file_get_contents(__DIR__.'/../app/Http/Controllers/Auth/PasswordResetController.php');
@@ -280,7 +280,7 @@ class SecurityAudit
                 $hasPasswordHashing = true;
             }
         }
-        
+
         if ($hasPasswordHashing) {
             echo "  ✅ Password hashing is implemented\n";
         } else {
@@ -440,7 +440,7 @@ class SecurityAudit
                 $sessionSecure = trim($matches[1]) === 'true';
             }
         }
-        
+
         if (! $sessionSecure) {
             $this->recommendations[] = 'Enable SESSION_SECURE_COOKIE for HTTPS';
             echo "  ⚠️  SESSION_SECURE_COOKIE is disabled\n";
@@ -621,7 +621,7 @@ class SecurityAudit
 
         // Check if CSRF middleware is applied (Laravel 11 has CSRF enabled by default)
         $hasCSRFProtection = false;
-        
+
         // Check bootstrap/app.php for CSRF configuration
         if (file_exists(__DIR__.'/../bootstrap/app.php')) {
             $bootstrap = file_get_contents(__DIR__.'/../bootstrap/app.php');
@@ -629,21 +629,21 @@ class SecurityAudit
                 $hasCSRFProtection = true;
             }
         }
-        
+
         // Check for CSRF middleware file
         if (file_exists(__DIR__.'/../app/Http/Middleware/VerifyCsrfToken.php')) {
             $hasCSRFProtection = true;
         }
-        
+
         // Laravel 11+ has CSRF enabled by default for web routes
         // Check if we're using web routes (which have CSRF by default)
         if (file_exists(__DIR__.'/../routes/web.php')) {
             $webRoutes = file_get_contents(__DIR__.'/../routes/web.php');
-            if (str_contains($webRoutes, 'Route::') && !str_contains($webRoutes, 'Route::apiResource')) {
+            if (str_contains($webRoutes, 'Route::') && ! str_contains($webRoutes, 'Route::apiResource')) {
                 $hasCSRFProtection = true;
             }
         }
-        
+
         if ($hasCSRFProtection) {
             echo "  ✅ CSRF protection is configured\n";
         } else {
