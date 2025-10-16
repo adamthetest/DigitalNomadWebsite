@@ -15,9 +15,14 @@ use App\Http\Controllers\JobController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TestSessionController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Test session routes (temporary)
+Route::get('/test-session', [TestSessionController::class, 'testSession'])->name('test.session');
+Route::post('/test-session', [TestSessionController::class, 'testSessionPost'])->name('test.session.post');
 
 // Public city routes
 Route::get('/cities', [CityController::class, 'index'])->name('cities.index');
@@ -91,7 +96,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Authentication Routes with rate limiting
-Route::middleware(['guest', 'throttle:5,1'])->group(function () {
+Route::middleware(['guest', 'throttle:20,1'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
 
