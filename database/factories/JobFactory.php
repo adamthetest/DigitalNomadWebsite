@@ -42,7 +42,7 @@ class JobFactory extends Factory
             'published_at' => fake()->dateTimeBetween('-1 month', 'now'),
             'views_count' => fake()->numberBetween(0, 1000),
             'applications_count' => fake()->numberBetween(0, 50),
-            'location' => fake()->city() . ', ' . fake()->country(),
+            'location' => fake()->city().', '.fake()->country(),
             'experience_level' => fake()->randomElements(['junior', 'mid', 'senior', 'lead'], 2),
         ];
     }

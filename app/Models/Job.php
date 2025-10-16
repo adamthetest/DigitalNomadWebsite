@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Job extends Model
 {
     use HasFactory;
+
     protected $table = 'job_postings';
 
     protected $fillable = [

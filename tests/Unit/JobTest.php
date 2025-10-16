@@ -2,10 +2,9 @@
 
 namespace Tests\Unit;
 
-use App\Models\Job;
 use App\Models\Company;
+use App\Models\Job;
 use App\Models\JobUserInteraction;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -29,7 +28,7 @@ class JobTest extends TestCase
 
     public function test_job_has_fillable_attributes()
     {
-        $job = new Job();
+        $job = new Job;
         $fillable = $job->getFillable();
 
         $expectedFillable = [
@@ -38,7 +37,7 @@ class JobTest extends TestCase
             'salary_period', 'tags', 'timezone', 'visa_support', 'source',
             'source_url', 'apply_url', 'apply_email', 'featured', 'is_active',
             'expires_at', 'published_at', 'views_count', 'applications_count',
-            'location', 'experience_level'
+            'location', 'experience_level',
         ];
 
         $this->assertEquals($expectedFillable, $fillable);
@@ -53,7 +52,7 @@ class JobTest extends TestCase
             'tags' => ['PHP', 'Laravel', 'JavaScript'],
             'experience_level' => ['senior', 'lead'],
             'salary_min' => '50000',
-            'salary_max' => '80000'
+            'salary_max' => '80000',
         ]);
 
         $this->assertIsBool($job->visa_support);
@@ -86,29 +85,29 @@ class JobTest extends TestCase
     public function test_job_has_saved_by_users_relationship()
     {
         $job = Job::factory()->create();
-        
+
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $job->savedByUsers());
     }
 
     public function test_job_has_applied_by_users_relationship()
     {
         $job = Job::factory()->create();
-        
+
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\BelongsToMany::class, $job->appliedByUsers());
     }
 
     public function test_is_expired_method()
     {
         $expiredJob = Job::factory()->create([
-            'expires_at' => now()->subDay()
+            'expires_at' => now()->subDay(),
         ]);
 
         $activeJob = Job::factory()->create([
-            'expires_at' => now()->addDay()
+            'expires_at' => now()->addDay(),
         ]);
 
         $noExpiryJob = Job::factory()->create([
-            'expires_at' => null
+            'expires_at' => null,
         ]);
 
         $this->assertTrue($expiredJob->isExpired());
@@ -119,15 +118,15 @@ class JobTest extends TestCase
     public function test_is_published_method()
     {
         $publishedJob = Job::factory()->create([
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
 
         $futureJob = Job::factory()->create([
-            'published_at' => now()->addDay()
+            'published_at' => now()->addDay(),
         ]);
 
         $unpublishedJob = Job::factory()->create([
-            'published_at' => null
+            'published_at' => null,
         ]);
 
         $this->assertTrue($publishedJob->isPublished());
@@ -141,7 +140,7 @@ class JobTest extends TestCase
             'salary_min' => 50000,
             'salary_max' => 80000,
             'salary_currency' => 'USD',
-            'salary_period' => 'yearly'
+            'salary_period' => 'yearly',
         ]);
 
         $this->assertEquals('USD 50000 - 80000/year', $job->formatted_salary);
@@ -153,7 +152,7 @@ class JobTest extends TestCase
             'salary_min' => 50000,
             'salary_max' => null,
             'salary_currency' => 'USD',
-            'salary_period' => 'yearly'
+            'salary_period' => 'yearly',
         ]);
 
         $this->assertEquals('USD 50000+/year', $job->formatted_salary);
@@ -165,7 +164,7 @@ class JobTest extends TestCase
             'salary_min' => null,
             'salary_max' => 80000,
             'salary_currency' => 'USD',
-            'salary_period' => 'yearly'
+            'salary_period' => 'yearly',
         ]);
 
         $this->assertEquals('USD 80000/year', $job->formatted_salary);
@@ -175,7 +174,7 @@ class JobTest extends TestCase
     {
         $job = Job::factory()->create([
             'salary_min' => null,
-            'salary_max' => null
+            'salary_max' => null,
         ]);
 
         $this->assertEquals('Salary not specified', $job->formatted_salary);
@@ -187,7 +186,7 @@ class JobTest extends TestCase
             'salary_min' => 5000,
             'salary_max' => 8000,
             'salary_currency' => 'USD',
-            'salary_period' => 'monthly'
+            'salary_period' => 'monthly',
         ]);
 
         $this->assertEquals('USD 5000 - 8000/month', $job->formatted_salary);
@@ -199,7 +198,7 @@ class JobTest extends TestCase
             'salary_min' => 50,
             'salary_max' => 80,
             'salary_currency' => 'USD',
-            'salary_period' => 'hourly'
+            'salary_period' => 'hourly',
         ]);
 
         $this->assertEquals('USD 50 - 80/hour', $job->formatted_salary);
@@ -212,7 +211,7 @@ class JobTest extends TestCase
             'part-time' => 'Part Time',
             'contract' => 'Contract',
             'freelance' => 'Freelance',
-            'internship' => 'Internship'
+            'internship' => 'Internship',
         ];
 
         foreach ($testCases as $type => $expectedLabel) {
@@ -227,7 +226,7 @@ class JobTest extends TestCase
             'fully-remote' => 'Fully Remote',
             'hybrid' => 'Hybrid',
             'timezone-limited' => 'Timezone Limited',
-            'onsite' => 'On-site'
+            'onsite' => 'On-site',
         ];
 
         foreach ($testCases as $remoteType => $expectedLabel) {
@@ -239,18 +238,18 @@ class JobTest extends TestCase
     public function test_increment_views_method()
     {
         $job = Job::factory()->create(['views_count' => 10]);
-        
+
         $job->incrementViews();
-        
+
         $this->assertEquals(11, $job->fresh()->views_count);
     }
 
     public function test_increment_applications_method()
     {
         $job = Job::factory()->create(['applications_count' => 5]);
-        
+
         $job->incrementApplications();
-        
+
         $this->assertEquals(6, $job->fresh()->applications_count);
     }
 

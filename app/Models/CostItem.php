@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class CostItem extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'city_id',
         'category',

@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\Favorite;
-use App\Models\City;
 use App\Models\Article;
+use App\Models\City;
 use App\Models\Deal;
+use App\Models\Favorite;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -19,7 +19,7 @@ class FavoritesControllerTest extends TestCase
         $response = $this->postJson('/favorites/toggle', [
             'favoritable_id' => 1,
             'favoritable_type' => 'App\Models\City',
-            'category' => 'city'
+            'category' => 'city',
         ]);
 
         $response->assertStatus(401);
@@ -34,21 +34,21 @@ class FavoritesControllerTest extends TestCase
             'favoritable_id' => $city->id,
             'favoritable_type' => 'App\Models\City',
             'category' => 'city',
-            'notes' => 'Great place to work'
+            'notes' => 'Great place to work',
         ]);
 
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
             'is_favorited' => true,
-            'message' => 'Added to favorites'
+            'message' => 'Added to favorites',
         ]);
 
         $this->assertDatabaseHas('favorites', [
             'user_id' => $user->id,
             'favoritable_id' => $city->id,
             'favoritable_type' => 'App\Models\City',
-            'category' => 'city'
+            'category' => 'city',
         ]);
     }
 
@@ -60,26 +60,26 @@ class FavoritesControllerTest extends TestCase
             'user_id' => $user->id,
             'favoritable_id' => $city->id,
             'favoritable_type' => 'App\Models\City',
-            'category' => 'city'
+            'category' => 'city',
         ]);
 
         $response = $this->actingAs($user)->postJson('/favorites/toggle', [
             'favoritable_id' => $city->id,
             'favoritable_type' => 'App\Models\City',
-            'category' => 'city'
+            'category' => 'city',
         ]);
 
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
             'is_favorited' => false,
-            'message' => 'Removed from favorites'
+            'message' => 'Removed from favorites',
         ]);
 
         $this->assertDatabaseMissing('favorites', [
             'user_id' => $user->id,
             'favoritable_id' => $city->id,
-            'favoritable_type' => 'App\Models\City'
+            'favoritable_type' => 'App\Models\City',
         ]);
     }
 
@@ -91,21 +91,21 @@ class FavoritesControllerTest extends TestCase
         $response = $this->actingAs($user)->postJson('/favorites/toggle', [
             'favoritable_id' => $article->id,
             'favoritable_type' => 'App\Models\Article',
-            'category' => 'article'
+            'category' => 'article',
         ]);
 
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
             'is_favorited' => true,
-            'message' => 'Added to favorites'
+            'message' => 'Added to favorites',
         ]);
 
         $this->assertDatabaseHas('favorites', [
             'user_id' => $user->id,
             'favoritable_id' => $article->id,
             'favoritable_type' => 'App\Models\Article',
-            'category' => 'article'
+            'category' => 'article',
         ]);
     }
 
@@ -117,21 +117,21 @@ class FavoritesControllerTest extends TestCase
         $response = $this->actingAs($user)->postJson('/favorites/toggle', [
             'favoritable_id' => $deal->id,
             'favoritable_type' => 'App\Models\Deal',
-            'category' => 'deal'
+            'category' => 'deal',
         ]);
 
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
             'is_favorited' => true,
-            'message' => 'Added to favorites'
+            'message' => 'Added to favorites',
         ]);
 
         $this->assertDatabaseHas('favorites', [
             'user_id' => $user->id,
             'favoritable_id' => $deal->id,
             'favoritable_type' => 'App\Models\Deal',
-            'category' => 'deal'
+            'category' => 'deal',
         ]);
     }
 
@@ -151,7 +151,7 @@ class FavoritesControllerTest extends TestCase
 
         $response = $this->actingAs($user)->postJson('/favorites/toggle', [
             'favoritable_id' => 1,
-            'favoritable_type' => 'Invalid\Model'
+            'favoritable_type' => 'Invalid\Model',
         ]);
 
         $response->assertStatus(422);
@@ -165,7 +165,7 @@ class FavoritesControllerTest extends TestCase
         $response = $this->actingAs($user)->postJson('/favorites/toggle', [
             'favoritable_id' => 1,
             'favoritable_type' => 'App\Models\City',
-            'category' => 'invalid'
+            'category' => 'invalid',
         ]);
 
         $response->assertStatus(422);
@@ -179,7 +179,7 @@ class FavoritesControllerTest extends TestCase
         $response = $this->actingAs($user)->postJson('/favorites/toggle', [
             'favoritable_id' => 1,
             'favoritable_type' => 'App\Models\City',
-            'notes' => str_repeat('a', 1001)
+            'notes' => str_repeat('a', 1001),
         ]);
 
         $response->assertStatus(422);
@@ -201,7 +201,7 @@ class FavoritesControllerTest extends TestCase
             'user_id' => $user->id,
             'favoritable_id' => $city->id,
             'favoritable_type' => 'App\Models\City',
-            'category' => 'city'
+            'category' => 'city',
         ]);
 
         $response = $this->actingAs($user)->get('/favorites');
@@ -216,18 +216,18 @@ class FavoritesControllerTest extends TestCase
         $user = User::factory()->create();
         $city = City::factory()->create();
         $article = Article::factory()->create();
-        
+
         Favorite::factory()->create([
             'user_id' => $user->id,
             'favoritable_id' => $city->id,
             'favoritable_type' => 'App\Models\City',
-            'category' => 'city'
+            'category' => 'city',
         ]);
         Favorite::factory()->create([
             'user_id' => $user->id,
             'favoritable_id' => $article->id,
             'favoritable_type' => 'App\Models\Article',
-            'category' => 'article'
+            'category' => 'article',
         ]);
 
         $response = $this->actingAs($user)->get('/favorites?category=city');
@@ -242,18 +242,18 @@ class FavoritesControllerTest extends TestCase
         $user = User::factory()->create();
         $city = City::factory()->create();
         $article = Article::factory()->create();
-        
+
         Favorite::factory()->create([
             'user_id' => $user->id,
             'favoritable_id' => $city->id,
             'favoritable_type' => 'App\Models\City',
-            'category' => 'city'
+            'category' => 'city',
         ]);
         Favorite::factory()->create([
             'user_id' => $user->id,
             'favoritable_id' => $article->id,
             'favoritable_type' => 'App\Models\Article',
-            'category' => 'article'
+            'category' => 'article',
         ]);
 
         $response = $this->actingAs($user)->get('/favorites');
@@ -282,7 +282,7 @@ class FavoritesControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'message' => 'Removed from favorites'
+            'message' => 'Removed from favorites',
         ]);
 
         $this->assertDatabaseMissing('favorites', ['id' => $favorite->id]);
@@ -307,7 +307,7 @@ class FavoritesControllerTest extends TestCase
         $favorite = Favorite::factory()->create();
 
         $response = $this->putJson("/favorites/{$favorite->id}/notes", [
-            'notes' => 'Updated notes'
+            'notes' => 'Updated notes',
         ]);
 
         $response->assertStatus(401);
@@ -318,17 +318,17 @@ class FavoritesControllerTest extends TestCase
         $user = User::factory()->create();
         $favorite = Favorite::factory()->create([
             'user_id' => $user->id,
-            'notes' => 'Original notes'
+            'notes' => 'Original notes',
         ]);
 
         $response = $this->actingAs($user)->putJson("/favorites/{$favorite->id}/notes", [
-            'notes' => 'Updated notes'
+            'notes' => 'Updated notes',
         ]);
 
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'message' => 'Notes updated successfully'
+            'message' => 'Notes updated successfully',
         ]);
 
         $this->assertEquals('Updated notes', $favorite->fresh()->notes);
@@ -341,7 +341,7 @@ class FavoritesControllerTest extends TestCase
         $favorite = Favorite::factory()->create(['user_id' => $otherUser->id]);
 
         $response = $this->actingAs($user)->putJson("/favorites/{$favorite->id}/notes", [
-            'notes' => 'Updated notes'
+            'notes' => 'Updated notes',
         ]);
 
         $response->assertStatus(403);
@@ -354,7 +354,7 @@ class FavoritesControllerTest extends TestCase
         $favorite = Favorite::factory()->create(['user_id' => $user->id]);
 
         $response = $this->actingAs($user)->putJson("/favorites/{$favorite->id}/notes", [
-            'notes' => str_repeat('a', 1001)
+            'notes' => str_repeat('a', 1001),
         ]);
 
         $response->assertStatus(422);
@@ -366,17 +366,17 @@ class FavoritesControllerTest extends TestCase
         $user = User::factory()->create();
         $favorite = Favorite::factory()->create([
             'user_id' => $user->id,
-            'notes' => 'Original notes'
+            'notes' => 'Original notes',
         ]);
 
         $response = $this->actingAs($user)->putJson("/favorites/{$favorite->id}/notes", [
-            'notes' => ''
+            'notes' => '',
         ]);
 
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'message' => 'Notes updated successfully'
+            'message' => 'Notes updated successfully',
         ]);
 
         $this->assertNull($favorite->fresh()->notes);
@@ -386,22 +386,22 @@ class FavoritesControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $city = City::factory()->create();
-        
+
         // Create favorites from other users
         Favorite::factory()->count(3)->create([
             'favoritable_id' => $city->id,
-            'favoritable_type' => 'App\Models\City'
+            'favoritable_type' => 'App\Models\City',
         ]);
 
-        $response = $this->getJson('/favorites/count?' . http_build_query([
+        $response = $this->getJson('/favorites/count?'.http_build_query([
             'favoritable_id' => $city->id,
-            'favoritable_type' => 'App\Models\City'
+            'favoritable_type' => 'App\Models\City',
         ]));
 
         $response->assertStatus(200);
         $response->assertJson([
             'count' => 3,
-            'is_favorited' => false
+            'is_favorited' => false,
         ]);
     }
 
@@ -409,22 +409,22 @@ class FavoritesControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $city = City::factory()->create();
-        
+
         Favorite::factory()->create([
             'user_id' => $user->id,
             'favoritable_id' => $city->id,
-            'favoritable_type' => 'App\Models\City'
+            'favoritable_type' => 'App\Models\City',
         ]);
 
-        $response = $this->actingAs($user)->getJson('/favorites/count?' . http_build_query([
+        $response = $this->actingAs($user)->getJson('/favorites/count?'.http_build_query([
             'favoritable_id' => $city->id,
-            'favoritable_type' => 'App\Models\City'
+            'favoritable_type' => 'App\Models\City',
         ]));
 
         $response->assertStatus(200);
         $response->assertJson([
             'count' => 1,
-            'is_favorited' => true
+            'is_favorited' => true,
         ]);
     }
 
@@ -443,14 +443,14 @@ class FavoritesControllerTest extends TestCase
 
         $response = $this->actingAs($user)->postJson('/favorites/toggle', [
             'favoritable_id' => $city->id,
-            'favoritable_type' => 'App\Models\City'
+            'favoritable_type' => 'App\Models\City',
             // No category provided
         ]);
 
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'is_favorited' => true
+            'is_favorited' => true,
         ]);
 
         $favorite = Favorite::where('user_id', $user->id)
@@ -468,20 +468,20 @@ class FavoritesControllerTest extends TestCase
         $notes = [
             'personal' => 'Great place to work',
             'cost' => 'Affordable living',
-            'weather' => 'Perfect climate'
+            'weather' => 'Perfect climate',
         ];
 
         $response = $this->actingAs($user)->postJson('/favorites/toggle', [
             'favoritable_id' => $city->id,
             'favoritable_type' => 'App\Models\City',
             'category' => 'city',
-            'notes' => $notes
+            'notes' => $notes,
         ]);
 
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'is_favorited' => true
+            'is_favorited' => true,
         ]);
 
         $favorite = Favorite::where('user_id', $user->id)

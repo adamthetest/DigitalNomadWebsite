@@ -14,13 +14,13 @@ class NotificationController extends Controller
     public function broadcastToAll(Request $request)
     {
         $message = $request->input('message', 'Hello from the server!');
-        
+
         // Broadcast to all users
         broadcast(new UserNotification($message));
-        
+
         return response()->json([
             'success' => true,
-            'message' => 'Notification sent to all users'
+            'message' => 'Notification sent to all users',
         ]);
     }
 
@@ -30,13 +30,13 @@ class NotificationController extends Controller
     public function broadcastToUser(Request $request, $userId)
     {
         $message = $request->input('message', 'Personal message from the server!');
-        
+
         // Broadcast to specific user
         broadcast(new UserNotification($message, $userId));
-        
+
         return response()->json([
             'success' => true,
-            'message' => "Notification sent to user {$userId}"
+            'message' => "Notification sent to user {$userId}",
         ]);
     }
 
@@ -45,21 +45,21 @@ class NotificationController extends Controller
      */
     public function broadcastToCurrentUser(Request $request)
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return response()->json([
                 'success' => false,
-                'message' => 'User not authenticated'
+                'message' => 'User not authenticated',
             ], 401);
         }
 
         $message = $request->input('message', 'Message for you!');
-        
+
         // Broadcast to current user
         broadcast(new UserNotification($message, Auth::id()));
-        
+
         return response()->json([
             'success' => true,
-            'message' => 'Notification sent to current user'
+            'message' => 'Notification sent to current user',
         ]);
     }
 }

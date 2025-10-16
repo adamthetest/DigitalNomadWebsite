@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 class City extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'country_id',
         'name',

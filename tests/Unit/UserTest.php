@@ -2,11 +2,8 @@
 
 namespace Tests\Unit;
 
-use App\Models\User;
 use App\Models\Favorite;
-use App\Models\Job;
-use App\Models\Company;
-use App\Models\JobUserInteraction;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -29,7 +26,7 @@ class UserTest extends TestCase
 
     public function test_user_has_fillable_attributes()
     {
-        $user = new User();
+        $user = new User;
         $fillable = $user->getFillable();
 
         $expectedFillable = [
@@ -38,7 +35,7 @@ class UserTest extends TestCase
             'location_current', 'location_next', 'travel_timeline', 'profile_image',
             'website', 'twitter', 'instagram', 'linkedin', 'github', 'behance',
             'is_public', 'id_verified', 'premium_status', 'last_active',
-            'visibility', 'location_precise', 'show_social_links', 'timezone'
+            'visibility', 'location_precise', 'show_social_links', 'timezone',
         ];
 
         $this->assertEquals($expectedFillable, $fillable);
@@ -46,7 +43,7 @@ class UserTest extends TestCase
 
     public function test_user_has_hidden_attributes()
     {
-        $user = new User();
+        $user = new User;
         $hidden = $user->getHidden();
 
         $this->assertContains('password', $hidden);
@@ -63,8 +60,8 @@ class UserTest extends TestCase
             'show_social_links' => '1',
             'skills' => ['PHP', 'Laravel', 'JavaScript'],
             'travel_timeline' => [
-                ['city' => 'Bangkok', 'country' => 'Thailand', 'arrived_at' => '2024-01-01']
-            ]
+                ['city' => 'Bangkok', 'country' => 'Thailand', 'arrived_at' => '2024-01-01'],
+            ],
         ]);
 
         $this->assertIsBool($user->is_public);
@@ -90,7 +87,7 @@ class UserTest extends TestCase
         $user = User::factory()->create();
         $cityFavorite = Favorite::factory()->create([
             'user_id' => $user->id,
-            'category' => 'city'
+            'category' => 'city',
         ]);
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $user->favoriteCities());
@@ -99,14 +96,14 @@ class UserTest extends TestCase
     public function test_user_has_favorite_articles_relationship()
     {
         $user = User::factory()->create();
-        
+
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $user->favoriteArticles());
     }
 
     public function test_user_has_favorite_deals_relationship()
     {
         $user = User::factory()->create();
-        
+
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\HasMany::class, $user->favoriteDeals());
     }
 
@@ -120,15 +117,15 @@ class UserTest extends TestCase
     public function test_profile_image_url_attribute()
     {
         $user = User::factory()->create(['profile_image' => 'profile.jpg']);
-        
+
         $this->assertEquals(asset('storage/profile.jpg'), $user->profile_image_url);
     }
 
     public function test_profile_image_url_fallback_to_avatar()
     {
         $user = User::factory()->create(['profile_image' => null, 'name' => 'John Doe']);
-        
-        $expectedUrl = 'https://ui-avatars.com/api/?name=' . urlencode('John Doe') . '&color=7F9CF5&background=EBF4FF';
+
+        $expectedUrl = 'https://ui-avatars.com/api/?name='.urlencode('John Doe').'&color=7F9CF5&background=EBF4FF';
         $this->assertEquals($expectedUrl, $user->profile_image_url);
     }
 
@@ -146,7 +143,7 @@ class UserTest extends TestCase
         $user = User::factory()->create([
             'show_social_links' => false,
             'website' => 'https://example.com',
-            'twitter' => '@johndoe'
+            'twitter' => '@johndoe',
         ]);
 
         $this->assertEquals([], $user->social_links);
@@ -161,13 +158,13 @@ class UserTest extends TestCase
             'instagram' => null,
             'linkedin' => 'https://linkedin.com/in/johndoe',
             'github' => null,
-            'behance' => null
+            'behance' => null,
         ]);
 
         $expectedLinks = [
             'website' => 'https://example.com',
             'twitter' => '@johndoe',
-            'linkedin' => 'https://linkedin.com/in/johndoe'
+            'linkedin' => 'https://linkedin.com/in/johndoe',
         ];
 
         $this->assertEquals($expectedLinks, $user->social_links);
@@ -179,14 +176,14 @@ class UserTest extends TestCase
             'bio' => 'Software developer',
             'location_current' => 'Bangkok, Thailand',
             'profile_image' => 'profile.jpg',
-            'tagline' => 'Digital nomad'
+            'tagline' => 'Digital nomad',
         ]);
 
         $incompleteUser = User::factory()->create([
             'bio' => 'Software developer',
             'location_current' => null,
             'profile_image' => 'profile.jpg',
-            'tagline' => 'Digital nomad'
+            'tagline' => 'Digital nomad',
         ]);
 
         $this->assertTrue($completeUser->hasCompleteProfile());
@@ -202,7 +199,7 @@ class UserTest extends TestCase
             'profile_image' => 'profile.jpg',
             'job_title' => 'Developer',
             'skills' => ['PHP', 'Laravel'],
-            'work_type' => 'freelancer'
+            'work_type' => 'freelancer',
         ]);
 
         // All 7 fields filled = 100%
@@ -215,7 +212,7 @@ class UserTest extends TestCase
             'profile_image' => 'profile.jpg',
             'job_title' => 'Developer',
             'skills' => ['PHP', 'Laravel'],
-            'work_type' => 'freelancer'
+            'work_type' => 'freelancer',
         ]);
 
         // All fields filled = 100%
@@ -226,7 +223,7 @@ class UserTest extends TestCase
     {
         $user = User::factory()->create([
             'location_current' => 'Bangkok, Thailand',
-            'location_precise' => true
+            'location_precise' => true,
         ]);
 
         $this->assertEquals('Bangkok, Thailand', $user->current_location);
@@ -236,7 +233,7 @@ class UserTest extends TestCase
     {
         $user = User::factory()->create([
             'location_current' => 'Bangkok, Thailand',
-            'location_precise' => false
+            'location_precise' => false,
         ]);
 
         $this->assertEquals('Thailand', $user->current_location);
@@ -246,14 +243,14 @@ class UserTest extends TestCase
     {
         $user = User::factory()->create([
             'location_current' => null,
-            'location' => 'Somewhere'
+            'location' => 'Somewhere',
         ]);
 
         $this->assertEquals('Somewhere', $user->current_location);
 
         $userWithNoLocation = User::factory()->create([
             'location_current' => null,
-            'location' => null
+            'location' => null,
         ]);
 
         $this->assertEquals('Location not set', $userWithNoLocation->current_location);
@@ -264,7 +261,7 @@ class UserTest extends TestCase
         $user = User::factory()->create([
             'email_verified_at' => now(),
             'id_verified' => true,
-            'premium_status' => true
+            'premium_status' => true,
         ]);
 
         $expectedBadges = ['email_verified', 'id_verified', 'premium'];
@@ -273,7 +270,7 @@ class UserTest extends TestCase
         $userWithNoBadges = User::factory()->create([
             'email_verified_at' => null,
             'id_verified' => false,
-            'premium_status' => false
+            'premium_status' => false,
         ]);
 
         $this->assertEquals([], $userWithNoBadges->verification_badges);
@@ -282,15 +279,15 @@ class UserTest extends TestCase
     public function test_is_online_method()
     {
         $onlineUser = User::factory()->create([
-            'last_active' => now()->subMinutes(10)
+            'last_active' => now()->subMinutes(10),
         ]);
 
         $offlineUser = User::factory()->create([
-            'last_active' => now()->subMinutes(20)
+            'last_active' => now()->subMinutes(20),
         ]);
 
         $neverActiveUser = User::factory()->create([
-            'last_active' => null
+            'last_active' => null,
         ]);
 
         $this->assertTrue($onlineUser->isOnline());
@@ -301,9 +298,9 @@ class UserTest extends TestCase
     public function test_update_last_active_method()
     {
         $user = User::factory()->create(['last_active' => null]);
-        
+
         $user->updateLastActive();
-        
+
         $this->assertNotNull($user->fresh()->last_active);
         $this->assertTrue($user->fresh()->last_active->isAfter(now()->subMinute()));
     }
@@ -311,9 +308,9 @@ class UserTest extends TestCase
     public function test_add_to_travel_timeline_method()
     {
         $user = User::factory()->create(['travel_timeline' => null]);
-        
+
         $user->addToTravelTimeline('Bangkok', 'Thailand', '2024-01-01', '2024-03-01');
-        
+
         $timeline = $user->fresh()->travel_timeline;
         $this->assertIsArray($timeline);
         $this->assertCount(1, $timeline);
@@ -326,9 +323,9 @@ class UserTest extends TestCase
     public function test_add_to_travel_timeline_with_default_arrived_at()
     {
         $user = User::factory()->create(['travel_timeline' => null]);
-        
+
         $user->addToTravelTimeline('Bangkok', 'Thailand');
-        
+
         $timeline = $user->fresh()->travel_timeline;
         $this->assertEquals(now()->toDateString(), $timeline[0]['arrived_at']);
         $this->assertNull($timeline[0]['left_at']);

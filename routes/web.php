@@ -114,7 +114,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/socket-test', function () {
         return view('socket-test');
     })->name('socket-test');
-    
+
     Route::post('/notifications/broadcast-all', [NotificationController::class, 'broadcastToAll'])->name('notifications.broadcast-all');
     Route::post('/notifications/broadcast-user/{userId}', [NotificationController::class, 'broadcastToUser'])->name('notifications.broadcast-user');
     Route::post('/notifications/broadcast-current', [NotificationController::class, 'broadcastToCurrentUser'])->name('notifications.broadcast-current');

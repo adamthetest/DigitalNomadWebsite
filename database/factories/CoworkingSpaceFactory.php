@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\City;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,7 +19,7 @@ class CoworkingSpaceFactory extends Factory
         return [
             'city_id' => null, // Will be set explicitly in tests
             'neighborhood_id' => null,
-            'name' => fake()->company() . ' Coworking',
+            'name' => fake()->company().' Coworking',
             'slug' => fake()->slug(),
             'description' => fake()->paragraphs(2, true),
             'address' => fake()->address(),
@@ -45,7 +44,7 @@ class CoworkingSpaceFactory extends Factory
             'currency' => fake()->randomElement(['USD', 'EUR', 'GBP']),
             'amenities' => fake()->randomElements([
                 'WiFi', 'Coffee', 'Meeting Rooms', 'Printing', 'Kitchen',
-                'Parking', 'Air Conditioning', '24/7 Access', 'Events'
+                'Parking', 'Air Conditioning', '24/7 Access', 'Events',
             ], 5),
             'images' => fake()->optional()->randomElements([
                 fake()->imageUrl(800, 600, 'business'),

@@ -2,11 +2,11 @@
 
 namespace Tests\Unit;
 
+use App\Models\Article;
+use App\Models\City;
+use App\Models\Deal;
 use App\Models\Favorite;
 use App\Models\User;
-use App\Models\City;
-use App\Models\Article;
-use App\Models\Deal;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -18,25 +18,25 @@ class FavoriteTest extends TestCase
     {
         $user = User::factory()->create();
         $city = City::factory()->create();
-        
+
         $favorite = Favorite::factory()->create([
             'user_id' => $user->id,
             'favoritable_id' => $city->id,
             'favoritable_type' => City::class,
-            'category' => 'city'
+            'category' => 'city',
         ]);
 
         $this->assertDatabaseHas('favorites', [
             'user_id' => $user->id,
             'favoritable_id' => $city->id,
             'favoritable_type' => City::class,
-            'category' => 'city'
+            'category' => 'city',
         ]);
     }
 
     public function test_favorite_has_fillable_attributes()
     {
-        $favorite = new Favorite();
+        $favorite = new Favorite;
         $fillable = $favorite->getFillable();
 
         $expectedFillable = [
@@ -44,7 +44,7 @@ class FavoriteTest extends TestCase
             'favoritable_id',
             'favoritable_type',
             'category',
-            'notes'
+            'notes',
         ];
 
         $this->assertEquals($expectedFillable, $fillable);
@@ -53,7 +53,7 @@ class FavoriteTest extends TestCase
     public function test_favorite_casts_notes_as_array()
     {
         $favorite = Favorite::factory()->create([
-            'notes' => ['note1' => 'First note', 'note2' => 'Second note']
+            'notes' => ['note1' => 'First note', 'note2' => 'Second note'],
         ]);
 
         $this->assertIsArray($favorite->notes);
@@ -75,7 +75,7 @@ class FavoriteTest extends TestCase
         $city = City::factory()->create();
         $favorite = Favorite::factory()->create([
             'favoritable_id' => $city->id,
-            'favoritable_type' => City::class
+            'favoritable_type' => City::class,
         ]);
 
         $this->assertInstanceOf(\Illuminate\Database\Eloquent\Relations\MorphTo::class, $favorite->favoritable());
@@ -98,7 +98,7 @@ class FavoriteTest extends TestCase
     {
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
-        
+
         Favorite::factory()->create(['user_id' => $user1->id]);
         Favorite::factory()->create(['user_id' => $user1->id]);
         Favorite::factory()->create(['user_id' => $user2->id]);
@@ -114,7 +114,7 @@ class FavoriteTest extends TestCase
     {
         $user = User::factory()->create();
         $city = City::factory()->create();
-        
+
         // Initially not favorited
         $this->assertFalse(Favorite::isFavorited($user->id, $city->id, City::class));
 
@@ -122,7 +122,7 @@ class FavoriteTest extends TestCase
         Favorite::factory()->create([
             'user_id' => $user->id,
             'favoritable_id' => $city->id,
-            'favoritable_type' => City::class
+            'favoritable_type' => City::class,
         ]);
 
         // Now should be favorited
@@ -141,7 +141,7 @@ class FavoriteTest extends TestCase
             'user_id' => $user->id,
             'favoritable_id' => $city->id,
             'favoritable_type' => City::class,
-            'category' => 'city'
+            'category' => 'city',
         ]);
 
         $favorite = Favorite::where('user_id', $user->id)
@@ -161,7 +161,7 @@ class FavoriteTest extends TestCase
         Favorite::factory()->create([
             'user_id' => $user->id,
             'favoritable_id' => $city->id,
-            'favoritable_type' => City::class
+            'favoritable_type' => City::class,
         ]);
 
         // Toggle should remove it
@@ -171,7 +171,7 @@ class FavoriteTest extends TestCase
         $this->assertDatabaseMissing('favorites', [
             'user_id' => $user->id,
             'favoritable_id' => $city->id,
-            'favoritable_type' => City::class
+            'favoritable_type' => City::class,
         ]);
     }
 
@@ -185,14 +185,14 @@ class FavoriteTest extends TestCase
             'user_id' => $user->id,
             'favoritable_id' => $city->id,
             'favoritable_type' => City::class,
-            'category' => 'city'
+            'category' => 'city',
         ]);
 
         // Toggle should update existing favorite
         $result = Favorite::toggle($user->id, $city->id, City::class, 'city', 'Updated notes');
 
         $this->assertTrue($result);
-        
+
         $updatedFavorite = Favorite::find($favorite->id);
         $this->assertEquals('Updated notes', $updatedFavorite->notes);
     }
@@ -205,7 +205,7 @@ class FavoriteTest extends TestCase
         $result = Favorite::toggle($user->id, $city->id, City::class);
 
         $this->assertTrue($result);
-        
+
         $favorite = Favorite::where('user_id', $user->id)
             ->where('favoritable_id', $city->id)
             ->where('favoritable_type', City::class)
@@ -242,11 +242,11 @@ class FavoriteTest extends TestCase
     {
         $user = User::factory()->create();
         $city = City::factory()->create();
-        
+
         $notes = [
             'personal' => 'Great place to work',
             'cost' => 'Affordable living',
-            'weather' => 'Perfect climate'
+            'weather' => 'Perfect climate',
         ];
 
         Favorite::toggle($user->id, $city->id, City::class, 'city', $notes);
@@ -265,9 +265,9 @@ class FavoriteTest extends TestCase
     public function test_favorite_can_be_updated()
     {
         $favorite = Favorite::factory()->create(['notes' => 'Original notes']);
-        
+
         $favorite->update(['notes' => 'Updated notes']);
-        
+
         $this->assertEquals('Updated notes', $favorite->fresh()->notes);
     }
 
@@ -275,9 +275,9 @@ class FavoriteTest extends TestCase
     {
         $favorite = Favorite::factory()->create();
         $favoriteId = $favorite->id;
-        
+
         $favorite->delete();
-        
+
         $this->assertDatabaseMissing('favorites', ['id' => $favoriteId]);
     }
 }

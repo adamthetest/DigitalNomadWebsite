@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class CoworkingSpace extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'city_id',
         'neighborhood_id',

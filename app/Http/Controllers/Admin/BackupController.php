@@ -128,19 +128,19 @@ class BackupController extends Controller
         try {
             $backupDir = 'backups';
             $directories = Storage::directories($backupDir);
-            
+
             // Sort backups by name (timestamp) descending (newest first)
             usort($directories, function ($a, $b) {
                 return strcmp(basename($b), basename($a));
             });
-            
+
             $keepCount = 5; // Keep the last 5 backups
             $deletedCount = 0;
-            
+
             // Delete all backups except the last 5
             if (count($directories) > $keepCount) {
                 $backupsToDelete = array_slice($directories, $keepCount);
-                
+
                 foreach ($backupsToDelete as $directory) {
                     Storage::deleteDirectory($directory);
                     $deletedCount++;

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Neighborhood extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'city_id',
         'name',

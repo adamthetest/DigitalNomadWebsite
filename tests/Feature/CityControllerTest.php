@@ -2,12 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\Article;
 use App\Models\City;
+use App\Models\CostItem;
 use App\Models\Country;
 use App\Models\CoworkingSpace;
-use App\Models\CostItem;
 use App\Models\Deal;
-use App\Models\Article;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -28,7 +28,7 @@ class CityControllerTest extends TestCase
         $country = Country::factory()->create();
         $city = City::factory()->create([
             'country_id' => $country->id,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->get('/cities');
@@ -44,11 +44,11 @@ class CityControllerTest extends TestCase
         $city1 = City::factory()->create([
             'name' => 'Bangkok',
             'country_id' => $country->id,
-            'is_active' => true
+            'is_active' => true,
         ]);
         $city2 = City::factory()->create([
             'name' => 'Tokyo',
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->get('/cities?search=Bangkok');
@@ -64,11 +64,11 @@ class CityControllerTest extends TestCase
         $city1 = City::factory()->create([
             'name' => 'Bangkok',
             'country_id' => $country->id,
-            'is_active' => true
+            'is_active' => true,
         ]);
         $city2 = City::factory()->create([
             'name' => 'Tokyo',
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->get('/cities?search=Thailand');
@@ -84,11 +84,11 @@ class CityControllerTest extends TestCase
         $country2 = Country::factory()->create();
         $city1 = City::factory()->create([
             'country_id' => $country1->id,
-            'is_active' => true
+            'is_active' => true,
         ]);
         $city2 = City::factory()->create([
             'country_id' => $country2->id,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->get("/cities?country={$country1->id}");
@@ -102,11 +102,11 @@ class CityControllerTest extends TestCase
     {
         $city1 = City::factory()->create([
             'cost_of_living_index' => 30,
-            'is_active' => true
+            'is_active' => true,
         ]);
         $city2 = City::factory()->create([
             'cost_of_living_index' => 20,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->get('/cities?cost_min=25');
@@ -120,11 +120,11 @@ class CityControllerTest extends TestCase
     {
         $city1 = City::factory()->create([
             'cost_of_living_index' => 30,
-            'is_active' => true
+            'is_active' => true,
         ]);
         $city2 = City::factory()->create([
             'cost_of_living_index' => 50,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->get('/cities?cost_max=35');
@@ -138,11 +138,11 @@ class CityControllerTest extends TestCase
     {
         $city1 = City::factory()->create([
             'internet_speed_mbps' => 50,
-            'is_active' => true
+            'is_active' => true,
         ]);
         $city2 = City::factory()->create([
             'internet_speed_mbps' => 20,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->get('/cities?internet_min=30');
@@ -156,11 +156,11 @@ class CityControllerTest extends TestCase
     {
         $city1 = City::factory()->create([
             'safety_score' => 8,
-            'is_active' => true
+            'is_active' => true,
         ]);
         $city2 = City::factory()->create([
             'safety_score' => 5,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->get('/cities?safety_min=7');
@@ -174,11 +174,11 @@ class CityControllerTest extends TestCase
     {
         $city1 = City::factory()->create([
             'is_featured' => true,
-            'is_active' => true
+            'is_active' => true,
         ]);
         $city2 = City::factory()->create([
             'is_featured' => false,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->get('/cities?featured=true');
@@ -194,11 +194,11 @@ class CityControllerTest extends TestCase
         $country2 = Country::factory()->create(['continent' => 'Europe']);
         $city1 = City::factory()->create([
             'country_id' => $country1->id,
-            'is_active' => true
+            'is_active' => true,
         ]);
         $city2 = City::factory()->create([
             'country_id' => $country2->id,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->get('/cities?continent=Asia');
@@ -212,11 +212,11 @@ class CityControllerTest extends TestCase
     {
         $city1 = City::factory()->create([
             'name' => 'Bangkok',
-            'is_active' => true
+            'is_active' => true,
         ]);
         $city2 = City::factory()->create([
             'name' => 'Amsterdam',
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->get('/cities?sort=name');
@@ -229,11 +229,11 @@ class CityControllerTest extends TestCase
     {
         $city1 = City::factory()->create([
             'cost_of_living_index' => 20,
-            'is_active' => true
+            'is_active' => true,
         ]);
         $city2 = City::factory()->create([
             'cost_of_living_index' => 50,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->get('/cities?sort=cost_low');
@@ -246,11 +246,11 @@ class CityControllerTest extends TestCase
     {
         $city1 = City::factory()->create([
             'cost_of_living_index' => 50,
-            'is_active' => true
+            'is_active' => true,
         ]);
         $city2 = City::factory()->create([
             'cost_of_living_index' => 20,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->get('/cities?sort=cost_high');
@@ -263,11 +263,11 @@ class CityControllerTest extends TestCase
     {
         $city1 = City::factory()->create([
             'internet_speed_mbps' => 80,
-            'is_active' => true
+            'is_active' => true,
         ]);
         $city2 = City::factory()->create([
             'internet_speed_mbps' => 30,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->get('/cities?sort=internet');
@@ -280,11 +280,11 @@ class CityControllerTest extends TestCase
     {
         $city1 = City::factory()->create([
             'safety_score' => 9,
-            'is_active' => true
+            'is_active' => true,
         ]);
         $city2 = City::factory()->create([
             'safety_score' => 6,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->get('/cities?sort=safety');
@@ -297,11 +297,11 @@ class CityControllerTest extends TestCase
     {
         $city1 = City::factory()->create([
             'is_featured' => true,
-            'is_active' => true
+            'is_active' => true,
         ]);
         $city2 = City::factory()->create([
             'is_featured' => false,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->get('/cities?sort=featured');
@@ -327,7 +327,7 @@ class CityControllerTest extends TestCase
             'is_active' => true,
             'cost_of_living_index' => 45,
             'internet_speed_mbps' => 50,
-            'safety_score' => 8
+            'safety_score' => 8,
         ]);
 
         $response = $this->getJson('/cities/search-suggestions?q=Bangkok');
@@ -339,7 +339,7 @@ class CityControllerTest extends TestCase
             'country' => 'Thailand',
             'cost' => 45,
             'internet' => 50,
-            'safety' => 8
+            'safety' => 8,
         ]);
     }
 
@@ -349,7 +349,7 @@ class CityControllerTest extends TestCase
         $city = City::factory()->create([
             'name' => 'Bangkok',
             'country_id' => $country->id,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->getJson('/cities/search-suggestions?q=Thailand');
@@ -357,7 +357,7 @@ class CityControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonFragment([
             'name' => 'Bangkok',
-            'country' => 'Thailand'
+            'country' => 'Thailand',
         ]);
     }
 
@@ -366,9 +366,9 @@ class CityControllerTest extends TestCase
         // Create cities with names that will match the search
         City::factory()->count(15)->create([
             'is_active' => true,
-            'name' => function() {
-                return 'Test City ' . fake()->unique()->numberBetween(1, 100);
-            }
+            'name' => function () {
+                return 'Test City '.fake()->unique()->numberBetween(1, 100);
+            },
         ]);
 
         $response = $this->getJson('/cities/search-suggestions?q=Test');
@@ -402,7 +402,7 @@ class CityControllerTest extends TestCase
         $city = City::factory()->create(['is_active' => true]);
         $coworkingSpace = CoworkingSpace::factory()->create([
             'city_id' => $city->id,
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         $response = $this->get("/cities/{$city->id}");
@@ -429,7 +429,7 @@ class CityControllerTest extends TestCase
             'city_id' => $city->id,
             'is_active' => true,
             'valid_from' => now()->subDay(),
-            'valid_until' => now()->addDay()
+            'valid_until' => now()->addDay(),
         ]);
 
         $response = $this->get("/cities/{$city->id}");
@@ -443,7 +443,7 @@ class CityControllerTest extends TestCase
         $city = City::factory()->create(['is_active' => true]);
         $article = Article::factory()->create([
             'city_id' => $city->id,
-            'status' => 'published'
+            'status' => 'published',
         ]);
 
         $response = $this->get("/cities/{$city->id}");
@@ -458,12 +458,12 @@ class CityControllerTest extends TestCase
         $city = City::factory()->create([
             'country_id' => $country->id,
             'is_active' => true,
-            'cost_of_living_index' => 50
+            'cost_of_living_index' => 50,
         ]);
         $similarCity = City::factory()->create([
             'country_id' => $country->id,
             'is_active' => true,
-            'cost_of_living_index' => 55
+            'cost_of_living_index' => 55,
         ]);
 
         $response = $this->get("/cities/{$city->id}");
@@ -478,12 +478,12 @@ class CityControllerTest extends TestCase
         $regularSpace = CoworkingSpace::factory()->create([
             'city_id' => $city->id,
             'is_active' => true,
-            'is_featured' => false
+            'is_featured' => false,
         ]);
         $featuredSpace = CoworkingSpace::factory()->create([
             'city_id' => $city->id,
             'is_active' => true,
-            'is_featured' => true
+            'is_featured' => true,
         ]);
 
         $response = $this->get("/cities/{$city->id}");
@@ -500,14 +500,14 @@ class CityControllerTest extends TestCase
             'is_active' => true,
             'is_featured' => false,
             'valid_from' => now()->subDay(),
-            'valid_until' => now()->addDay()
+            'valid_until' => now()->addDay(),
         ]);
         $featuredDeal = Deal::factory()->create([
             'city_id' => $city->id,
             'is_active' => true,
             'is_featured' => true,
             'valid_from' => now()->subDay(),
-            'valid_until' => now()->addDay()
+            'valid_until' => now()->addDay(),
         ]);
 
         $response = $this->get("/cities/{$city->id}");
@@ -523,7 +523,7 @@ class CityControllerTest extends TestCase
             'city_id' => $city->id,
             'is_active' => true,
             'valid_from' => now()->subDay(),
-            'valid_until' => now()->addDay()
+            'valid_until' => now()->addDay(),
         ]);
 
         $response = $this->get("/cities/{$city->id}");
@@ -537,7 +537,7 @@ class CityControllerTest extends TestCase
         $city = City::factory()->create(['is_active' => true]);
         Article::factory()->count(5)->create([
             'city_id' => $city->id,
-            'status' => 'published'
+            'status' => 'published',
         ]);
 
         $response = $this->get("/cities/{$city->id}");

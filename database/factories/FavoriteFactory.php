@@ -23,7 +23,7 @@ class FavoriteFactory extends Factory
             'favoritable_type' => fake()->randomElement([
                 'App\Models\City',
                 'App\Models\Article',
-                'App\Models\Deal'
+                'App\Models\Deal',
             ]),
             'category' => fake()->randomElement(['city', 'article', 'deal']),
             'notes' => fake()->optional()->paragraph(),

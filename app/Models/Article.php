@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 class Article extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'user_id',
         'city_id',

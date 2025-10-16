@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Deal extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'affiliate_link_id',
         'title',

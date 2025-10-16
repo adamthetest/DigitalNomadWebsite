@@ -25,18 +25,18 @@ class CompanyFactory extends Factory
             'remote_policy' => fake()->optional()->paragraph(),
             'industry' => fake()->randomElement([
                 'Technology', 'Finance', 'Healthcare', 'Education', 'E-commerce',
-                'Marketing', 'Consulting', 'Manufacturing', 'Retail', 'Media'
+                'Marketing', 'Consulting', 'Manufacturing', 'Retail', 'Media',
             ]),
             'size' => fake()->randomElement(['1-10', '11-50', '51-200', '201-500', '500+']),
-            'headquarters' => fake()->city() . ', ' . fake()->country(),
+            'headquarters' => fake()->city().', '.fake()->country(),
             'verified' => fake()->boolean(20),
             'subscription_plan' => fake()->randomElement(['basic', 'premium', 'enterprise']),
             'benefits' => fake()->optional()->randomElements([
                 'Health Insurance', 'Remote Work', 'Flexible Hours', 'Learning Budget',
-                'Gym Membership', 'Stock Options', 'Unlimited PTO'
+                'Gym Membership', 'Stock Options', 'Unlimited PTO',
             ], 3),
             'tech_stack' => fake()->optional()->randomElements([
-                'PHP', 'Laravel', 'JavaScript', 'React', 'Vue', 'Python', 'Node.js'
+                'PHP', 'Laravel', 'JavaScript', 'React', 'Vue', 'Python', 'Node.js',
             ], 4),
             'contact_email' => fake()->optional()->email(),
             'is_active' => true,

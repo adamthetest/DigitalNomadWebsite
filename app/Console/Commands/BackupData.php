@@ -544,7 +544,7 @@ class BackupData extends Command
         // Get list of files in backup directory to determine what was actually backed up
         $files = Storage::files($backupDir);
         $tablesBackedUp = [];
-        
+
         foreach ($files as $file) {
             $filename = basename($file);
             if ($filename !== 'backup_summary.json' && pathinfo($filename, PATHINFO_EXTENSION) === 'json') {
@@ -570,10 +570,10 @@ class BackupData extends Command
     private function getTotalRecords()
     {
         $tables = [
-            'users', 'cities', 'countries', 'neighborhoods', 'articles', 'deals', 
-            'newsletter_subscribers', 'favorites', 'coworking_spaces', 'cost_items', 
+            'users', 'cities', 'countries', 'neighborhoods', 'articles', 'deals',
+            'newsletter_subscribers', 'favorites', 'coworking_spaces', 'cost_items',
             'visa_rules', 'affiliate_links', 'companies', 'job_postings', 'job_user_interactions',
-            'security_logs', 'banned_ips', 'cache', 'sessions', 'password_reset_tokens'
+            'security_logs', 'banned_ips', 'cache', 'sessions', 'password_reset_tokens',
         ];
         $total = 0;
 
@@ -582,7 +582,7 @@ class BackupData extends Command
                 $total += DB::table($table)->count();
             } catch (\Exception $e) {
                 // Skip tables that don't exist or have issues
-                $this->warn("Could not count records in table {$table}: " . $e->getMessage());
+                $this->warn("Could not count records in table {$table}: ".$e->getMessage());
             }
         }
 

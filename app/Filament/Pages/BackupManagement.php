@@ -76,8 +76,9 @@ class BackupManagement extends Page
                             $backups = $this->getBackups();
                             $options = [];
                             foreach ($backups as $backup) {
-                                $options[$backup['name']] = $backup['date'] . ' (' . $backup['size'] . ')';
+                                $options[$backup['name']] = $backup['date'].' ('.$backup['size'].')';
                             }
+
                             return $options;
                         })
                         ->required()
@@ -160,27 +161,27 @@ class BackupManagement extends Page
     {
         try {
             \Log::info("Attempting to delete backup: {$backupName}");
-            
+
             Storage::disk('local')->deleteDirectory("backups/{$backupName}");
-            
+
             \Log::info("Backup deleted successfully: {$backupName}");
-            
+
             // Use Filament's notification system
             \Filament\Notifications\Notification::make()
                 ->title('Backup Deleted')
                 ->body("✅ Backup '{$backupName}' deleted successfully!")
                 ->success()
                 ->send();
-            
+
             // Redirect to refresh the page
             $this->redirect(request()->url());
-            
+
         } catch (\Exception $e) {
-            \Log::error("Failed to delete backup {$backupName}: " . $e->getMessage());
-            
+            \Log::error("Failed to delete backup {$backupName}: ".$e->getMessage());
+
             \Filament\Notifications\Notification::make()
                 ->title('Delete Failed')
-                ->body("❌ Failed to delete backup: " . $e->getMessage())
+                ->body('❌ Failed to delete backup: '.$e->getMessage())
                 ->danger()
                 ->send();
         }
@@ -215,7 +216,7 @@ class BackupManagement extends Page
         foreach ($backups as $backup) {
             $sizeStr = $backup['size'];
             $sizeValue = (float) str_replace([' KB', ' MB', ' GB', ' B'], '', $sizeStr);
-            
+
             if (strpos($sizeStr, 'GB') !== false) {
                 $totalSizeBytes += $sizeValue * 1024 * 1024 * 1024;
             } elseif (strpos($sizeStr, 'MB') !== false) {
@@ -229,53 +230,55 @@ class BackupManagement extends Page
 
         // Convert to MB
         $totalSizeMB = $totalSizeBytes / (1024 * 1024);
-        return number_format($totalSizeMB, 2) . ' MB';
+
+        return number_format($totalSizeMB, 2).' MB';
     }
 
     public function cleanupOldBackups(): void
     {
         $backupDir = 'backups';
         $backups = Storage::disk('local')->directories($backupDir);
-        
+
         // Sort backups by name (timestamp) descending (newest first)
         usort($backups, function ($a, $b) {
             return strcmp(basename($b), basename($a));
         });
-        
+
         $keepCount = 5; // Keep the last 5 backups
         $deletedCount = 0;
-        
+
         // Delete all backups except the last 5
         if (count($backups) > $keepCount) {
             $backupsToDelete = array_slice($backups, $keepCount);
-            
+
             foreach ($backupsToDelete as $backup) {
                 Storage::disk('local')->deleteDirectory($backup);
                 $deletedCount++;
             }
         }
-        
+
         \Filament\Notifications\Notification::make()
             ->title('Cleanup Completed')
             ->body("✅ Cleanup completed! Deleted {$deletedCount} old backups. Kept the last 5 backups.")
             ->success()
             ->send();
-        
+
         $this->dispatch('backups-cleaned');
     }
 
     public function restoreFromUploadedFile(string $filePath): void
     {
         try {
-            \Log::info('Restore from uploaded file: ' . $filePath);
+            \Log::info('Restore from uploaded file: '.$filePath);
 
             // Check if uploaded file exists
-            if (!Storage::disk('local')->exists($filePath)) {
-                \Log::error('Uploaded file not found: ' . $filePath);
+            if (! Storage::disk('local')->exists($filePath)) {
+                \Log::error('Uploaded file not found: '.$filePath);
                 $this->dispatch('notify', [
                     'type' => 'error',
-                    'message' => 'Uploaded file not found: ' . $filePath
+                    'message' => 'Uploaded file not found: '.$filePath,
                 ]);
+
                 return;
             }
 
@@ -283,52 +286,54 @@ class BackupManagement extends Page
             $fullFilePath = Storage::disk('local')->path($filePath);
             $fileInfo = pathinfo($fullFilePath);
             $extension = strtolower($fileInfo['extension'] ?? '');
-            
-            \Log::info('File extension: ' . $extension);
+
+            \Log::info('File extension: '.$extension);
 
             // Create temporary directory for extraction
-            $tempDir = 'temp-restore-' . time();
+            $tempDir = 'temp-restore-'.time();
             $extractPath = "temp/{$tempDir}";
-            
+
             // Ensure temp directory exists
             Storage::disk('local')->makeDirectory($extractPath);
 
             // Handle different file types
             if (in_array($extension, ['zip'])) {
                 // Handle ZIP files
-                $zip = new \ZipArchive();
-                
-                if ($zip->open($fullFilePath) !== TRUE) {
-                    \Log::error('Cannot open ZIP file: ' . $fullFilePath);
+                $zip = new \ZipArchive;
+
+                if ($zip->open($fullFilePath) !== true) {
+                    \Log::error('Cannot open ZIP file: '.$fullFilePath);
                     $this->dispatch('notify', [
                         'type' => 'error',
-                        'message' => 'Cannot open uploaded ZIP file. Please ensure it\'s a valid backup file.'
+                        'message' => 'Cannot open uploaded ZIP file. Please ensure it\'s a valid backup file.',
                     ]);
+
                     return;
                 }
 
                 // Extract all files
                 $zip->extractTo(Storage::disk('local')->path($extractPath));
                 $zip->close();
-                
-                \Log::info('ZIP file extracted to: ' . $extractPath);
-                
+
+                \Log::info('ZIP file extracted to: '.$extractPath);
+
             } elseif (in_array($extension, ['tar', 'gz', 'tgz'])) {
                 // Handle TAR files
                 $this->dispatch('notify', [
                     'type' => 'error',
-                    'message' => 'TAR files are not yet supported. Please use ZIP files for backup uploads.'
+                    'message' => 'TAR files are not yet supported. Please use ZIP files for backup uploads.',
                 ]);
-                
+
                 // Cleanup
                 Storage::disk('local')->deleteDirectory($extractPath);
                 Storage::disk('local')->delete($filePath);
+
                 return;
-                
+
             } else {
                 // Handle unknown file types - try to treat as directory
                 \Log::info('Unknown file type, checking if it\'s a directory structure...');
-                
+
                 // Check if the uploaded path contains backup files directly
                 if (Storage::disk('local')->exists("{$filePath}/backup_summary.json")) {
                     // It's already a backup directory, copy it
@@ -336,27 +341,29 @@ class BackupManagement extends Page
                 } else {
                     $this->dispatch('notify', [
                         'type' => 'error',
-                        'message' => 'Unsupported file type. Please upload a ZIP file containing backup data.'
+                        'message' => 'Unsupported file type. Please upload a ZIP file containing backup data.',
                     ]);
-                    
+
                     // Cleanup
                     Storage::disk('local')->deleteDirectory($extractPath);
                     Storage::disk('local')->delete($filePath);
+
                     return;
                 }
             }
 
             // Check if backup_summary.json exists (validate it's a backup)
-            if (!Storage::disk('local')->exists("{$extractPath}/backup_summary.json")) {
+            if (! Storage::disk('local')->exists("{$extractPath}/backup_summary.json")) {
                 \Log::error('Invalid backup file - no backup_summary.json found');
                 $this->dispatch('notify', [
                     'type' => 'error',
-                    'message' => 'Invalid backup file. The uploaded file does not contain a valid backup (missing backup_summary.json).'
+                    'message' => 'Invalid backup file. The uploaded file does not contain a valid backup (missing backup_summary.json).',
                 ]);
-                
+
                 // Cleanup
                 Storage::disk('local')->deleteDirectory($extractPath);
                 Storage::disk('local')->delete($filePath);
+
                 return;
             }
 
@@ -368,8 +375,8 @@ class BackupManagement extends Page
 
             $output = Artisan::output();
 
-            \Log::info('Restore from uploaded file completed with exit code: ' . $exitCode);
-            \Log::info('Restore output: ' . $output);
+            \Log::info('Restore from uploaded file completed with exit code: '.$exitCode);
+            \Log::info('Restore output: '.$output);
 
             // Cleanup temporary files
             Storage::disk('local')->deleteDirectory($extractPath);
@@ -378,25 +385,25 @@ class BackupManagement extends Page
             if ($exitCode === 0) {
                 $this->dispatch('notify', [
                     'type' => 'success',
-                    'message' => '✅ Backup restored successfully from uploaded file! All data has been restored.'
+                    'message' => '✅ Backup restored successfully from uploaded file! All data has been restored.',
                 ]);
                 $this->dispatch('backup-restored');
             } else {
                 $this->dispatch('notify', [
                     'type' => 'error',
-                    'message' => '❌ Restore failed: ' . $output
+                    'message' => '❌ Restore failed: '.$output,
                 ]);
-                $this->dispatch('backup-restore-failed', 'Restore command failed with exit code: ' . $exitCode . '. Output: ' . $output);
+                $this->dispatch('backup-restore-failed', 'Restore command failed with exit code: '.$exitCode.'. Output: '.$output);
             }
 
         } catch (\Exception $e) {
-            \Log::error('Restore from uploaded file exception: ' . $e->getMessage());
+            \Log::error('Restore from uploaded file exception: '.$e->getMessage());
             $this->dispatch('notify', [
                 'type' => 'error',
-                'message' => '❌ Restore failed: ' . $e->getMessage()
+                'message' => '❌ Restore failed: '.$e->getMessage(),
             ]);
-            $this->dispatch('backup-restore-failed', 'Exception: ' . $e->getMessage());
-            
+            $this->dispatch('backup-restore-failed', 'Exception: '.$e->getMessage());
+
             // Cleanup on error
             if (isset($extractPath)) {
                 Storage::disk('local')->deleteDirectory($extractPath);
@@ -411,23 +418,23 @@ class BackupManagement extends Page
     {
         $sourcePath = Storage::disk('local')->path($source);
         $destPath = Storage::disk('local')->path($destination);
-        
-        if (!is_dir($sourcePath)) {
+
+        if (! is_dir($sourcePath)) {
             throw new \Exception("Source directory does not exist: {$sourcePath}");
         }
-        
-        if (!is_dir($destPath)) {
+
+        if (! is_dir($destPath)) {
             mkdir($destPath, 0755, true);
         }
-        
+
         $iterator = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($sourcePath, \RecursiveDirectoryIterator::SKIP_DOTS),
             \RecursiveIteratorIterator::SELF_FIRST
         );
-        
+
         foreach ($iterator as $item) {
-            $target = $destPath . DIRECTORY_SEPARATOR . $iterator->getSubPathName();
-            
+            $target = $destPath.DIRECTORY_SEPARATOR.$iterator->getSubPathName();
+
             if ($item->isDir()) {
                 mkdir($target, 0755, true);
             } else {
@@ -449,8 +456,9 @@ class BackupManagement extends Page
                 \Log::error('Backup not found: '.$backupPath);
                 $this->dispatch('notify', [
                     'type' => 'error',
-                    'message' => 'Backup not found: '.$backupPath
+                    'message' => 'Backup not found: '.$backupPath,
                 ]);
+
                 return;
             }
 
@@ -471,13 +479,13 @@ class BackupManagement extends Page
             if ($exitCode === 0) {
                 $this->dispatch('notify', [
                     'type' => 'success',
-                    'message' => '✅ Backup restored successfully! All data has been restored from: '.$backupName
+                    'message' => '✅ Backup restored successfully! All data has been restored from: '.$backupName,
                 ]);
                 $this->dispatch('backup-restored');
             } else {
                 $this->dispatch('notify', [
                     'type' => 'error',
-                    'message' => '❌ Restore failed: '.$output
+                    'message' => '❌ Restore failed: '.$output,
                 ]);
                 $this->dispatch('backup-restore-failed', 'Restore command failed with exit code: '.$exitCode.'. Output: '.$output);
             }
@@ -486,7 +494,7 @@ class BackupManagement extends Page
             \Log::error('Restore exception: '.$e->getMessage());
             $this->dispatch('notify', [
                 'type' => 'error',
-                'message' => '❌ Restore failed: '.$e->getMessage()
+                'message' => '❌ Restore failed: '.$e->getMessage(),
             ]);
             $this->dispatch('backup-restore-failed', 'Exception: '.$e->getMessage());
         }

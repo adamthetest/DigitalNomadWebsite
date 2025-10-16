@@ -2,12 +2,12 @@
 
 namespace Tests\Unit;
 
-use App\Models\City;
-use App\Models\Country;
-use App\Models\Neighborhood;
-use App\Models\CoworkingSpace;
-use App\Models\CostItem;
 use App\Models\Article;
+use App\Models\City;
+use App\Models\CostItem;
+use App\Models\Country;
+use App\Models\CoworkingSpace;
+use App\Models\Neighborhood;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -31,7 +31,7 @@ class CityTest extends TestCase
 
     public function test_city_has_fillable_attributes()
     {
-        $city = new City();
+        $city = new City;
         $fillable = $city->getFillable();
 
         $expectedFillable = [
@@ -39,7 +39,7 @@ class CityTest extends TestCase
             'description', 'overview', 'population', 'climate',
             'internet_speed_mbps', 'safety_score', 'cost_of_living_index',
             'best_time_to_visit', 'highlights', 'images', 'is_featured',
-            'is_active'
+            'is_active',
         ];
 
         $this->assertEquals($expectedFillable, $fillable);
@@ -56,7 +56,7 @@ class CityTest extends TestCase
             'highlights' => ['Temples', 'Street Food', 'Nightlife'],
             'images' => ['image1.jpg', 'image2.jpg'],
             'is_featured' => '1',
-            'is_active' => '0'
+            'is_active' => '0',
         ]);
 
         $this->assertIsString($city->latitude);
@@ -169,7 +169,7 @@ class CityTest extends TestCase
         $city = City::factory()->create([
             'country_id' => $country->id,
             'name' => 'New York City',
-            'slug' => 'custom-slug'
+            'slug' => 'custom-slug',
         ]);
 
         $this->assertEquals('custom-slug', $city->slug);
@@ -197,7 +197,7 @@ class CityTest extends TestCase
             'Temples and Palaces',
             'Street Food Culture',
             'Nightlife Scene',
-            'Shopping Malls'
+            'Shopping Malls',
         ];
 
         $country = Country::factory()->create();
@@ -215,7 +215,7 @@ class CityTest extends TestCase
             'skyline.jpg',
             'street-food.jpg',
             'temple.jpg',
-            'nightlife.jpg'
+            'nightlife.jpg',
         ];
 
         $country = Country::factory()->create();
@@ -253,7 +253,7 @@ class CityTest extends TestCase
         $city = City::factory()->create([
             'country_id' => $country->id,
             'latitude' => 13.7563,
-            'longitude' => 100.5018
+            'longitude' => 100.5018,
         ]);
 
         $this->assertEquals(13.7563, $city->latitude);
@@ -330,9 +330,9 @@ class CityTest extends TestCase
     {
         $country = Country::factory()->create();
         $city = City::factory()->create(['country_id' => $country->id, 'name' => 'Original Name']);
-        
+
         $city->update(['name' => 'Updated Name']);
-        
+
         $this->assertEquals('Updated Name', $city->fresh()->name);
     }
 
@@ -341,9 +341,9 @@ class CityTest extends TestCase
         $country = Country::factory()->create();
         $city = City::factory()->create(['country_id' => $country->id]);
         $cityId = $city->id;
-        
+
         $city->delete();
-        
+
         $this->assertDatabaseMissing('cities', ['id' => $cityId]);
     }
 }

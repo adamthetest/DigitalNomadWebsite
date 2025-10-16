@@ -36,12 +36,12 @@ class UserFactory extends Factory
             'skills' => fake()->optional()->randomElements(['PHP', 'Laravel', 'JavaScript', 'React', 'Vue', 'Python', 'Node.js'], 3),
             'work_type' => fake()->optional()->randomElement(['freelancer', 'employee', 'entrepreneur']),
             'availability' => fake()->optional()->randomElement(['available', 'busy', 'unavailable']),
-            'location' => fake()->optional()->city() . ', ' . fake()->country(),
-            'location_current' => fake()->optional()->city() . ', ' . fake()->country(),
-            'location_next' => fake()->optional()->city() . ', ' . fake()->country(),
+            'location' => fake()->optional()->city().', '.fake()->country(),
+            'location_current' => fake()->optional()->city().', '.fake()->country(),
+            'location_next' => fake()->optional()->city().', '.fake()->country(),
             'travel_timeline' => fake()->optional()->randomElements([
                 ['city' => 'Bangkok', 'country' => 'Thailand', 'arrived_at' => '2024-01-01'],
-                ['city' => 'Chiang Mai', 'country' => 'Thailand', 'arrived_at' => '2024-03-01']
+                ['city' => 'Chiang Mai', 'country' => 'Thailand', 'arrived_at' => '2024-03-01'],
             ], 1),
             'profile_image' => fake()->optional()->imageUrl(200, 200, 'people'),
             'website' => fake()->optional()->url(),

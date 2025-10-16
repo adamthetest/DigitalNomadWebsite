@@ -39,8 +39,8 @@ class CheckBannedIp
         } catch (\Exception $e) {
             // If database is not available, continue without banning check
             // This prevents issues during testing or when database is temporarily unavailable
-            if (!app()->environment('testing')) {
-                \Log::warning('Banned IP check failed: ' . $e->getMessage());
+            if (! app()->environment('testing')) {
+                \Log::warning('Banned IP check failed: '.$e->getMessage());
             }
         }
 

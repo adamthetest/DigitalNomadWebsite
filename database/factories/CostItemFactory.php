@@ -22,7 +22,7 @@ class CostItemFactory extends Factory
             'name' => fake()->randomElement([
                 'Apartment (1 bedroom)', 'Apartment (2 bedroom)', 'Studio Apartment',
                 'Meal at restaurant', 'Coffee', 'Beer', 'Taxi ride', 'Public transport',
-                'Gym membership', 'Internet', 'Mobile phone', 'Groceries'
+                'Gym membership', 'Internet', 'Mobile phone', 'Groceries',
             ]),
             'category' => fake()->randomElement(['accommodation', 'food', 'transport', 'entertainment', 'utilities']),
             'price_min' => fake()->numberBetween(5, 50),

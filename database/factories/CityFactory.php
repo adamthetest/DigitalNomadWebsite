@@ -33,12 +33,12 @@ class CityFactory extends Factory
             'best_time_to_visit' => fake()->randomElement(['Year-round', 'Spring', 'Summer', 'Fall', 'Winter']),
             'highlights' => fake()->randomElements([
                 'Historic Sites', 'Beaches', 'Mountains', 'Nightlife', 'Food Scene',
-                'Shopping', 'Museums', 'Parks', 'Temples', 'Markets'
+                'Shopping', 'Museums', 'Parks', 'Temples', 'Markets',
             ], 3),
             'images' => [
                 fake()->imageUrl(800, 600, 'city'),
                 fake()->imageUrl(800, 600, 'city'),
-                fake()->imageUrl(800, 600, 'city')
+                fake()->imageUrl(800, 600, 'city'),
             ],
             'is_featured' => fake()->boolean(30), // 30% chance of being featured
             'is_active' => true,

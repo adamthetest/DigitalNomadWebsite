@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 class Favorite extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'user_id',
         'favoritable_id',
@@ -79,6 +80,7 @@ class Favorite extends Model
             // If an existing favorite and no notes provided, toggle OFF (second click)
             if ($notes === null) {
                 $favorite->delete();
+
                 return false; // Removed from favorites
             }
 
@@ -87,6 +89,7 @@ class Favorite extends Model
                 'category' => $category,
                 'notes' => $notes,
             ]);
+
             return true;
         } else {
             static::create([

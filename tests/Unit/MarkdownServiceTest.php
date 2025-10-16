@@ -12,7 +12,7 @@ class MarkdownServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->markdownService = new MarkdownService();
+        $this->markdownService = new MarkdownService;
     }
 
     public function test_parse_converts_markdown_to_html()
@@ -190,7 +190,7 @@ class MarkdownServiceTest extends TestCase
 
     public function test_parse_inline_handles_complex_markdown()
     {
-        $markdown = "This is **bold**, *italic*, `code`, and [link](https://example.com).";
+        $markdown = 'This is **bold**, *italic*, `code`, and [link](https://example.com).';
         $html = $this->markdownService->parseInline($markdown);
 
         $this->assertStringContainsString('<strong>bold</strong>', $html);

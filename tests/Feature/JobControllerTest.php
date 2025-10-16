@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\Job;
 use App\Models\Company;
+use App\Models\Job;
 use App\Models\JobUserInteraction;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -27,7 +27,7 @@ class JobControllerTest extends TestCase
         $job = Job::factory()->create([
             'company_id' => $company->id,
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
 
         $response = $this->get('/jobs');
@@ -44,12 +44,12 @@ class JobControllerTest extends TestCase
             'title' => 'PHP Developer',
             'company_id' => $company->id,
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
         $job2 = Job::factory()->create([
             'title' => 'JavaScript Developer',
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
 
         $response = $this->get('/jobs?search=PHP');
@@ -66,12 +66,12 @@ class JobControllerTest extends TestCase
             'title' => 'Tech Lead',
             'company_id' => $company->id,
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
         $job2 = Job::factory()->create([
             'title' => 'Developer',
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
 
         $response = $this->get('/jobs?search=Tech');
@@ -86,12 +86,12 @@ class JobControllerTest extends TestCase
         $job1 = Job::factory()->create([
             'type' => 'full-time',
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
         $job2 = Job::factory()->create([
             'type' => 'part-time',
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
 
         $response = $this->get('/jobs?type=full-time');
@@ -106,12 +106,12 @@ class JobControllerTest extends TestCase
         $job1 = Job::factory()->create([
             'remote_type' => 'fully-remote',
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
         $job2 = Job::factory()->create([
             'remote_type' => 'onsite',
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
 
         $response = $this->get('/jobs?remote_type=fully-remote');
@@ -127,13 +127,13 @@ class JobControllerTest extends TestCase
             'salary_min' => 50000,
             'salary_max' => 80000,
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
         $job2 = Job::factory()->create([
             'salary_min' => 30000,
             'salary_max' => 50000,
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
 
         $response = $this->get('/jobs?salary_min=45000&salary_max=75000');
@@ -148,12 +148,12 @@ class JobControllerTest extends TestCase
         $job1 = Job::factory()->create([
             'tags' => ['PHP', 'Laravel'],
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
         $job2 = Job::factory()->create([
             'tags' => ['JavaScript', 'React'],
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
 
         $response = $this->get('/jobs?tags=PHP');
@@ -168,12 +168,12 @@ class JobControllerTest extends TestCase
         $job1 = Job::factory()->create([
             'visa_support' => true,
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
         $job2 = Job::factory()->create([
             'visa_support' => false,
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
 
         $response = $this->get('/jobs?visa_support=1');
@@ -188,12 +188,12 @@ class JobControllerTest extends TestCase
         $job1 = Job::factory()->create([
             'created_at' => now()->subDays(3),
             'is_active' => true,
-            'published_at' => now()->subDays(3)
+            'published_at' => now()->subDays(3),
         ]);
         $job2 = Job::factory()->create([
             'created_at' => now()->subDays(10),
             'is_active' => true,
-            'published_at' => now()->subDays(10)
+            'published_at' => now()->subDays(10),
         ]);
 
         $response = $this->get('/jobs?date_posted=7d');
@@ -208,12 +208,12 @@ class JobControllerTest extends TestCase
         $job1 = Job::factory()->create([
             'created_at' => now()->subDay(),
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
         $job2 = Job::factory()->create([
             'created_at' => now()->subDays(2),
             'is_active' => true,
-            'published_at' => now()->subDays(2)
+            'published_at' => now()->subDays(2),
         ]);
 
         $response = $this->get('/jobs?sort=newest');
@@ -227,12 +227,12 @@ class JobControllerTest extends TestCase
         $job1 = Job::factory()->create([
             'salary_max' => 100000,
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
         $job2 = Job::factory()->create([
             'salary_max' => 50000,
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
 
         $response = $this->get('/jobs?sort=salary_high');
@@ -246,12 +246,12 @@ class JobControllerTest extends TestCase
         $job1 = Job::factory()->create([
             'featured' => true,
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
         $job2 = Job::factory()->create([
             'featured' => false,
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
 
         $response = $this->get('/jobs?sort=featured');
@@ -264,7 +264,7 @@ class JobControllerTest extends TestCase
     {
         $job = Job::factory()->create([
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
 
         $response = $this->get("/jobs/{$job->id}");
@@ -287,7 +287,7 @@ class JobControllerTest extends TestCase
     {
         $job = Job::factory()->create([
             'is_active' => true,
-            'published_at' => now()->addDay()
+            'published_at' => now()->addDay(),
         ]);
 
         $response = $this->get("/jobs/{$job->id}");
@@ -300,7 +300,7 @@ class JobControllerTest extends TestCase
         $job = Job::factory()->create([
             'is_active' => true,
             'published_at' => now()->subDay(),
-            'views_count' => 10
+            'views_count' => 10,
         ]);
 
         $this->get("/jobs/{$job->id}");
@@ -314,12 +314,12 @@ class JobControllerTest extends TestCase
         $job1 = Job::factory()->create([
             'company_id' => $company->id,
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
         $job2 = Job::factory()->create([
             'company_id' => $company->id,
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
 
         $response = $this->get("/jobs/{$job1->id}");
@@ -350,7 +350,7 @@ class JobControllerTest extends TestCase
         $this->assertDatabaseHas('job_user_interactions', [
             'user_id' => $user->id,
             'job_id' => $job->id,
-            'status' => 'saved'
+            'status' => 'saved',
         ]);
     }
 
@@ -361,7 +361,7 @@ class JobControllerTest extends TestCase
         JobUserInteraction::factory()->create([
             'user_id' => $user->id,
             'job_id' => $job->id,
-            'status' => 'saved'
+            'status' => 'saved',
         ]);
 
         $response = $this->actingAs($user)->postJson("/jobs/{$job->id}/toggle-save");
@@ -371,7 +371,7 @@ class JobControllerTest extends TestCase
         $this->assertDatabaseMissing('job_user_interactions', [
             'user_id' => $user->id,
             'job_id' => $job->id,
-            'status' => 'saved'
+            'status' => 'saved',
         ]);
     }
 
@@ -382,7 +382,7 @@ class JobControllerTest extends TestCase
         JobUserInteraction::factory()->create([
             'user_id' => $user->id,
             'job_id' => $job->id,
-            'status' => 'applied'
+            'status' => 'applied',
         ]);
 
         $response = $this->actingAs($user)->postJson("/jobs/{$job->id}/toggle-save");
@@ -392,7 +392,7 @@ class JobControllerTest extends TestCase
         $this->assertDatabaseHas('job_user_interactions', [
             'user_id' => $user->id,
             'job_id' => $job->id,
-            'status' => 'saved'
+            'status' => 'saved',
         ]);
     }
 
@@ -413,7 +413,7 @@ class JobControllerTest extends TestCase
 
         $response = $this->actingAs($user)->post("/jobs/{$job->id}/apply", [
             'cover_letter' => 'I am interested in this position.',
-            'resume_url' => 'https://example.com/resume.pdf'
+            'resume_url' => 'https://example.com/resume.pdf',
         ]);
 
         $response->assertRedirect();
@@ -421,7 +421,7 @@ class JobControllerTest extends TestCase
         $this->assertDatabaseHas('job_user_interactions', [
             'user_id' => $user->id,
             'job_id' => $job->id,
-            'status' => 'applied'
+            'status' => 'applied',
         ]);
     }
 
@@ -442,7 +442,7 @@ class JobControllerTest extends TestCase
         JobUserInteraction::factory()->create([
             'user_id' => $user->id,
             'job_id' => $job->id,
-            'status' => 'applied'
+            'status' => 'applied',
         ]);
 
         $response = $this->actingAs($user)->post("/jobs/{$job->id}/apply");
@@ -458,11 +458,11 @@ class JobControllerTest extends TestCase
         JobUserInteraction::factory()->create([
             'user_id' => $user->id,
             'job_id' => $job->id,
-            'status' => 'saved'
+            'status' => 'saved',
         ]);
 
         $response = $this->actingAs($user)->post("/jobs/{$job->id}/apply", [
-            'cover_letter' => 'I am interested in this position.'
+            'cover_letter' => 'I am interested in this position.',
         ]);
 
         $response->assertRedirect();
@@ -470,7 +470,7 @@ class JobControllerTest extends TestCase
         $this->assertDatabaseHas('job_user_interactions', [
             'user_id' => $user->id,
             'job_id' => $job->id,
-            'status' => 'applied'
+            'status' => 'applied',
         ]);
     }
 
@@ -480,7 +480,7 @@ class JobControllerTest extends TestCase
         $job = Job::factory()->create([
             'company_id' => $company->id,
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
 
         $response = $this->get("/jobs/company/{$company->slug}");
@@ -497,12 +497,12 @@ class JobControllerTest extends TestCase
         $activeJob = Job::factory()->create([
             'company_id' => $company->id,
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
         $inactiveJob = Job::factory()->create([
             'company_id' => $company->id,
             'is_active' => false,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
 
         $response = $this->get("/jobs/company/{$company->slug}");
@@ -519,13 +519,13 @@ class JobControllerTest extends TestCase
             'company_id' => $company->id,
             'featured' => false,
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
         $featuredJob = Job::factory()->create([
             'company_id' => $company->id,
             'featured' => true,
             'is_active' => true,
-            'published_at' => now()->subDay()
+            'published_at' => now()->subDay(),
         ]);
 
         $response = $this->get("/jobs/company/{$company->slug}");
