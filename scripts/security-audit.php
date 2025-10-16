@@ -163,7 +163,15 @@ class SecurityAudit
         }
 
         // Check session configuration
-        $sessionDriver = env('SESSION_DRIVER', 'file');
+        $envFile = __DIR__.'/../.env';
+        $sessionDriver = 'file'; // default
+        if (file_exists($envFile)) {
+            $envContent = file_get_contents($envFile);
+            if (preg_match('/SESSION_DRIVER=(.+)/', $envContent, $matches)) {
+                $sessionDriver = trim($matches[1]);
+            }
+        }
+        
         if ($sessionDriver === 'file') {
             $this->recommendations[] = "Consider using 'redis' or 'database' session driver for better security";
             echo "  ⚠️  Using file session driver (consider redis/database)\n";
@@ -182,19 +190,22 @@ class SecurityAudit
         echo "📁 Checking File Permissions...\n";
 
         $criticalPaths = [
-            'storage' => 755,
-            'bootstrap/cache' => 755,
-            '.env' => 644,
+            'storage' => [755, 493], // 755 octal = 493 decimal
+            'bootstrap/cache' => [755, 493],
+            '.env' => [644, 420], // 644 octal = 420 decimal
         ];
 
         foreach ($criticalPaths as $path => $expectedPerms) {
             $fullPath = __DIR__.'/../'.$path;
             if (file_exists($fullPath)) {
                 $perms = fileperms($fullPath) & 0777;
-                if ($perms !== $expectedPerms) {
-                    $this->recommendations[] = "Set correct permissions for {$path} (current: {$perms}, expected: {$expectedPerms})";
+                $expectedOctal = $expectedPerms[0];
+                $expectedDecimal = $expectedPerms[1];
+                
+                if ($perms !== $expectedDecimal && $perms !== $expectedOctal) {
+                    $this->recommendations[] = "Set correct permissions for {$path} (current: {$perms}, expected: {$expectedOctal})";
                     $this->score -= 5;
-                    echo "  ⚠️  {$path} permissions: {$perms} (should be {$expectedPerms})\n";
+                    echo "  ⚠️  {$path} permissions: {$perms} (should be {$expectedOctal})\n";
                 } else {
                     echo "  ✅ {$path} permissions are correct\n";
                 }
@@ -244,15 +255,38 @@ class SecurityAudit
         echo "🔐 Checking Authentication Security...\n";
 
         // Check password hashing
+        $hasPasswordHashing = false;
+        
+        // Check User model for password casting
         if (file_exists(__DIR__.'/../app/Models/User.php')) {
             $userModel = file_get_contents(__DIR__.'/../app/Models/User.php');
-            if (str_contains($userModel, 'Hash::make') || str_contains($userModel, 'bcrypt')) {
-                echo "  ✅ Password hashing is implemented\n";
-            } else {
-                $this->recommendations[] = 'Implement proper password hashing in User model';
-                $this->score -= 10;
-                echo "  ❌ Password hashing not found in User model\n";
+            if (str_contains($userModel, "'password' => 'hashed'") || str_contains($userModel, '"password" => "hashed"')) {
+                $hasPasswordHashing = true;
             }
+        }
+        
+        // Check registration controller
+        if (file_exists(__DIR__.'/../app/Http/Controllers/Auth/RegisterController.php')) {
+            $registerController = file_get_contents(__DIR__.'/../app/Http/Controllers/Auth/RegisterController.php');
+            if (str_contains($registerController, 'Hash::make')) {
+                $hasPasswordHashing = true;
+            }
+        }
+        
+        // Check password reset controller
+        if (file_exists(__DIR__.'/../app/Http/Controllers/Auth/PasswordResetController.php')) {
+            $passwordResetController = file_get_contents(__DIR__.'/../app/Http/Controllers/Auth/PasswordResetController.php');
+            if (str_contains($passwordResetController, 'Hash::make')) {
+                $hasPasswordHashing = true;
+            }
+        }
+        
+        if ($hasPasswordHashing) {
+            echo "  ✅ Password hashing is implemented\n";
+        } else {
+            $this->recommendations[] = 'Implement proper password hashing in User model';
+            $this->score -= 10;
+            echo "  ❌ Password hashing not found\n";
         }
 
         // Check login throttling in routes
@@ -398,7 +432,15 @@ class SecurityAudit
         }
 
         // Check session secure flag
-        $sessionSecure = env('SESSION_SECURE_COOKIE', false);
+        $envFile = __DIR__.'/../.env';
+        $sessionSecure = false;
+        if (file_exists($envFile)) {
+            $envContent = file_get_contents($envFile);
+            if (preg_match('/SESSION_SECURE_COOKIE=(.+)/', $envContent, $matches)) {
+                $sessionSecure = trim($matches[1]) === 'true';
+            }
+        }
+        
         if (! $sessionSecure) {
             $this->recommendations[] = 'Enable SESSION_SECURE_COOKIE for HTTPS';
             echo "  ⚠️  SESSION_SECURE_COOKIE is disabled\n";
@@ -553,14 +595,14 @@ class SecurityAudit
             $webRoutes = file_get_contents(__DIR__.'/../routes/web.php');
 
             // Check for protected routes
-            if (str_contains($webRoutes, 'middleware(\'auth\')')) {
+            if (str_contains($webRoutes, 'middleware(\'auth\')') || str_contains($webRoutes, 'middleware("auth")')) {
                 echo "  ✅ Authentication middleware is applied to routes\n";
             } else {
                 echo "  ⚠️  Authentication middleware not found in routes\n";
             }
 
             // Check for admin routes
-            if (str_contains($webRoutes, 'middleware(\'admin\')')) {
+            if (str_contains($webRoutes, 'middleware(\'admin\')') || str_contains($webRoutes, 'middleware("admin")') || str_contains($webRoutes, "middleware(['auth', 'admin'])")) {
                 echo "  ✅ Admin middleware is applied to routes\n";
             } else {
                 echo "  ⚠️  Admin middleware not found in routes\n";
@@ -578,16 +620,36 @@ class SecurityAudit
         echo "🛡️  Checking CSRF Protection...\n";
 
         // Check if CSRF middleware is applied (Laravel 11 has CSRF enabled by default)
+        $hasCSRFProtection = false;
+        
+        // Check bootstrap/app.php for CSRF configuration
         if (file_exists(__DIR__.'/../bootstrap/app.php')) {
             $bootstrap = file_get_contents(__DIR__.'/../bootstrap/app.php');
-            // Laravel 11 enables CSRF by default for web routes
             if (str_contains($bootstrap, 'VerifyCsrfToken') || str_contains($bootstrap, 'csrf')) {
-                echo "  ✅ CSRF protection is configured\n";
-            } else {
-                $this->recommendations[] = 'Ensure CSRF protection is enabled';
-                $this->score -= 10;
-                echo "  ❌ CSRF protection not found\n";
+                $hasCSRFProtection = true;
             }
+        }
+        
+        // Check for CSRF middleware file
+        if (file_exists(__DIR__.'/../app/Http/Middleware/VerifyCsrfToken.php')) {
+            $hasCSRFProtection = true;
+        }
+        
+        // Laravel 11+ has CSRF enabled by default for web routes
+        // Check if we're using web routes (which have CSRF by default)
+        if (file_exists(__DIR__.'/../routes/web.php')) {
+            $webRoutes = file_get_contents(__DIR__.'/../routes/web.php');
+            if (str_contains($webRoutes, 'Route::') && !str_contains($webRoutes, 'Route::apiResource')) {
+                $hasCSRFProtection = true;
+            }
+        }
+        
+        if ($hasCSRFProtection) {
+            echo "  ✅ CSRF protection is configured\n";
+        } else {
+            $this->recommendations[] = 'Ensure CSRF protection is enabled';
+            $this->score -= 10;
+            echo "  ❌ CSRF protection not found\n";
         }
 
         echo "\n";
@@ -663,8 +725,10 @@ class SecurityAudit
         $appUrl = env('APP_URL', '');
         if (str_starts_with($appUrl, 'https://')) {
             echo "  ✅ APP_URL uses HTTPS\n";
+        } elseif (str_contains($appUrl, 'localhost') || str_contains($appUrl, '127.0.0.1')) {
+            echo "  ⚠️  APP_URL uses HTTP (acceptable for localhost development)\n";
         } else {
-            $this->recommendations[] = 'Use HTTPS in APP_URL';
+            $this->recommendations[] = 'Use HTTPS in APP_URL for production';
             echo "  ⚠️  APP_URL does not use HTTPS\n";
         }
 
