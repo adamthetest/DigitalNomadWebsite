@@ -137,7 +137,7 @@
                                     <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ $article->title }}</h3>
                                     <p class="text-gray-600 mb-3">{!! Str::limit($article->parsed_excerpt, 120) !!}</p>
                                     <div class="flex justify-between items-center text-sm text-gray-500">
-                                        <span>{{ $article->published_at->format('M d, Y') }}</span>
+                                        <span>{{ optional($article->published_at)->format('M d, Y') ?? 'Unpublished' }}</span>
                                         <a href="{{ route('articles.show', $article) }}" class="text-blue-600 hover:text-blue-700 font-medium">Read More →</a>
                                     </div>
                                 </div>

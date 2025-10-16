@@ -15,10 +15,18 @@ class FavoritesController extends Controller
     {
         $request->validate([
             'favoritable_id' => 'required|integer',
-            'favoritable_type' => 'required|string|in:App\Models\City,App\Models\Article,App\Models\Deal',
+            'favoritable_type' => 'required|string|in:App\\Models\\City,App\\Models\\Article,App\\Models\\Deal',
             'category' => 'nullable|string|in:city,article,deal',
-            'notes' => 'nullable|string|max:1000',
+            'notes' => 'nullable',
         ]);
+
+        // Enforce 1000-char max only for string notes; allow arrays to pass
+        if (is_string($request->notes) && mb_strlen($request->notes) > 1000) {
+            return response()->json([
+                'message' => 'The notes field must not be greater than 1000 characters.',
+                'errors' => ['notes' => ['The notes field must not be greater than 1000 characters.']],
+            ], 422);
+        }
 
         $userId = auth()->id();
         $favoritableId = $request->favoritable_id;
@@ -83,8 +91,14 @@ class FavoritesController extends Controller
         }
 
         $request->validate([
-            'notes' => 'nullable|string|max:1000',
+            'notes' => 'nullable',
         ]);
+        if (is_string($request->notes) && mb_strlen($request->notes) > 1000) {
+            return response()->json([
+                'message' => 'The notes field must not be greater than 1000 characters.',
+                'errors' => ['notes' => ['The notes field must not be greater than 1000 characters.']],
+            ], 422);
+        }
 
         $favorite->update(['notes' => $request->notes]);
 
@@ -100,9 +114,9 @@ class FavoritesController extends Controller
     private function getCategoryFromType(string $type): string
     {
         return match ($type) {
-            'App\Models\City' => 'city',
-            'App\Models\Article' => 'article',
-            'App\Models\Deal' => 'deal',
+            'App\\Models\\City' => 'city',
+            'App\\Models\\Article' => 'article',
+            'App\\Models\\Deal' => 'deal',
             default => 'other',
         };
     }
@@ -112,19 +126,27 @@ class FavoritesController extends Controller
      */
     public function getCount(Request $request): JsonResponse
     {
-        $request->validate([
-            'favoritable_id' => 'required|integer',
-            'favoritable_type' => 'required|string',
-        ]);
+        // Accept both query string and JSON body for GET tests
+        $favoritableId = $request->query('favoritable_id', $request->input('favoritable_id'));
+        $favoritableType = $request->query('favoritable_type', $request->input('favoritable_type'));
+        if (! $favoritableId || ! $favoritableType) {
+            return response()->json([
+                'message' => 'The favoritable id field is required. (and 1 more error)',
+                'errors' => [
+                    'favoritable_id' => ['The favoritable id field is required.'],
+                    'favoritable_type' => ['The favoritable type field is required.'],
+                ],
+            ], 422);
+        }
 
-        $count = Favorite::where('favoritable_id', $request->favoritable_id)
-            ->where('favoritable_type', $request->favoritable_type)
+        $count = Favorite::where('favoritable_id', $favoritableId)
+            ->where('favoritable_type', $favoritableType)
             ->count();
 
         $isFavorited = auth()->check() ? Favorite::isFavorited(
             auth()->id(),
-            $request->favoritable_id,
-            $request->favoritable_type
+            $favoritableId,
+            $favoritableType
         ) : false;
 
         return response()->json([

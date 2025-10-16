@@ -142,6 +142,16 @@ class CityController extends Controller
             ->limit(10)
             ->get();
 
+        // Fallback: if no results match the query, return top 10 active cities
+        if ($cities->isEmpty()) {
+            $cities = City::with('country')
+                ->where('is_active', true)
+                ->orderBy('is_featured', 'desc')
+                ->orderBy('name')
+                ->limit(10)
+                ->get();
+        }
+
         $suggestions = $cities->map(function ($city) {
             return [
                 'id' => $city->id,

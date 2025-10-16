@@ -76,25 +76,25 @@ class Favorite extends Model
             ->first();
 
         if ($favorite) {
-            // If additional parameters are provided, update the favorite
-            if ($category !== null || $notes !== null) {
-                $favorite->update([
-                    'category' => $category,
-                    'notes' => $notes,
-                ]);
-                return true; // Updated existing favorite
-            } else {
-                // Otherwise, delete the favorite
+            // If an existing favorite and no notes provided, toggle OFF (second click)
+            if ($notes === null) {
                 $favorite->delete();
                 return false; // Removed from favorites
             }
+
+            // Otherwise update existing favorite details
+            $favorite->update([
+                'category' => $category,
+                'notes' => $notes,
+            ]);
+            return true;
         } else {
             static::create([
                 'user_id' => $userId,
                 'favoritable_id' => $favoritableId,
                 'favoritable_type' => $favoritableType,
                 'category' => $category,
-                'notes' => $notes,
+                'notes' => is_array($notes) ? $notes : $notes,
             ]);
 
             return true; // Added to favorites

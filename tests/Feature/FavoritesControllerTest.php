@@ -393,10 +393,10 @@ class FavoritesControllerTest extends TestCase
             'favoritable_type' => 'App\Models\City'
         ]);
 
-        $response = $this->getJson('/favorites/count', [
+        $response = $this->getJson('/favorites/count?' . http_build_query([
             'favoritable_id' => $city->id,
             'favoritable_type' => 'App\Models\City'
-        ]);
+        ]));
 
         $response->assertStatus(200);
         $response->assertJson([
@@ -416,10 +416,10 @@ class FavoritesControllerTest extends TestCase
             'favoritable_type' => 'App\Models\City'
         ]);
 
-        $response = $this->actingAs($user)->getJson('/favorites/count', [
+        $response = $this->actingAs($user)->getJson('/favorites/count?' . http_build_query([
             'favoritable_id' => $city->id,
             'favoritable_type' => 'App\Models\City'
-        ]);
+        ]));
 
         $response->assertStatus(200);
         $response->assertJson([

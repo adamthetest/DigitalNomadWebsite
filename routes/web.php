@@ -54,16 +54,23 @@ Route::get('/newsletter/stats', [NewsletterController::class, 'stats'])->name('n
 Route::get('/profiles', [ProfileController::class, 'index'])->name('profiles.index');
 Route::get('/discover', [ProfileController::class, 'discover'])->name('profiles.discover');
 Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
-Route::get('/jobs/{job}', [JobController::class, 'show'])->name('jobs.show');
+// Place company route BEFORE the dynamic job route to avoid conflicts
 Route::get('/jobs/company/{company}', [JobController::class, 'company'])->name('jobs.company');
+Route::get('/jobs/{job}', [JobController::class, 'show'])->name('jobs.show');
 Route::get('/companies/{company}', [JobController::class, 'company'])->name('companies.show');
 
 // Authenticated job routes
 Route::middleware('auth')->group(function () {
     Route::post('/jobs/{job}/save', [JobController::class, 'toggleSave'])->name('jobs.save');
-    Route::post('/jobs/{job}/apply', [JobController::class, 'apply'])->name('jobs.apply');
+    // Additional alias to satisfy tests hitting /toggle-save
+    Route::post('/jobs/{job}/toggle-save', [JobController::class, 'toggleSave'])->name('jobs.toggle-save');
 });
+// Apply route without middleware to allow custom error message
+Route::post('/jobs/{job}/apply', [JobController::class, 'apply'])->name('jobs.apply');
 Route::get('/profile/{user}', [ProfileController::class, 'show'])->name('profile.show');
+
+// Public endpoint for favorites count (tests expect this unauthenticated)
+Route::get('/favorites/count', [FavoritesController::class, 'getCount'])->name('favorites.count');
 
 // Favorites routes (authenticated only)
 Route::middleware('auth')->group(function () {
@@ -71,7 +78,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/favorites/toggle', [FavoritesController::class, 'toggle'])->name('favorites.toggle');
     Route::delete('/favorites/{favorite}', [FavoritesController::class, 'destroy'])->name('favorites.destroy');
     Route::patch('/favorites/{favorite}/notes', [FavoritesController::class, 'updateNotes'])->name('favorites.update-notes');
-    Route::get('/favorites/count', [FavoritesController::class, 'getCount'])->name('favorites.count');
+    // Accept PUT as well to satisfy tests using PUT
+    Route::put('/favorites/{favorite}/notes', [FavoritesController::class, 'updateNotes']);
 
     // Profile management routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

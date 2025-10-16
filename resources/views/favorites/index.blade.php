@@ -98,7 +98,7 @@
                                 </div>
                                 <p class="text-gray-600 mb-4">{!! Str::limit($favorite->favoritable->parsed_excerpt, 100) !!}</p>
                                 <div class="flex justify-between items-center text-sm text-gray-500 mb-4">
-                                    <span>{{ $favorite->favoritable->published_at->format('M d, Y') }}</span>
+                                    <span>{{ optional($favorite->favoritable->published_at)->format('M d, Y') ?? 'Unpublished' }}</span>
                                     @if($favorite->favoritable->author)
                                         <span>By {{ $favorite->favoritable->author }}</span>
                                     @endif

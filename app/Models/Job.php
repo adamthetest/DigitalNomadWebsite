@@ -233,15 +233,19 @@ class Job extends Model
     public function scopeBySalaryRange($query, int $min, ?int $max = null)
     {
         return $query->where(function ($q) use ($min, $max) {
+            // Job salary range intersects with search range
             $q->where(function ($subQ) use ($min, $max) {
+                // Job's min salary is within search range
                 $subQ->where('salary_min', '>=', $min);
                 if ($max) {
-                    $subQ->where('salary_max', '<=', $max);
+                    $subQ->where('salary_min', '<=', $max);
                 }
             })->orWhere(function ($subQ) use ($min, $max) {
+                // Job's max salary is within search range AND job's min is not above search max
                 $subQ->where('salary_max', '>=', $min);
                 if ($max) {
                     $subQ->where('salary_max', '<=', $max);
+                    $subQ->where('salary_min', '<=', $max);
                 }
             });
         });
