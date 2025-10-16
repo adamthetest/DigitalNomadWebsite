@@ -16,10 +16,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'banned.ip' => \App\Http\Middleware\CheckBannedIp::class,
         ]);
 
-        // Apply banned IP check globally
+        // Apply security middleware globally
         $middleware->web(append: [
             \App\Http\Middleware\CheckBannedIp::class,
+            \App\Http\Middleware\SecurityHeaders::class,
         ]);
+
+        // Trust proxies for HTTPS behind load balancer
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

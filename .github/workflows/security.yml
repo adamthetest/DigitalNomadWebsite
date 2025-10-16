@@ -21,6 +21,7 @@ on:
         - codeql
         - secrets
         - lighthouse
+        - security
       environment:
         description: 'Environment to scan'
         required: true
@@ -124,23 +125,51 @@ jobs:
     - name: Install Composer dependencies
       run: composer install --no-progress --prefer-dist
 
-    - name: Run PHPStan Static Analysis (Skip for now - too many errors)
-      run: |
-        echo "PHPStan static analysis temporarily disabled due to 299 errors"
-        echo "This will be addressed in a future update"
-        echo "Current errors include:"
-        echo "- Missing imports (Log, Str classes)"
-        echo "- Undefined model properties"
-        echo "- Type mismatches in method returns"
-        echo "Status: SKIPPED"
-        exit 0
+    - name: Run PHPStan Static Analysis
+      run: composer phpstan
 
-    - name: Run Psalm Static Analysis (Skip for now - too many errors)
-      run: |
-        echo "Psalm static analysis temporarily disabled due to similar issues"
-        echo "This will be addressed in a future update"
-        echo "Status: SKIPPED"
-        exit 0
+  comprehensive-security-audit:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'security' }}
+    
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.4'
+        extensions: mbstring, dom, fileinfo, mysql, sqlite3, pdo_mysql, pdo_sqlite, bcmath, gd, zip, curl, intl, xml, json, iconv, openssl, tokenizer, ctype, fileinfo, pdo, session, simplexml, xmlreader, xmlwriter, zip, zlib
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install Composer dependencies
+      run: composer install --no-progress --prefer-dist
+
+    - name: Install NPM dependencies
+      run: npm ci
+
+    - name: Copy .env
+      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+    - name: Generate key
+      run: php artisan key:generate
+
+    - name: Directory Permissions
+      run: chmod -R 777 storage bootstrap/cache
+
+    - name: Run Comprehensive Security Audit
+      run: composer security-audit
+
+    - name: Upload Security Audit Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-audit-report
+        path: storage/app/security-audit-report.json
 
   secret-scan:
     runs-on: ubuntu-latest

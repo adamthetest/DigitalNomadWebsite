@@ -43,11 +43,13 @@ Route::get('/coworking-spaces', [CoworkingSpaceController::class, 'index'])->nam
 Route::get('/coworking-spaces/{coworkingSpace}', [CoworkingSpaceController::class, 'show'])->name('coworking-spaces.show');
 Route::get('/cities/{city}/coworking-spaces', [CoworkingSpaceController::class, 'byCity'])->name('coworking-spaces.city');
 
-// Newsletter routes
+// Newsletter routes with rate limiting
 Route::get('/newsletter', [NewsletterController::class, 'index'])->name('newsletter.index');
-Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+Route::middleware('throttle:10,1')->group(function () {
+    Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+    Route::post('/newsletter/unsubscribe', [NewsletterController::class, 'processUnsubscribe'])->name('newsletter.unsubscribe.process');
+});
 Route::get('/newsletter/unsubscribe', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
-Route::post('/newsletter/unsubscribe', [NewsletterController::class, 'processUnsubscribe'])->name('newsletter.unsubscribe.process');
 Route::get('/newsletter/stats', [NewsletterController::class, 'stats'])->name('newsletter.stats');
 
 // Profile routes
@@ -88,8 +90,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile/image', [ProfileController::class, 'deleteImage'])->name('profile.delete-image');
 });
 
-// Authentication Routes
-Route::middleware('guest')->group(function () {
+// Authentication Routes with rate limiting
+Route::middleware(['guest', 'throttle:5,1'])->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
 
