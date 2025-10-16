@@ -363,9 +363,15 @@ class CityControllerTest extends TestCase
 
     public function test_city_search_suggestions_limits_results()
     {
-        City::factory()->count(15)->create(['is_active' => true]);
+        // Create cities with names that will match the search
+        City::factory()->count(15)->create([
+            'is_active' => true,
+            'name' => function() {
+                return 'Test City ' . fake()->unique()->numberBetween(1, 100);
+            }
+        ]);
 
-        $response = $this->getJson('/cities/search-suggestions?q=City');
+        $response = $this->getJson('/cities/search-suggestions?q=Test');
 
         $response->assertStatus(200);
         $this->assertCount(10, $response->json());
