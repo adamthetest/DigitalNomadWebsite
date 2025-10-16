@@ -8,12 +8,78 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Job Model
+ *
+ * Represents a job posting in the digital nomad platform with company information,
+ * salary details, remote work options, and application tracking.
+ *
+ * @property int $id
+ * @property string $title
+ * @property string $description
+ * @property string|null $requirements
+ * @property string|null $benefits
+ * @property int $company_id
+ * @property string $type
+ * @property string $remote_type
+ * @property int|null $salary_min
+ * @property int|null $salary_max
+ * @property string|null $salary_currency
+ * @property string|null $salary_period
+ * @property array|null $tags
+ * @property string|null $timezone
+ * @property bool $visa_support
+ * @property string $source
+ * @property string|null $source_url
+ * @property string|null $apply_url
+ * @property string|null $apply_email
+ * @property bool $featured
+ * @property bool $is_active
+ * @property \Illuminate\Support\Carbon|null $expires_at
+ * @property \Illuminate\Support\Carbon|null $published_at
+ * @property int $views_count
+ * @property int $applications_count
+ * @property string|null $location
+ * @property array|null $experience_level
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Company $company
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\JobUserInteraction> $interactions
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $savedByUsers
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $appliedByUsers
+ * @property-read string $formatted_salary
+ * @property-read string $type_label
+ * @property-read string $remote_type_label
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Job newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Job newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Job query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Job active()
+ * @method static \Illuminate\Database\Eloquent\Builder|Job published()
+ * @method static \Illuminate\Database\Eloquent\Builder|Job notExpired()
+ * @method static \Illuminate\Database\Eloquent\Builder|Job featured()
+ * @method static \Illuminate\Database\Eloquent\Builder|Job byType(string $type)
+ * @method static \Illuminate\Database\Eloquent\Builder|Job byRemoteType(string $remoteType)
+ * @method static \Illuminate\Database\Eloquent\Builder|Job bySalaryRange(int $min, ?int $max = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Job byTags(array $tags)
+ * @method static \Illuminate\Database\Eloquent\Builder|Job visaFriendly()
+ * @method static \Illuminate\Database\Eloquent\Builder|Job recent(int $days = 7)
+ */
 class Job extends Model
 {
+    /** @use HasFactory<\Database\Factories\JobFactory> */
     use HasFactory;
 
+    /**
+     * The table associated with the model.
+     */
     protected $table = 'job_postings';
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
     protected $fillable = [
         'title',
         'description',
@@ -43,6 +109,11 @@ class Job extends Model
         'experience_level',
     ];
 
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [
@@ -178,6 +249,9 @@ class Job extends Model
 
     /**
      * Scope for active jobs.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeActive($query)
     {
@@ -186,6 +260,9 @@ class Job extends Model
 
     /**
      * Scope for published jobs.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopePublished($query)
     {
@@ -195,6 +272,9 @@ class Job extends Model
 
     /**
      * Scope for non-expired jobs.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeNotExpired($query)
     {
@@ -206,6 +286,9 @@ class Job extends Model
 
     /**
      * Scope for featured jobs.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeFeatured($query)
     {
@@ -214,6 +297,9 @@ class Job extends Model
 
     /**
      * Scope for jobs by type.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeByType($query, string $type)
     {
@@ -222,6 +308,9 @@ class Job extends Model
 
     /**
      * Scope for jobs by remote type.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeByRemoteType($query, string $remoteType)
     {
@@ -230,6 +319,9 @@ class Job extends Model
 
     /**
      * Scope for jobs by salary range.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeBySalaryRange($query, int $min, ?int $max = null)
     {
@@ -254,6 +346,9 @@ class Job extends Model
 
     /**
      * Scope for jobs by tags.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeByTags($query, array $tags)
     {
@@ -266,6 +361,9 @@ class Job extends Model
 
     /**
      * Scope for visa-friendly jobs.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeVisaFriendly($query)
     {
@@ -274,6 +372,9 @@ class Job extends Model
 
     /**
      * Scope for jobs posted recently.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeRecent($query, int $days = 7)
     {

@@ -156,7 +156,7 @@ class CityController extends Controller
             return [
                 'id' => $city->id,
                 'name' => $city->name,
-                'country' => $city->country?->name ?? '',
+                'country' => $city->country->name ?? '',
                 'url' => route('cities.show', $city),
                 'cost' => (int) $city->cost_of_living_index,
                 'internet' => (int) $city->internet_speed_mbps,

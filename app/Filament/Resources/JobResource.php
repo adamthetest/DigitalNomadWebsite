@@ -11,20 +11,50 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * Job Resource
+ *
+ * Filament resource for managing job postings in the admin panel.
+ * Provides CRUD operations, filtering, and bulk actions for jobs.
+ */
 class JobResource extends Resource
 {
+    /**
+     * The model the resource corresponds to.
+     */
     protected static ?string $model = Job::class;
 
+    /**
+     * The navigation icon for the resource.
+     */
     protected static ?string $navigationIcon = 'heroicon-o-briefcase';
 
+    /**
+     * The navigation label for the resource.
+     */
     protected static ?string $navigationLabel = 'Jobs';
 
+    /**
+     * The model label for the resource.
+     */
     protected static ?string $modelLabel = 'Job';
 
+    /**
+     * The plural model label for the resource.
+     */
     protected static ?string $pluralModelLabel = 'Jobs';
 
+    /**
+     * The navigation sort order for the resource.
+     */
     protected static ?int $navigationSort = 1;
 
+    /**
+     * Configure the form for the resource.
+     *
+     * @param  Form  $form  The form instance
+     * @return Form The configured form
+     */
     public static function form(Form $form): Form
     {
         return $form

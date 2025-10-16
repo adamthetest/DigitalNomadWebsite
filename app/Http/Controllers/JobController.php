@@ -5,15 +5,27 @@ namespace App\Http\Controllers;
 use App\Models\Company;
 use App\Models\Job;
 use App\Models\JobUserInteraction;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
+/**
+ * Job Controller
+ *
+ * Handles all job-related operations including listing, viewing, applying,
+ * and managing job interactions for the digital nomad platform.
+ */
 class JobController extends Controller
 {
     /**
-     * Display a listing of jobs.
+     * Display a listing of jobs with filtering and search capabilities.
+     *
+     * @param  Request  $request  The HTTP request containing search and filter parameters
+     * @return View The jobs index view with filtered job listings
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $query = Job::with('company')
             ->active()
@@ -122,9 +134,12 @@ class JobController extends Controller
     }
 
     /**
-     * Display the specified job.
+     * Display the specified job with related information.
+     *
+     * @param  Job  $job  The job to display
+     * @return View The job detail view
      */
-    public function show(Job $job)
+    public function show(Job $job): View
     {
         // Check if job is active and published
         if (! $job->is_active || ! $job->isPublished()) {
@@ -157,8 +172,12 @@ class JobController extends Controller
 
     /**
      * Save or unsave a job for the authenticated user.
+     *
+     * @param  Request  $request  The HTTP request
+     * @param  Job  $job  The job to save/unsave
+     * @return JsonResponse JSON response indicating success/failure
      */
-    public function toggleSave(Request $request, Job $job)
+    public function toggleSave(Request $request, Job $job): JsonResponse
     {
         if (! Auth::check()) {
             return response()->json(['error' => 'Authentication required'], 401);
@@ -190,9 +209,13 @@ class JobController extends Controller
     }
 
     /**
-     * Apply to a job.
+     * Apply to a job for the authenticated user.
+     *
+     * @param  Request  $request  The HTTP request containing application data
+     * @param  Job  $job  The job to apply for
+     * @return RedirectResponse Redirect back with success/error message
      */
-    public function apply(Request $request, Job $job)
+    public function apply(Request $request, Job $job): RedirectResponse
     {
         if (! Auth::check()) {
             return redirect()->route('login')->with('error', 'Please login to apply for jobs.');
@@ -231,11 +254,12 @@ class JobController extends Controller
     }
 
     /**
-     * Show jobs for a specific company
+     * Show jobs for a specific company.
      *
-     * @return \Illuminate\View\View
+     * @param  Company  $company  The company to show jobs for
+     * @return View The company jobs view
      */
-    public function company(Company $company)
+    public function company(Company $company): View
     {
         $company->load('activeJobs');
 

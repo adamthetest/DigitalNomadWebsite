@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
+/**
+ * Scrape Jobs Command
+ *
+ * Scrapes remote job postings from external APIs and job boards
+ * including RemoteOK and WeWorkRemotely to populate the job database.
+ */
 class ScrapeJobs extends Command
 {
     /**
@@ -27,8 +33,10 @@ class ScrapeJobs extends Command
 
     /**
      * Execute the console command.
+     *
+     * @return int The exit code
      */
-    public function handle()
+    public function handle(): int
     {
         $limit = (int) $this->option('limit');
         $this->info("Starting job scraping process (limit: {$limit} per source)...");
@@ -42,10 +50,15 @@ class ScrapeJobs extends Command
         $totalScraped += $this->scrapeWeWorkRemotely($limit);
 
         $this->info("Job scraping completed. Total jobs processed: {$totalScraped}");
+
+        return Command::SUCCESS;
     }
 
     /**
-     * Scrape jobs from RemoteOK API
+     * Scrape jobs from RemoteOK API.
+     *
+     * @param  int  $limit  Maximum number of jobs to scrape
+     * @return int Number of jobs successfully scraped
      */
     private function scrapeRemoteOK(int $limit): int
     {
@@ -132,7 +145,10 @@ class ScrapeJobs extends Command
     }
 
     /**
-     * Scrape jobs from WeWorkRemotely RSS
+     * Scrape jobs from WeWorkRemotely RSS feed.
+     *
+     * @param  int  $limit  Maximum number of jobs to scrape
+     * @return int Number of jobs successfully scraped
      */
     private function scrapeWeWorkRemotely(int $limit): int
     {

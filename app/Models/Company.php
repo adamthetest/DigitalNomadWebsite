@@ -7,10 +7,53 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
+/**
+ * Company Model
+ *
+ * Represents a company in the digital nomad platform with job postings,
+ * company information, and subscription details.
+ *
+ * @property int $id
+ * @property string $name
+ * @property string $slug
+ * @property string|null $description
+ * @property string|null $logo
+ * @property string|null $website
+ * @property string|null $remote_policy
+ * @property string|null $industry
+ * @property string|null $size
+ * @property string|null $headquarters
+ * @property bool $verified
+ * @property string $subscription_plan
+ * @property array|null $benefits
+ * @property array|null $tech_stack
+ * @property string|null $contact_email
+ * @property bool $is_active
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Job> $jobs
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Job> $activeJobs
+ * @property-read string $logo_url
+ * @property-read int $job_count
+ * @property-read int $total_applications
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Company newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Company newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Company query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Company verified()
+ * @method static \Illuminate\Database\Eloquent\Builder|Company active()
+ * @method static \Illuminate\Database\Eloquent\Builder|Company premium()
+ */
 class Company extends Model
 {
+    /** @use HasFactory<\Database\Factories\CompanyFactory> */
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
     protected $fillable = [
         'name',
         'slug',
@@ -29,6 +72,11 @@ class Company extends Model
         'is_active',
     ];
 
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [
@@ -76,9 +124,9 @@ class Company extends Model
     }
 
     /**
-     * Boot the model.
+     * Boot the model and set up event listeners.
      */
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 
@@ -97,6 +145,9 @@ class Company extends Model
 
     /**
      * Scope for verified companies.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeVerified($query)
     {
@@ -105,6 +156,9 @@ class Company extends Model
 
     /**
      * Scope for active companies.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopeActive($query)
     {
@@ -113,6 +167,9 @@ class Company extends Model
 
     /**
      * Scope for premium companies.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function scopePremium($query)
     {
