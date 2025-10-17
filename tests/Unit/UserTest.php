@@ -36,6 +36,22 @@ class UserTest extends TestCase
             'website', 'twitter', 'instagram', 'linkedin', 'github', 'behance',
             'is_public', 'id_verified', 'premium_status', 'last_active',
             'visibility', 'location_precise', 'show_social_links', 'timezone',
+            // Phase 2: AI-ready fields
+            'profession_details', 'technical_skills', 'soft_skills', 'experience_years',
+            'education_level', 'certifications', 'preferred_climates', 'preferred_activities',
+            'budget_monthly_min', 'budget_monthly_max', 'budget_currency', 'visa_flexible',
+            'preferred_work_schedule', 'work_environment_preferences', 'requires_stable_internet',
+            'min_internet_speed_mbps', 'lifestyle_tags', 'pet_friendly_needed',
+            'family_friendly_needed', 'dietary_restrictions', 'ai_profile_summary',
+            'ai_preferences_vector', 'ai_profile_updated_at', 'ai_data_collection_consent',
+            'personalized_recommendations', 'data_sharing_preferences', 'is_admin',
+            // Phase 3: Job Matching fields
+            'profile_embedding', 'skills_embedding', 'experience_embedding',
+            'job_matching_preferences', 'preferred_job_types', 'preferred_remote_types',
+            'salary_expectations', 'timezone_preferences', 'ai_skills_analysis',
+            'ai_career_insights', 'ai_resume_optimization_tips', 'matching_metadata',
+            'last_profile_update', 'last_embedding_update', 'resume_content',
+            'resume_file_path', 'resume_metadata', 'cover_letter_template',
         ];
 
         $this->assertEquals($expectedFillable, $fillable);
