@@ -120,15 +120,11 @@ class JobScrapingService
             }
 
             $job = $this->processRemoteOKJob($jobData);
-            if ($job) {
-                $results['count']++;
-                if ($job->wasRecentlyCreated) {
-                    $results['new']++;
-                } else {
-                    $results['updated']++;
-                }
+            $results['count']++;
+            if ($job->wasRecentlyCreated) {
+                $results['new']++;
             } else {
-                $results['skipped']++;
+                $results['updated']++;
             }
         }
 
@@ -166,15 +162,11 @@ class JobScrapingService
             }
 
             $job = $this->processWWRJob($jobData);
-            if ($job) {
-                $results['count']++;
-                if ($job->wasRecentlyCreated) {
-                    $results['new']++;
-                } else {
-                    $results['updated']++;
-                }
+            $results['count']++;
+            if ($job->wasRecentlyCreated) {
+                $results['new']++;
             } else {
-                $results['skipped']++;
+                $results['updated']++;
             }
         }
 
