@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * Job Model
@@ -379,5 +380,13 @@ class Job extends Model
     public function scopeRecent($query, int $days = 7)
     {
         return $query->where('created_at', '>=', now()->subDays($days));
+    }
+
+    /**
+     * Get AI contexts for this job.
+     */
+    public function aiContexts(): MorphMany
+    {
+        return $this->morphMany(AiContext::class, 'context', 'context_model', 'context_id');
     }
 }

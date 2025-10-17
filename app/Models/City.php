@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Str;
 
 /**
@@ -95,6 +96,35 @@ class City extends Model
         'images',
         'is_featured',
         'is_active',
+        // AI-ready fields
+        'cost_accommodation_monthly',
+        'cost_food_monthly',
+        'cost_transport_monthly',
+        'cost_coworking_monthly',
+        'cost_currency',
+        'internet_reliability_score',
+        'fiber_available',
+        'mobile_data_good',
+        'weather_data',
+        'avg_temperature_celsius',
+        'avg_humidity_percent',
+        'rainy_days_per_year',
+        'safety_details',
+        'female_safe',
+        'lgbtq_friendly',
+        'visa_options',
+        'visa_duration_days',
+        'visa_extensions_possible',
+        'visa_cost_usd',
+        'coworking_spaces_count',
+        'cafes_with_wifi_count',
+        'english_widely_spoken',
+        'nomad_communities',
+        'ai_summary',
+        'ai_tags',
+        'ai_data_updated_at',
+        'data_source',
+        'last_data_sync',
     ];
 
     /**
@@ -110,6 +140,26 @@ class City extends Model
         'images' => 'array',
         'is_featured' => 'boolean',
         'is_active' => 'boolean',
+        // AI-ready field casts
+        'cost_accommodation_monthly' => 'decimal:2',
+        'cost_food_monthly' => 'decimal:2',
+        'cost_transport_monthly' => 'decimal:2',
+        'cost_coworking_monthly' => 'decimal:2',
+        'fiber_available' => 'boolean',
+        'mobile_data_good' => 'boolean',
+        'weather_data' => 'array',
+        'safety_details' => 'array',
+        'female_safe' => 'boolean',
+        'lgbtq_friendly' => 'boolean',
+        'visa_options' => 'array',
+        'visa_extensions_possible' => 'boolean',
+        'visa_cost_usd' => 'decimal:2',
+        'english_widely_spoken' => 'boolean',
+        'nomad_communities' => 'array',
+        'ai_summary' => 'array',
+        'ai_tags' => 'array',
+        'ai_data_updated_at' => 'datetime',
+        'last_data_sync' => 'datetime',
     ];
 
     /**
@@ -188,5 +238,13 @@ class City extends Model
     public function publishedArticles(): HasMany
     {
         return $this->hasMany(Article::class)->where('status', 'published');
+    }
+
+    /**
+     * Get AI contexts for this city.
+     */
+    public function aiContexts(): MorphMany
+    {
+        return $this->morphMany(AiContext::class, 'context', 'context_model', 'context_id');
     }
 }

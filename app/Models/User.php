@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -48,6 +49,33 @@ class User extends Authenticatable
         'location_precise',
         'show_social_links',
         'timezone',
+        // AI-ready fields
+        'profession_details',
+        'technical_skills',
+        'soft_skills',
+        'experience_years',
+        'education_level',
+        'certifications',
+        'preferred_climates',
+        'preferred_activities',
+        'budget_monthly_min',
+        'budget_monthly_max',
+        'budget_currency',
+        'visa_flexible',
+        'preferred_work_schedule',
+        'work_environment_preferences',
+        'requires_stable_internet',
+        'min_internet_speed_mbps',
+        'lifestyle_tags',
+        'pet_friendly_needed',
+        'family_friendly_needed',
+        'dietary_restrictions',
+        'ai_profile_summary',
+        'ai_preferences_vector',
+        'ai_profile_updated_at',
+        'ai_data_collection_consent',
+        'personalized_recommendations',
+        'data_sharing_preferences',
     ];
 
     /**
@@ -78,6 +106,27 @@ class User extends Authenticatable
             'show_social_links' => 'boolean',
             'skills' => 'array',
             'travel_timeline' => 'array',
+            // AI-ready field casts
+            'profession_details' => 'array',
+            'technical_skills' => 'array',
+            'soft_skills' => 'array',
+            'certifications' => 'array',
+            'preferred_climates' => 'array',
+            'preferred_activities' => 'array',
+            'visa_flexible' => 'boolean',
+            'preferred_work_schedule' => 'array',
+            'work_environment_preferences' => 'array',
+            'requires_stable_internet' => 'boolean',
+            'lifestyle_tags' => 'array',
+            'pet_friendly_needed' => 'boolean',
+            'family_friendly_needed' => 'boolean',
+            'dietary_restrictions' => 'array',
+            'ai_profile_summary' => 'array',
+            'ai_preferences_vector' => 'array',
+            'ai_profile_updated_at' => 'datetime',
+            'ai_data_collection_consent' => 'boolean',
+            'personalized_recommendations' => 'boolean',
+            'data_sharing_preferences' => 'array',
         ];
     }
 
@@ -314,5 +363,13 @@ class User extends Authenticatable
     public function scopeByWorkType($query, string $workType)
     {
         return $query->where('work_type', $workType);
+    }
+
+    /**
+     * Get AI contexts for this user.
+     */
+    public function aiContexts(): MorphMany
+    {
+        return $this->morphMany(AiContext::class, 'context', 'context_model', 'context_id');
     }
 }
