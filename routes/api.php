@@ -67,27 +67,27 @@ Route::prefix('v1')->group(function () {
         Route::get('/jobs/{job}/generate-cover-letter', [JobMatchingController::class, 'generateCoverLetter']);
         Route::get('/jobs/{job}/extract-skills', [JobMatchingController::class, 'extractSkills']);
 
-               Route::post('/matches/{jobMatch}/viewed', [JobMatchingController::class, 'markAsViewed']);
-               Route::post('/matches/{jobMatch}/applied', [JobMatchingController::class, 'markAsApplied']);
-               Route::post('/matches/{jobMatch}/saved', [JobMatchingController::class, 'markAsSaved']);
-           });
+        Route::post('/matches/{jobMatch}/viewed', [JobMatchingController::class, 'markAsViewed']);
+        Route::post('/matches/{jobMatch}/applied', [JobMatchingController::class, 'markAsApplied']);
+        Route::post('/matches/{jobMatch}/saved', [JobMatchingController::class, 'markAsSaved']);
+    });
 
-           // Content Management API (requires authentication) - Phase 4
-           Route::middleware('auth:sanctum')->prefix('content')->group(function () {
-               Route::get('/', [ContentController::class, 'index']);
-               Route::get('/statistics', [ContentController::class, 'statistics']);
-               Route::post('/generate', [ContentController::class, 'generate']);
-               Route::get('/{content}', [ContentController::class, 'show']);
-               Route::put('/{content}/status', [ContentController::class, 'updateStatus']);
-               Route::put('/{content}', [ContentController::class, 'update']);
-               Route::delete('/{content}', [ContentController::class, 'destroy']);
-           });
+    // Content Management API (requires authentication) - Phase 4
+    Route::middleware('auth:sanctum')->prefix('content')->group(function () {
+        Route::get('/', [ContentController::class, 'index']);
+        Route::get('/statistics', [ContentController::class, 'statistics']);
+        Route::post('/generate', [ContentController::class, 'generate']);
+        Route::get('/{content}', [ContentController::class, 'show']);
+        Route::put('/{content}/status', [ContentController::class, 'updateStatus']);
+        Route::put('/{content}', [ContentController::class, 'update']);
+        Route::delete('/{content}', [ContentController::class, 'destroy']);
+    });
 
-           // Public Content API - Phase 4
-           Route::prefix('content')->group(function () {
-               Route::get('/published', [ContentController::class, 'published']);
-           });
-       });
+    // Public Content API - Phase 4
+    Route::prefix('content')->group(function () {
+        Route::get('/published', [ContentController::class, 'published']);
+    });
+});
 
 // Health check endpoint
 Route::get('/health', function () {

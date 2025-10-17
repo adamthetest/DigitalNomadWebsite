@@ -27,11 +27,11 @@ class AiContentGenerationService
     /**
      * Generate a blog post about top digital nomad cities.
      */
-    public function generateTopCitiesBlogPost(int $year = null): ?AiGeneratedContent
+    public function generateTopCitiesBlogPost(?int $year = null): ?AiGeneratedContent
     {
         $year = $year ?? date('Y');
         $title = "Top 10 Digital Nomad Cities in {$year}";
-        
+
         // Get top cities data
         $topCities = City::where('is_active', true)
             ->orderBy('cost_of_living_index', 'asc')
@@ -42,6 +42,7 @@ class AiContentGenerationService
 
         if ($topCities->isEmpty()) {
             Log::warning('No cities found for top cities blog post');
+
             return null;
         }
 
@@ -51,7 +52,7 @@ class AiContentGenerationService
             'temperature' => 0.7,
         ]);
 
-        if (!$content) {
+        if (! $content) {
             Log::warning('OpenAI unavailable, using fallback content for top cities blog post');
             $content = $this->generateFallbackTopCitiesContent($topCities, $year);
         }
@@ -64,7 +65,7 @@ class AiContentGenerationService
                 'generation_type' => 'top_cities',
                 'year' => $year,
                 'cities_count' => $topCities->count(),
-                'cities_data' => $topCities->map(fn($city) => [
+                'cities_data' => $topCities->map(fn ($city) => [
                     'id' => $city->id,
                     'name' => $city->name,
                     'country' => $city->country->name ?? 'Unknown',
@@ -87,8 +88,8 @@ class AiContentGenerationService
      */
     public function generateTrendingDestinationsPost(): ?AiGeneratedContent
     {
-        $title = "Where Digital Nomads Are Moving This Month";
-        
+        $title = 'Where Digital Nomads Are Moving This Month';
+
         // Get recent job data and user activity
         $recentJobs = Job::where('is_active', true)
             ->where('created_at', '>=', now()->subMonth())
@@ -107,7 +108,7 @@ class AiContentGenerationService
             'temperature' => 0.8,
         ]);
 
-        if (!$content) {
+        if (! $content) {
             Log::warning('OpenAI unavailable, using fallback content for trending destinations post');
             $content = $this->generateFallbackTrendingContent($trendingCities, $recentJobs);
         }
@@ -119,7 +120,7 @@ class AiContentGenerationService
             'metadata' => [
                 'generation_type' => 'trending_destinations',
                 'jobs_count' => $recentJobs->count(),
-                'trending_cities' => $trendingCities->map(fn($city) => [
+                'trending_cities' => $trendingCities->map(fn ($city) => [
                     'id' => $city->id,
                     'name' => $city->name,
                     'jobs_count' => $city->jobs_count,
@@ -139,8 +140,8 @@ class AiContentGenerationService
      */
     public function generateWeeklyNewsletter(): ?AiGeneratedContent
     {
-        $title = "Digital Nomad Weekly - " . now()->format('F j, Y');
-        
+        $title = 'Digital Nomad Weekly - '.now()->format('F j, Y');
+
         // Get weekly data
         $weeklyStats = $this->getWeeklyStats();
         $topJobs = Job::where('is_active', true)
@@ -156,7 +157,7 @@ class AiContentGenerationService
             'temperature' => 0.6,
         ]);
 
-        if (!$content) {
+        if (! $content) {
             Log::warning('OpenAI unavailable, using fallback content for newsletter');
             $content = $this->generateFallbackNewsletterContent($weeklyStats, $topJobs);
         }
@@ -185,10 +186,11 @@ class AiContentGenerationService
      */
     public function generateCommunitySummary(array $discussions): ?AiGeneratedContent
     {
-        $title = "Community Discussion Summary - " . now()->format('M j, Y');
-        
+        $title = 'Community Discussion Summary - '.now()->format('M j, Y');
+
         if (empty($discussions)) {
             Log::warning('No discussions provided for community summary');
+
             return null;
         }
 
@@ -198,8 +200,9 @@ class AiContentGenerationService
             'temperature' => 0.5,
         ]);
 
-        if (!$content) {
+        if (! $content) {
             Log::error('Failed to generate community summary content');
+
             return null;
         }
 
@@ -227,15 +230,16 @@ class AiContentGenerationService
     public function generateCityGuide(City $city): ?AiGeneratedContent
     {
         $title = "Complete Digital Nomad Guide to {$city->name}";
-        
+
         $prompt = $this->buildCityGuidePrompt($city);
         $content = $this->openAiService->generateContent($prompt, [
             'max_tokens' => 4000,
             'temperature' => 0.6,
         ]);
 
-        if (!$content) {
+        if (! $content) {
             Log::error('Failed to generate city guide content', ['city_id' => $city->id]);
+
             return null;
         }
 
@@ -280,25 +284,26 @@ class AiContentGenerationService
      */
     private function buildTopCitiesPrompt($cities, int $year): string
     {
-        $citiesData = $cities->map(function($city) {
+        $citiesData = $cities->map(function ($city) {
             $countryName = $city->country ? $city->country->name : 'Unknown';
-            return "• {$city->name}, {$countryName}: " .
-                   "Cost Index {$city->cost_of_living_index}, " .
-                   "Internet {$city->internet_speed_mbps} Mbps, " .
+
+            return "• {$city->name}, {$countryName}: ".
+                   "Cost Index {$city->cost_of_living_index}, ".
+                   "Internet {$city->internet_speed_mbps} Mbps, ".
                    "Safety {$city->safety_score}/10";
         })->join("\n");
 
-        return "Write a comprehensive blog post titled 'Top 10 Digital Nomad Cities in {$year}' for a digital nomad community website.\n\n" .
-               "Use this data about the cities:\n{$citiesData}\n\n" .
-               "Requirements:\n" .
-               "1. Write in an engaging, informative tone\n" .
-               "2. Include specific details about each city\n" .
-               "3. Mention cost of living, internet quality, safety, and nomad-friendly amenities\n" .
-               "4. Include practical tips for nomads considering each destination\n" .
-               "5. Use SEO-friendly headings and structure\n" .
-               "6. Include a conclusion with recommendations\n" .
-               "7. Make it approximately 2000-2500 words\n" .
-               "8. Use markdown formatting for headings, lists, and emphasis";
+        return "Write a comprehensive blog post titled 'Top 10 Digital Nomad Cities in {$year}' for a digital nomad community website.\n\n".
+               "Use this data about the cities:\n{$citiesData}\n\n".
+               "Requirements:\n".
+               "1. Write in an engaging, informative tone\n".
+               "2. Include specific details about each city\n".
+               "3. Mention cost of living, internet quality, safety, and nomad-friendly amenities\n".
+               "4. Include practical tips for nomads considering each destination\n".
+               "5. Use SEO-friendly headings and structure\n".
+               "6. Include a conclusion with recommendations\n".
+               "7. Make it approximately 2000-2500 words\n".
+               '8. Use markdown formatting for headings, lists, and emphasis';
     }
 
     /**
@@ -306,26 +311,27 @@ class AiContentGenerationService
      */
     private function buildTrendingDestinationsPrompt($cities, $jobs): string
     {
-        $citiesData = $cities->map(function($city) {
+        $citiesData = $cities->map(function ($city) {
             $countryName = $city->country ? $city->country->name : 'Unknown';
+
             return "• {$city->name}, {$countryName}: Cost Index {$city->cost_of_living_index}, Internet {$city->internet_speed_mbps} Mbps";
         })->join("\n");
 
-        $jobsData = $jobs->take(3)->map(function($job) {
+        $jobsData = $jobs->take(3)->map(function ($job) {
             return "• {$job->title} at {$job->company->name} ({$job->location})";
         })->join("\n");
 
-        return "Write a blog post titled 'Where Digital Nomads Are Moving This Month' for a digital nomad community website.\n\n" .
-               "Featured destinations:\n{$citiesData}\n\n" .
-               "Recent job highlights:\n{$jobsData}\n\n" .
-               "Requirements:\n" .
-               "1. Analyze why these destinations are popular with nomads\n" .
-               "2. Include insights about remote work opportunities\n" .
-               "3. Mention practical considerations for nomads\n" .
-               "4. Use an engaging, data-driven tone\n" .
-               "5. Include actionable advice for nomads\n" .
-               "6. Make it approximately 1500-2000 words\n" .
-               "7. Use markdown formatting";
+        return "Write a blog post titled 'Where Digital Nomads Are Moving This Month' for a digital nomad community website.\n\n".
+               "Featured destinations:\n{$citiesData}\n\n".
+               "Recent job highlights:\n{$jobsData}\n\n".
+               "Requirements:\n".
+               "1. Analyze why these destinations are popular with nomads\n".
+               "2. Include insights about remote work opportunities\n".
+               "3. Mention practical considerations for nomads\n".
+               "4. Use an engaging, data-driven tone\n".
+               "5. Include actionable advice for nomads\n".
+               "6. Make it approximately 1500-2000 words\n".
+               '7. Use markdown formatting';
     }
 
     /**
@@ -333,24 +339,24 @@ class AiContentGenerationService
      */
     private function buildNewsletterPrompt(array $stats, $jobs): string
     {
-        $jobsData = $jobs->map(function($job) {
+        $jobsData = $jobs->map(function ($job) {
             return "• {$job->title} at {$job->company->name} - {$job->location}";
         })->join("\n");
 
-        return "Write a weekly newsletter for digital nomads titled 'Digital Nomad Weekly'.\n\n" .
-               "Weekly statistics:\n" .
-               "• New jobs posted: {$stats['new_jobs']}\n" .
-               "• New cities added: {$stats['new_cities']}\n" .
-               "• Community members: {$stats['new_members']}\n\n" .
-               "Featured job opportunities:\n{$jobsData}\n\n" .
-               "Requirements:\n" .
-               "1. Write in a friendly, community-focused tone\n" .
-               "2. Include a brief intro about the week's highlights\n" .
-               "3. Feature the job opportunities with brief descriptions\n" .
-               "4. Include community tips or insights\n" .
-               "5. End with an encouraging call-to-action\n" .
-               "6. Keep it concise but informative (800-1200 words)\n" .
-               "7. Use markdown formatting";
+        return "Write a weekly newsletter for digital nomads titled 'Digital Nomad Weekly'.\n\n".
+               "Weekly statistics:\n".
+               "• New jobs posted: {$stats['new_jobs']}\n".
+               "• New cities added: {$stats['new_cities']}\n".
+               "• Community members: {$stats['new_members']}\n\n".
+               "Featured job opportunities:\n{$jobsData}\n\n".
+               "Requirements:\n".
+               "1. Write in a friendly, community-focused tone\n".
+               "2. Include a brief intro about the week's highlights\n".
+               "3. Feature the job opportunities with brief descriptions\n".
+               "4. Include community tips or insights\n".
+               "5. End with an encouraging call-to-action\n".
+               "6. Keep it concise but informative (800-1200 words)\n".
+               '7. Use markdown formatting';
     }
 
     /**
@@ -358,21 +364,21 @@ class AiContentGenerationService
      */
     private function buildCommunitySummaryPrompt(array $discussions): string
     {
-        $discussionsText = collect($discussions)->map(function($discussion, $index) {
-            return ($index + 1) . ". Topic: {$discussion['topic']}\n" .
-                   "   Participants: {$discussion['participants']}\n" .
+        $discussionsText = collect($discussions)->map(function ($discussion, $index) {
+            return ($index + 1).". Topic: {$discussion['topic']}\n".
+                   "   Participants: {$discussion['participants']}\n".
                    "   Key points: {$discussion['key_points']}";
         })->join("\n\n");
 
-        return "Create a summary of community discussions for digital nomads.\n\n" .
-               "Discussion topics:\n{$discussionsText}\n\n" .
-               "Requirements:\n" .
-               "1. Summarize the key insights from each discussion\n" .
-               "2. Highlight actionable advice for nomads\n" .
-               "3. Identify common themes and trends\n" .
-               "4. Write in a clear, informative tone\n" .
-               "5. Keep it concise but comprehensive (600-1000 words)\n" .
-               "6. Use markdown formatting";
+        return "Create a summary of community discussions for digital nomads.\n\n".
+               "Discussion topics:\n{$discussionsText}\n\n".
+               "Requirements:\n".
+               "1. Summarize the key insights from each discussion\n".
+               "2. Highlight actionable advice for nomads\n".
+               "3. Identify common themes and trends\n".
+               "4. Write in a clear, informative tone\n".
+               "5. Keep it concise but comprehensive (600-1000 words)\n".
+               '6. Use markdown formatting';
     }
 
     /**
@@ -381,23 +387,24 @@ class AiContentGenerationService
     private function buildCityGuidePrompt(City $city): string
     {
         $countryName = $city->country ? $city->country->name : 'Unknown';
-        return "Write a comprehensive digital nomad guide for {$city->name}, {$countryName}.\n\n" .
-               "City information:\n" .
-               "• Population: {$city->population}\n" .
-               "• Cost of Living Index: {$city->cost_of_living_index}\n" .
-               "• Internet Speed: {$city->internet_speed_mbps} Mbps\n" .
-               "• Safety Score: {$city->safety_score}/10\n" .
-               "• Climate: {$city->climate}\n" .
-               "• Description: {$city->description}\n\n" .
-               "Requirements:\n" .
-               "1. Create a detailed guide covering all aspects of living as a nomad\n" .
-               "2. Include sections on accommodation, coworking spaces, internet, safety, cost of living\n" .
-               "3. Mention visa requirements and practical tips\n" .
-               "4. Include recommendations for neighborhoods and areas\n" .
-               "5. Write in an informative, helpful tone\n" .
-               "6. Make it comprehensive (3000-4000 words)\n" .
-               "7. Use markdown formatting with clear headings\n" .
-               "8. Include practical tips and insider knowledge";
+
+        return "Write a comprehensive digital nomad guide for {$city->name}, {$countryName}.\n\n".
+               "City information:\n".
+               "• Population: {$city->population}\n".
+               "• Cost of Living Index: {$city->cost_of_living_index}\n".
+               "• Internet Speed: {$city->internet_speed_mbps} Mbps\n".
+               "• Safety Score: {$city->safety_score}/10\n".
+               "• Climate: {$city->climate}\n".
+               "• Description: {$city->description}\n\n".
+               "Requirements:\n".
+               "1. Create a detailed guide covering all aspects of living as a nomad\n".
+               "2. Include sections on accommodation, coworking spaces, internet, safety, cost of living\n".
+               "3. Mention visa requirements and practical tips\n".
+               "4. Include recommendations for neighborhoods and areas\n".
+               "5. Write in an informative, helpful tone\n".
+               "6. Make it comprehensive (3000-4000 words)\n".
+               "7. Use markdown formatting with clear headings\n".
+               '8. Include practical tips and insider knowledge';
     }
 
     /**
@@ -405,7 +412,7 @@ class AiContentGenerationService
      */
     private function getWeeklyStats(): array
     {
-        return Cache::remember('weekly_stats_' . now()->format('Y-W'), 3600, function () {
+        return Cache::remember('weekly_stats_'.now()->format('Y-W'), 3600, function () {
             return [
                 'new_jobs' => Job::where('created_at', '>=', now()->subWeek())->count(),
                 'new_cities' => City::where('created_at', '>=', now()->subWeek())->count(),
@@ -427,57 +434,57 @@ class AiContentGenerationService
 
         foreach ($cities->take(10) as $index => $city) {
             $countryName = $city->country ? $city->country->name : 'Unknown';
-            $content .= "## " . ($index + 1) . ". {$city->name}, {$countryName}\n\n";
+            $content .= '## '.($index + 1).". {$city->name}, {$countryName}\n\n";
             $content .= "**Cost of Living Index:** {$city->cost_of_living_index}\n";
             $content .= "**Internet Speed:** {$city->internet_speed_mbps} Mbps\n";
             $content .= "**Safety Score:** {$city->safety_score}/10\n\n";
-            
+
             if ($city->description) {
-                $content .= $city->description . "\n\n";
+                $content .= $city->description."\n\n";
             }
-            
+
             $content .= "**Why it's great for nomads:** ";
             if ($city->cost_of_living_index < 50) {
-                $content .= "Budget-friendly with ";
+                $content .= 'Budget-friendly with ';
             } elseif ($city->cost_of_living_index < 80) {
-                $content .= "Moderate cost of living with ";
+                $content .= 'Moderate cost of living with ';
             } else {
-                $content .= "Higher cost but ";
+                $content .= 'Higher cost but ';
             }
-            
+
             if ($city->internet_speed_mbps > 50) {
-                $content .= "excellent internet speeds";
+                $content .= 'excellent internet speeds';
             } else {
-                $content .= "decent internet connectivity";
+                $content .= 'decent internet connectivity';
             }
-            
+
             if ($city->safety_score > 7) {
-                $content .= " and high safety ratings";
+                $content .= ' and high safety ratings';
             }
-            
+
             $content .= ".\n\n";
         }
 
         $content .= "## Conclusion\n\n";
-        $content .= "These cities offer the perfect combination of affordability, connectivity, and safety for digital nomads. " .
-                   "Whether you're looking for budget-friendly destinations or premium locations with top-tier amenities, " .
+        $content .= 'These cities offer the perfect combination of affordability, connectivity, and safety for digital nomads. '.
+                   "Whether you're looking for budget-friendly destinations or premium locations with top-tier amenities, ".
                    "there's something for every type of nomad in {$year}.\n\n";
-        $content .= "Remember to consider your personal preferences, visa requirements, and work needs when choosing your next destination. " .
-                   "Happy nomading! 🌍✈️";
+        $content .= 'Remember to consider your personal preferences, visa requirements, and work needs when choosing your next destination. '.
+                   'Happy nomading! 🌍✈️';
 
         return $content;
     }
 
     private function generateFallbackNewsletterContent(array $stats, $jobs): string
     {
-        $content = "# Digital Nomad Weekly - " . now()->format('F j, Y') . "\n\n";
+        $content = '# Digital Nomad Weekly - '.now()->format('F j, Y')."\n\n";
         $content .= "Welcome to this week's roundup of digital nomad news and opportunities!\n\n";
-        
+
         $content .= "## This Week's Highlights\n\n";
         $content .= "• **New Jobs Posted:** {$stats['new_jobs']}\n";
         $content .= "• **New Cities Added:** {$stats['new_cities']}\n";
         $content .= "• **New Community Members:** {$stats['new_members']}\n\n";
-        
+
         if ($jobs->count() > 0) {
             $content .= "## Featured Job Opportunities\n\n";
             foreach ($jobs->take(5) as $job) {
@@ -485,21 +492,21 @@ class AiContentGenerationService
                 $content .= "**Location:** {$job->location}\n";
                 $content .= "**Type:** {$job->type} | **Remote:** {$job->remote_type}\n";
                 if ($job->salary_min || $job->salary_max) {
-                    $content .= "**Salary:** " . ($job->formatted_salary ?? 'Competitive') . "\n";
+                    $content .= '**Salary:** '.($job->formatted_salary ?? 'Competitive')."\n";
                 }
                 $content .= "\n";
             }
         }
-        
+
         $content .= "## Community Tips\n\n";
-        $content .= "This week's tip: Always research visa requirements and internet reliability before booking long-term stays. " .
+        $content .= "This week's tip: Always research visa requirements and internet reliability before booking long-term stays. ".
                    "Connect with local nomad communities for insider tips and recommendations.\n\n";
-        
+
         $content .= "## What's Next?\n\n";
-        $content .= "Stay tuned for more job opportunities, city guides, and community insights. " .
+        $content .= 'Stay tuned for more job opportunities, city guides, and community insights. '.
                    "Don't forget to update your profile and preferences to get personalized recommendations!\n\n";
-        
-        $content .= "Happy nomading! 🌍✈️";
+
+        $content .= 'Happy nomading! 🌍✈️';
 
         return $content;
     }
@@ -511,32 +518,32 @@ class AiContentGenerationService
 
         foreach ($cities->take(5) as $index => $city) {
             $countryName = $city->country ? $city->country->name : 'Unknown';
-            $content .= "## " . ($index + 1) . ". {$city->name}, {$countryName}\n\n";
+            $content .= '## '.($index + 1).". {$city->name}, {$countryName}\n\n";
             $content .= "**Cost of Living Index:** {$city->cost_of_living_index}\n";
             $content .= "**Internet Speed:** {$city->internet_speed_mbps} Mbps\n";
             $content .= "**Safety Score:** {$city->safety_score}/10\n\n";
-            
+
             if ($city->description) {
-                $content .= $city->description . "\n\n";
+                $content .= $city->description."\n\n";
             }
-            
-            $content .= "**Why nomads are flocking here:** ";
+
+            $content .= '**Why nomads are flocking here:** ';
             if ($city->cost_of_living_index < 50) {
-                $content .= "Affordable living costs make it perfect for budget-conscious nomads";
+                $content .= 'Affordable living costs make it perfect for budget-conscious nomads';
             } elseif ($city->cost_of_living_index < 80) {
-                $content .= "Great balance of affordability and modern amenities";
+                $content .= 'Great balance of affordability and modern amenities';
             } else {
-                $content .= "Premium destination with excellent infrastructure";
+                $content .= 'Premium destination with excellent infrastructure';
             }
-            
+
             if ($city->internet_speed_mbps > 50) {
-                $content .= " with lightning-fast internet";
+                $content .= ' with lightning-fast internet';
             }
-            
+
             if ($city->safety_score > 7) {
-                $content .= " and high safety ratings";
+                $content .= ' and high safety ratings';
             }
-            
+
             $content .= ".\n\n";
         }
 
@@ -555,15 +562,15 @@ class AiContentGenerationService
         $content .= "• **Digital infrastructure**: Reliable internet and coworking spaces\n";
         $content .= "• **Nomad-friendly communities**: Established expat and nomad networks\n";
         $content .= "• **Visa flexibility**: Easy entry and extended stay options\n\n";
-        
+
         $content .= "## Tips for Nomads\n\n";
         $content .= "Before making your move, consider:\n\n";
         $content .= "• Research visa requirements and duration limits\n";
         $content .= "• Check internet reliability in your preferred neighborhoods\n";
         $content .= "• Connect with local nomad communities for insider tips\n";
         $content .= "• Plan your budget based on local cost of living\n\n";
-        
-        $content .= "Happy nomading! 🌍✈️";
+
+        $content .= 'Happy nomading! 🌍✈️';
 
         return $content;
     }

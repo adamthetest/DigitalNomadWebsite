@@ -97,8 +97,8 @@ class AiGeneratedContent extends Model
     public function scopePublished($query)
     {
         return $query->where('status', 'published')
-                    ->where('is_active', true)
-                    ->whereNotNull('published_at');
+            ->where('is_active', true)
+            ->whereNotNull('published_at');
     }
 
     /**
@@ -123,8 +123,8 @@ class AiGeneratedContent extends Model
     public function scopeScheduled($query)
     {
         return $query->where('status', 'approved')
-                    ->whereNotNull('scheduled_at')
-                    ->where('scheduled_at', '>', now());
+            ->whereNotNull('scheduled_at')
+            ->where('scheduled_at', '>', now());
     }
 
     /**
@@ -149,6 +149,7 @@ class AiGeneratedContent extends Model
     public function getReadingTimeAttribute(): int
     {
         $wordCount = str_word_count(strip_tags($this->content));
+
         return max(1, round($wordCount / 200)); // 200 words per minute
     }
 
@@ -189,9 +190,9 @@ class AiGeneratedContent extends Model
      */
     public function isReadyForPublishing(): bool
     {
-        return $this->status === 'approved' && 
-               !empty($this->title) && 
-               !empty($this->content) &&
+        return $this->status === 'approved' &&
+               ! empty($this->title) &&
+               ! empty($this->content) &&
                $this->is_active;
     }
 

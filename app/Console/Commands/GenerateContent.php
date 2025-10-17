@@ -43,34 +43,37 @@ class GenerateContent extends Command
                 case 'weekly':
                     $this->generateWeeklyContent($useQueue);
                     break;
-                
+
                 case 'city-guides':
                     $this->generateCityGuides($useQueue);
                     break;
-                
+
                 case 'top-cities':
                     $this->generateTopCities($contentService, $useQueue);
                     break;
-                
+
                 case 'newsletter':
                     $this->generateNewsletter($contentService);
                     break;
-                
+
                 case 'trending':
                     $this->generateTrending($contentService);
                     break;
-                
+
                 default:
                     $this->error("Unknown content type: {$type}");
                     $this->line('Available types: weekly, city-guides, top-cities, newsletter, trending');
+
                     return 1;
             }
 
             $this->info("✅ {$type} content generation completed successfully!");
+
             return 0;
 
         } catch (\Exception $e) {
-            $this->error("❌ Error generating {$type} content: " . $e->getMessage());
+            $this->error("❌ Error generating {$type} content: ".$e->getMessage());
+
             return 1;
         }
     }
@@ -84,7 +87,7 @@ class GenerateContent extends Command
             GenerateWeeklyContent::dispatch();
             $this->info('📋 Weekly content generation job dispatched to queue');
         } else {
-            $job = new GenerateWeeklyContent();
+            $job = new GenerateWeeklyContent;
             $job->handle(app(AiContentGenerationService::class));
             $this->info('📋 Weekly content generated immediately');
         }
@@ -113,14 +116,14 @@ class GenerateContent extends Command
     private function generateTopCities(AiContentGenerationService $contentService, bool $useQueue): void
     {
         $year = (int) $this->option('year') ?: date('Y');
-        
+
         if ($useQueue) {
             // For queue, we'll create a custom job
             \App\Jobs\GenerateTopCitiesPost::dispatch($year);
             $this->info("📊 Top cities post generation job dispatched to queue for year {$year}");
         } else {
             $content = $contentService->generateTopCitiesBlogPost($year);
-            
+
             if ($content) {
                 $this->info("📊 Top cities blog post generated: {$content->title}");
                 $this->line("Content ID: {$content->id}");
@@ -137,7 +140,7 @@ class GenerateContent extends Command
     private function generateNewsletter(AiContentGenerationService $contentService): void
     {
         $content = $contentService->generateWeeklyNewsletter();
-        
+
         if ($content) {
             $this->info("📧 Newsletter generated: {$content->title}");
             $this->line("Content ID: {$content->id}");
@@ -153,7 +156,7 @@ class GenerateContent extends Command
     private function generateTrending(AiContentGenerationService $contentService): void
     {
         $content = $contentService->generateTrendingDestinationsPost();
-        
+
         if ($content) {
             $this->info("📈 Trending destinations post generated: {$content->title}");
             $this->line("Content ID: {$content->id}");

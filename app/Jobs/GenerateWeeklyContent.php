@@ -51,7 +51,7 @@ class GenerateWeeklyContent implements ShouldQueue
         foreach ($this->contentTypes as $type) {
             try {
                 $content = $this->generateContentByType($contentService, $type);
-                
+
                 if ($content) {
                     $generatedContent[] = $content;
                     Log::info("Generated {$type} content", [

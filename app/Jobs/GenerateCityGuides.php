@@ -62,11 +62,12 @@ class GenerateCityGuides implements ShouldQueue
                         'city_id' => $city->id,
                         'existing_content_id' => $existingGuide->id,
                     ]);
+
                     continue;
                 }
 
                 $guide = $contentService->generateCityGuide($city);
-                
+
                 if ($guide) {
                     $generatedGuides[] = $guide;
                     Log::info("Generated city guide for {$city->name}", [

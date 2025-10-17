@@ -8,7 +8,6 @@ use App\Services\AiContentGenerationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 
 class ContentController extends Controller
 {
@@ -43,7 +42,7 @@ class ContentController extends Controller
 
         // Search by title
         if ($request->has('search')) {
-            $query->where('title', 'like', '%' . $request->get('search') . '%');
+            $query->where('title', 'like', '%'.$request->get('search').'%');
         }
 
         // Sort
@@ -99,7 +98,7 @@ class ContentController extends Controller
                 ),
             };
 
-            if (!$content) {
+            if (! $content) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to generate content',
@@ -115,7 +114,7 @@ class ContentController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error generating content: ' . $e->getMessage(),
+                'message' => 'Error generating content: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -126,8 +125,8 @@ class ContentController extends Controller
     public function updateStatus(Request $request, AiGeneratedContent $content): JsonResponse
     {
         $user = Auth::user();
-        
-        if (!$user || !$user->is_admin) {
+
+        if (! $user || ! $user->is_admin) {
             return response()->json([
                 'success' => false,
                 'message' => 'Admin access required',
@@ -184,8 +183,8 @@ class ContentController extends Controller
     public function update(Request $request, AiGeneratedContent $content): JsonResponse
     {
         $user = Auth::user();
-        
-        if (!$user || !$user->is_admin) {
+
+        if (! $user || ! $user->is_admin) {
             return response()->json([
                 'success' => false,
                 'message' => 'Admin access required',
@@ -225,8 +224,8 @@ class ContentController extends Controller
     public function destroy(AiGeneratedContent $content): JsonResponse
     {
         $user = Auth::user();
-        
-        if (!$user || !$user->is_admin) {
+
+        if (! $user || ! $user->is_admin) {
             return response()->json([
                 'success' => false,
                 'message' => 'Admin access required',
@@ -286,7 +285,7 @@ class ContentController extends Controller
 
         // Search by title
         if ($request->has('search')) {
-            $query->where('title', 'like', '%' . $request->get('search') . '%');
+            $query->where('title', 'like', '%'.$request->get('search').'%');
         }
 
         // Sort
