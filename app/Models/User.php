@@ -76,6 +76,7 @@ class User extends Authenticatable
         'ai_data_collection_consent',
         'personalized_recommendations',
         'data_sharing_preferences',
+        'is_admin',
     ];
 
     /**
@@ -127,6 +128,7 @@ class User extends Authenticatable
             'ai_data_collection_consent' => 'boolean',
             'personalized_recommendations' => 'boolean',
             'data_sharing_preferences' => 'array',
+            'is_admin' => 'boolean',
         ];
     }
 

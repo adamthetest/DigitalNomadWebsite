@@ -177,11 +177,11 @@ class UserController extends Controller
             'data' => [
                 'user_id' => $user->id,
                 'user_name' => $user->name,
-                'ai_summary' => $aiContext->ai_summary,
-                'ai_tags' => $aiContext->ai_tags,
-                'ai_insights' => $aiContext->ai_insights,
-                'last_updated' => $aiContext->last_ai_update,
-                'model_version' => $aiContext->ai_model_version,
+                'ai_summary' => $aiContext->getAttribute('ai_summary'),
+                'ai_tags' => $aiContext->getAttribute('ai_tags'),
+                'ai_insights' => $aiContext->getAttribute('ai_insights'),
+                'last_updated' => $aiContext->getAttribute('last_ai_update'),
+                'model_version' => $aiContext->getAttribute('ai_model_version'),
             ],
         ]);
     }

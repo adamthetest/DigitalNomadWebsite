@@ -147,7 +147,7 @@ class AiContext extends Model
      */
     public function isAiDataRecent(int $days = 7): bool
     {
-        return $this->last_ai_update?->isAfter(now()->subDays($days)) ?? false;
+        return $this->last_ai_update && $this->last_ai_update->isAfter(now()->subDays($days));
     }
 
     /**
@@ -160,7 +160,7 @@ class AiContext extends Model
             [
                 'context_type' => $this->context_type,
                 'context_id' => $this->context_id,
-                'last_updated' => $this->updated_at?->toISOString(),
+                'last_updated' => $this->updated_at->toISOString(),
             ]
         );
     }
