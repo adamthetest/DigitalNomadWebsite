@@ -3,18 +3,22 @@
 namespace App\Livewire;
 
 use App\Models\City;
-use App\Services\OpenAiService;
-use Livewire\Component;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Livewire\Component;
 
 class AiCityInsightsWidget extends Component
 {
     public City $city;
+
     public $aiSummary = null;
+
     public $aiInsights = null;
+
     public $loading = false;
+
     public $error = null;
+
     public $showFullSummary = false;
 
     protected $listeners = ['refreshInsights' => 'loadAiData'];
@@ -32,11 +36,12 @@ class AiCityInsightsWidget extends Component
 
         try {
             // Check if we have cached AI data
-            if ($this->city->ai_summary && $this->city->ai_data_updated_at && 
+            if ($this->city->ai_summary && $this->city->ai_data_updated_at &&
                 $this->city->ai_data_updated_at->isAfter(now()->subDays(7))) {
                 $this->aiSummary = $this->city->ai_summary;
                 $this->aiInsights = $this->city->ai_tags;
                 $this->loading = false;
+
                 return;
             }
 
@@ -52,8 +57,8 @@ class AiCityInsightsWidget extends Component
     {
         try {
             // Make API call to get AI summary
-            $response = Http::timeout(30)->get(url('/api/v1/ai-advisor/city/' . $this->city->id . '/summary'));
-            
+            $response = Http::timeout(30)->get(url('/api/v1/ai-advisor/city/'.$this->city->id.'/summary'));
+
             if ($response->successful()) {
                 $data = $response->json();
                 if ($data['success']) {
@@ -74,13 +79,14 @@ class AiCityInsightsWidget extends Component
 
     public function toggleSummary()
     {
-        $this->showFullSummary = !$this->showFullSummary;
+        $this->showFullSummary = ! $this->showFullSummary;
     }
 
     public function getCityRecommendations()
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             $this->error = 'Please login to get personalized recommendations';
+
             return;
         }
 
@@ -90,7 +96,7 @@ class AiCityInsightsWidget extends Component
         try {
             $response = Http::timeout(30)
                 ->withHeaders([
-                    'Authorization' => 'Bearer ' . Auth::user()->createToken('api')->plainTextToken,
+                    'Authorization' => 'Bearer '.Auth::user()->createToken('api')->plainTextToken,
                 ])
                 ->get(url('/api/v1/ai-advisor/city-recommendations'));
 

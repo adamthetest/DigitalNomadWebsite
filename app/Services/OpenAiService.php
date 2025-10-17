@@ -2,17 +2,22 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
 
 class OpenAiService
 {
     private string $apiKey;
+
     private string $baseUrl = 'https://api.openai.com/v1';
+
     private int $timeout;
+
     private int $maxTokens;
+
     private float $temperature;
+
     private string $model;
 
     public function __construct()
@@ -31,19 +36,20 @@ class OpenAiService
     {
         if (empty($this->apiKey)) {
             Log::warning('OpenAI API key not configured');
+
             return null;
         }
 
-        $cacheKey = 'openai_' . md5($prompt . serialize($options));
-        
+        $cacheKey = 'openai_'.md5($prompt.serialize($options));
+
         return Cache::remember($cacheKey, 3600, function () use ($prompt, $options) {
             try {
                 $response = Http::timeout($this->timeout)
                     ->withHeaders([
-                        'Authorization' => 'Bearer ' . $this->apiKey,
+                        'Authorization' => 'Bearer '.$this->apiKey,
                         'Content-Type' => 'application/json',
                     ])
-                    ->post($this->baseUrl . '/chat/completions', [
+                    ->post($this->baseUrl.'/chat/completions', [
                         'model' => $options['model'] ?? $this->model,
                         'messages' => [
                             [
@@ -57,6 +63,7 @@ class OpenAiService
 
                 if ($response->successful()) {
                     $data = $response->json();
+
                     return $data['choices'][0]['message']['content'] ?? null;
                 }
 
@@ -83,6 +90,7 @@ class OpenAiService
     public function generateCitySummary(array $cityData): ?string
     {
         $prompt = $this->buildCitySummaryPrompt($cityData);
+
         return $this->generateContent($prompt);
     }
 
@@ -92,6 +100,7 @@ class OpenAiService
     public function generateCityComparison(array $city1Data, array $city2Data): ?string
     {
         $prompt = $this->buildCityComparisonPrompt($city1Data, $city2Data);
+
         return $this->generateContent($prompt);
     }
 
@@ -101,6 +110,7 @@ class OpenAiService
     public function generateCityRecommendations(array $userPreferences, array $availableCities): ?string
     {
         $prompt = $this->buildCityRecommendationPrompt($userPreferences, $availableCities);
+
         return $this->generateContent($prompt);
     }
 
@@ -110,6 +120,7 @@ class OpenAiService
     public function generateCityInsights(array $cityData): ?string
     {
         $prompt = $this->buildCityInsightsPrompt($cityData);
+
         return $this->generateContent($prompt);
     }
 
@@ -119,23 +130,23 @@ class OpenAiService
     private function buildCitySummaryPrompt(array $cityData): string
     {
         $basePrompt = config('openai.default_prompts.city_summary');
-        
+
         $cityInfo = "City: {$cityData['name']}, {$cityData['country']}\n";
         $cityInfo .= "Population: {$cityData['population']}\n";
         $cityInfo .= "Cost of Living Index: {$cityData['cost_of_living_index']}\n";
         $cityInfo .= "Internet Speed: {$cityData['internet_speed_mbps']} Mbps\n";
         $cityInfo .= "Safety Score: {$cityData['safety_score']}/10\n";
         $cityInfo .= "Climate: {$cityData['climate']}\n";
-        
+
         if (isset($cityData['cost_accommodation_monthly'])) {
             $cityInfo .= "Monthly Accommodation Cost: \${$cityData['cost_accommodation_monthly']}\n";
         }
-        
+
         if (isset($cityData['visa_options'])) {
-            $cityInfo .= "Visa Options: " . implode(', ', $cityData['visa_options']) . "\n";
+            $cityInfo .= 'Visa Options: '.implode(', ', $cityData['visa_options'])."\n";
         }
 
-        return $basePrompt . "\n\nCity Information:\n" . $cityInfo;
+        return $basePrompt."\n\nCity Information:\n".$cityInfo;
     }
 
     /**
@@ -144,11 +155,11 @@ class OpenAiService
     private function buildCityComparisonPrompt(array $city1Data, array $city2Data): string
     {
         $basePrompt = config('openai.default_prompts.city_comparison');
-        
+
         $city1Info = $this->formatCityForComparison($city1Data);
         $city2Info = $this->formatCityForComparison($city2Data);
 
-        return $basePrompt . "\n\nCity 1:\n" . $city1Info . "\n\nCity 2:\n" . $city2Info;
+        return $basePrompt."\n\nCity 1:\n".$city1Info."\n\nCity 2:\n".$city2Info;
     }
 
     /**
@@ -157,19 +168,19 @@ class OpenAiService
     private function buildCityRecommendationPrompt(array $userPreferences, array $availableCities): string
     {
         $basePrompt = config('openai.default_prompts.city_recommendation');
-        
+
         $preferences = "User Preferences:\n";
         $preferences .= "Budget: \${$userPreferences['budget_min']} - \${$userPreferences['budget_max']}\n";
-        $preferences .= "Preferred Climate: " . implode(', ', $userPreferences['preferred_climates'] ?? []) . "\n";
+        $preferences .= 'Preferred Climate: '.implode(', ', $userPreferences['preferred_climates'] ?? [])."\n";
         $preferences .= "Internet Requirements: {$userPreferences['min_internet_speed']} Mbps minimum\n";
         $preferences .= "Safety Requirements: {$userPreferences['min_safety_score']}/10 minimum\n";
-        
+
         $citiesList = "Available Cities:\n";
         foreach ($availableCities as $city) {
             $citiesList .= "- {$city['name']}, {$city['country']} (Cost: \${$city['cost_of_living_index']}, Internet: {$city['internet_speed_mbps']} Mbps, Safety: {$city['safety_score']}/10)\n";
         }
 
-        return $basePrompt . "\n\n" . $preferences . "\n" . $citiesList;
+        return $basePrompt."\n\n".$preferences."\n".$citiesList;
     }
 
     /**
@@ -178,10 +189,10 @@ class OpenAiService
     private function buildCityInsightsPrompt(array $cityData): string
     {
         $basePrompt = config('openai.default_prompts.city_insights');
-        
+
         $cityInfo = $this->formatCityForComparison($cityData);
 
-        return $basePrompt . "\n\nCity Information:\n" . $cityInfo;
+        return $basePrompt."\n\nCity Information:\n".$cityInfo;
     }
 
     /**
@@ -195,19 +206,19 @@ class OpenAiService
         $info .= "Internet Speed: {$cityData['internet_speed_mbps']} Mbps\n";
         $info .= "Safety Score: {$cityData['safety_score']}/10\n";
         $info .= "Climate: {$cityData['climate']}\n";
-        
+
         if (isset($cityData['cost_accommodation_monthly'])) {
             $info .= "Monthly Accommodation: \${$cityData['cost_accommodation_monthly']}\n";
         }
-        
+
         if (isset($cityData['cost_food_monthly'])) {
             $info .= "Monthly Food: \${$cityData['cost_food_monthly']}\n";
         }
-        
+
         if (isset($cityData['visa_options'])) {
-            $info .= "Visa Options: " . implode(', ', $cityData['visa_options']) . "\n";
+            $info .= 'Visa Options: '.implode(', ', $cityData['visa_options'])."\n";
         }
-        
+
         if (isset($cityData['coworking_spaces_count'])) {
             $info .= "Coworking Spaces: {$cityData['coworking_spaces_count']}\n";
         }
@@ -220,7 +231,7 @@ class OpenAiService
      */
     public function isConfigured(): bool
     {
-        return !empty($this->apiKey);
+        return ! empty($this->apiKey);
     }
 
     /**
@@ -236,7 +247,7 @@ class OpenAiService
      */
     public function clearCache(string $prompt, array $options = []): void
     {
-        $cacheKey = 'openai_' . md5($prompt . serialize($options));
+        $cacheKey = 'openai_'.md5($prompt.serialize($options));
         Cache::forget($cacheKey);
     }
 }

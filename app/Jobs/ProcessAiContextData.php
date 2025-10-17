@@ -175,13 +175,13 @@ class ProcessAiContextData implements ShouldQueue
         // Generate AI summary using OpenAI service
         $openAiService = app(OpenAiService::class);
         $aiSummary = null;
-        
+
         if ($openAiService->isConfigured()) {
             $aiSummary = $openAiService->generateCitySummary($contextData);
         }
-        
+
         // Fallback to basic summary if OpenAI is not available
-        if (!$aiSummary) {
+        if (! $aiSummary) {
             $aiSummary = "{$city->name} is a digital nomad destination with a cost of living index of {$city->cost_of_living_index}. ".
                         "It offers internet speeds of {$city->internet_speed_mbps} Mbps and has a safety score of {$city->safety_score}/10.";
         }

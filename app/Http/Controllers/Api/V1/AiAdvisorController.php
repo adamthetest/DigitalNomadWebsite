@@ -27,8 +27,8 @@ class AiAdvisorController extends Controller
     {
         try {
             $user = Auth::user();
-            
-            if (!$user) {
+
+            if (! $user) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Authentication required',
@@ -37,10 +37,10 @@ class AiAdvisorController extends Controller
 
             // Get user preferences
             $userPreferences = $this->getUserPreferences($user);
-            
+
             // Get available cities based on preferences
             $cities = $this->getFilteredCities($userPreferences);
-            
+
             if ($cities->isEmpty()) {
                 return response()->json([
                     'success' => false,
@@ -117,7 +117,7 @@ class AiAdvisorController extends Controller
             $cityData = $this->prepareCityData($city);
             $aiSummary = $this->openAiService->generateCitySummary($cityData);
 
-            if (!$aiSummary) {
+            if (! $aiSummary) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to generate AI summary',
@@ -308,12 +308,13 @@ class AiAdvisorController extends Controller
             $score += $safetyScore * 0.25;
 
             // Climate scoring (if user has preferences)
-            if (isset($preferences['preferred_climates']) && !empty($preferences['preferred_climates'])) {
+            if (isset($preferences['preferred_climates']) && ! empty($preferences['preferred_climates'])) {
                 $climateScore = $this->calculateClimateScore($city->climate, $preferences['preferred_climates']);
                 $score += $climateScore * 0.2;
             }
 
             $city->match_score = round($score, 2);
+
             return $city;
         })->sortByDesc('match_score');
     }
@@ -332,7 +333,7 @@ class AiAdvisorController extends Controller
         ];
 
         $cityClimateLower = strtolower($cityClimate);
-        
+
         foreach ($preferredClimates as $preferred) {
             $preferredLower = strtolower($preferred);
             if (isset($climateMap[$preferredLower])) {
