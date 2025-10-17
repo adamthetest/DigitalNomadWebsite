@@ -2,15 +2,13 @@
 
 namespace App\Services;
 
-use App\Models\User;
 use App\Models\Job;
-use App\Services\OpenAiService;
-use Illuminate\Support\Facades\Storage;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
 /**
  * Resume Optimization Service
- * 
+ *
  * Handles AI-powered resume optimization and cover letter generation
  */
 class ResumeOptimizationService
@@ -28,20 +26,20 @@ class ResumeOptimizationService
     public function optimizeResumeForJob(User $user, Job $job, ?string $resumeContent = null): array
     {
         $resumeContent = $resumeContent ?? $user->resume_content;
-        
+
         if (empty($resumeContent)) {
             return [
                 'success' => false,
                 'message' => 'No resume content found. Please upload your resume first.',
                 'optimized_resume' => null,
-                'suggestions' => []
+                'suggestions' => [],
             ];
         }
 
         try {
             $jobData = $this->buildJobData($job);
             $optimization = $this->openAiService->optimizeResumeForJob($resumeContent, $jobData);
-            
+
             return [
                 'success' => true,
                 'message' => 'Resume optimized successfully',
@@ -49,17 +47,17 @@ class ResumeOptimizationService
                 'changes_made' => $optimization['changes_made'] ?? [],
                 'skills_to_highlight' => $optimization['skills_to_highlight'] ?? [],
                 'keywords' => $optimization['keywords'] ?? [],
-                'suggestions' => $this->generateResumeSuggestions($user, $job, $optimization)
+                'suggestions' => $this->generateResumeSuggestions($user, $job, $optimization),
             ];
-            
+
         } catch (\Exception $e) {
             Log::error('Resume optimization failed', ['error' => $e->getMessage()]);
-            
+
             return [
                 'success' => false,
                 'message' => 'Resume optimization failed. Please try again later.',
                 'optimized_resume' => $resumeContent,
-                'suggestions' => $this->getBasicResumeSuggestions($job)
+                'suggestions' => $this->getBasicResumeSuggestions($job),
             ];
         }
     }
@@ -72,26 +70,26 @@ class ResumeOptimizationService
         try {
             $userProfile = $this->buildUserProfile($user);
             $jobData = $this->buildJobData($job);
-            
+
             $coverLetter = $this->openAiService->generateCoverLetter($userProfile, $jobData);
-            
+
             return [
                 'success' => true,
                 'message' => 'Cover letter generated successfully',
                 'cover_letter' => $coverLetter['cover_letter'] ?? '',
                 'key_points' => $coverLetter['key_points'] ?? [],
-                'suggestions' => $this->generateCoverLetterSuggestions($user, $job)
+                'suggestions' => $this->generateCoverLetterSuggestions($user, $job),
             ];
-            
+
         } catch (\Exception $e) {
             Log::error('Cover letter generation failed', ['error' => $e->getMessage()]);
-            
+
             return [
                 'success' => false,
                 'message' => 'Cover letter generation failed. Please try again later.',
                 'cover_letter' => $this->getFallbackCoverLetter($user, $job),
                 'key_points' => ['Relevant experience', 'Company interest'],
-                'suggestions' => []
+                'suggestions' => [],
             ];
         }
     }
@@ -102,22 +100,22 @@ class ResumeOptimizationService
     public function extractSkillsFromJob(Job $job): array
     {
         try {
-            $jobDescription = $job->description . ' ' . ($job->requirements ?? '');
+            $jobDescription = $job->description.' '.($job->requirements ?? '');
             $skills = $this->openAiService->extractSkillsFromJob($jobDescription);
-            
+
             return [
                 'success' => true,
                 'skills' => $skills,
-                'message' => 'Skills extracted successfully'
+                'message' => 'Skills extracted successfully',
             ];
-            
+
         } catch (\Exception $e) {
             Log::error('Skills extraction failed', ['error' => $e->getMessage()]);
-            
+
             return [
                 'success' => false,
                 'skills' => $this->getBasicSkills($job),
-                'message' => 'Skills extraction failed, showing basic skills'
+                'message' => 'Skills extraction failed, showing basic skills',
             ];
         }
     }
@@ -129,31 +127,31 @@ class ResumeOptimizationService
     {
         try {
             // Validate file
-            if (!$file->isValid()) {
+            if (! $file->isValid()) {
                 return [
                     'success' => false,
-                    'message' => 'Invalid file upload'
+                    'message' => 'Invalid file upload',
                 ];
             }
 
             // Check file type
             $allowedTypes = ['pdf', 'doc', 'docx', 'txt'];
             $extension = $file->getClientOriginalExtension();
-            
-            if (!in_array(strtolower($extension), $allowedTypes)) {
+
+            if (! in_array(strtolower($extension), $allowedTypes)) {
                 return [
                     'success' => false,
-                    'message' => 'Only PDF, DOC, DOCX, and TXT files are allowed'
+                    'message' => 'Only PDF, DOC, DOCX, and TXT files are allowed',
                 ];
             }
 
             // Store file
-            $filename = 'resume_' . $user->id . '_' . time() . '.' . $extension;
+            $filename = 'resume_'.$user->id.'_'.time().'.'.$extension;
             $path = $file->storeAs('resumes', $filename, 'private');
-            
+
             // Extract text content (simplified - in production you'd use a proper parser)
             $content = $this->extractTextFromFile($file, $extension);
-            
+
             // Update user record
             $user->update([
                 'resume_file_path' => $path,
@@ -166,20 +164,20 @@ class ResumeOptimizationService
                 ],
                 'last_profile_update' => now(),
             ]);
-            
+
             return [
                 'success' => true,
                 'message' => 'Resume uploaded and processed successfully',
                 'content' => $content,
-                'metadata' => $user->resume_metadata
+                'metadata' => $user->resume_metadata,
             ];
-            
+
         } catch (\Exception $e) {
             Log::error('Resume upload failed', ['error' => $e->getMessage()]);
-            
+
             return [
                 'success' => false,
-                'message' => 'Resume upload failed. Please try again.'
+                'message' => 'Resume upload failed. Please try again.',
             ];
         }
     }
@@ -190,39 +188,39 @@ class ResumeOptimizationService
     public function generateResumeSuggestions(User $user, Job $job, array $optimization = []): array
     {
         $suggestions = [];
-        
+
         // Skills gap analysis
         $userSkills = $user->skills ?? [];
         $jobSkills = $job->skills_required ?? [];
         $missingSkills = array_diff($jobSkills, $userSkills);
-        
-        if (!empty($missingSkills)) {
+
+        if (! empty($missingSkills)) {
             $suggestions[] = [
                 'type' => 'skills_gap',
                 'title' => 'Skills to Develop',
                 'description' => 'Consider developing these skills to improve your match:',
-                'items' => array_slice($missingSkills, 0, 5)
+                'items' => array_slice($missingSkills, 0, 5),
             ];
         }
-        
+
         // Experience alignment
         $userExperience = $user->experience_years ?? 0;
         $jobExperienceLevel = $job->experience_level ?? [];
-        
-        if (!empty($jobExperienceLevel)) {
+
+        if (! empty($jobExperienceLevel)) {
             $experienceMap = ['entry' => 0, 'junior' => 2, 'mid' => 5, 'senior' => 8, 'lead' => 12];
-            $jobMinYears = min(array_map(fn($level) => $experienceMap[$level] ?? 0, $jobExperienceLevel));
-            
+            $jobMinYears = min(array_map(fn ($level) => $experienceMap[$level] ?? 0, $jobExperienceLevel));
+
             if ($userExperience < $jobMinYears) {
                 $suggestions[] = [
                     'type' => 'experience',
                     'title' => 'Experience Gap',
                     'description' => 'Consider highlighting relevant projects or freelance work to demonstrate experience.',
-                    'items' => ['Add project portfolios', 'Highlight relevant achievements', 'Emphasize transferable skills']
+                    'items' => ['Add project portfolios', 'Highlight relevant achievements', 'Emphasize transferable skills'],
                 ];
             }
         }
-        
+
         // Formatting suggestions
         $suggestions[] = [
             'type' => 'formatting',
@@ -233,10 +231,10 @@ class ResumeOptimizationService
                 'Include quantifiable results',
                 'Keep formatting consistent',
                 'Use action verbs',
-                'Tailor keywords to job description'
-            ]
+                'Tailor keywords to job description',
+            ],
         ];
-        
+
         return $suggestions;
     }
 
@@ -285,11 +283,11 @@ class ResumeOptimizationService
     {
         // This is a simplified implementation
         // In production, you'd use proper libraries like PhpWord for DOCX, etc.
-        
+
         if ($extension === 'txt') {
             return file_get_contents($file->getPathname());
         }
-        
+
         // For other formats, return a placeholder
         // In production, implement proper text extraction
         return "Resume content extraction not implemented for {$extension} files. Please copy and paste your resume content manually.";
@@ -309,8 +307,8 @@ class ResumeOptimizationService
                     'Research the company culture',
                     'Mention specific company values',
                     'Reference recent company news',
-                    'Show genuine interest in the role'
-                ]
+                    'Show genuine interest in the role',
+                ],
             ],
             [
                 'type' => 'structure',
@@ -319,9 +317,9 @@ class ResumeOptimizationService
                 'items' => [
                     'Opening: Why you\'re interested',
                     'Body: Relevant experience and skills',
-                    'Closing: Call to action and enthusiasm'
-                ]
-            ]
+                    'Closing: Call to action and enthusiasm',
+                ],
+            ],
         ];
     }
 
@@ -336,12 +334,12 @@ class ResumeOptimizationService
                 'title' => 'General Resume Tips',
                 'description' => 'Improve your resume:',
                 'items' => [
-                    'Highlight relevant skills for ' . $job->title,
+                    'Highlight relevant skills for '.$job->title,
                     'Use keywords from the job description',
                     'Include quantifiable achievements',
-                    'Keep it concise and well-formatted'
-                ]
-            ]
+                    'Keep it concise and well-formatted',
+                ],
+            ],
         ];
     }
 
@@ -351,23 +349,23 @@ class ResumeOptimizationService
     private function getBasicSkills(Job $job): array
     {
         $skills = [];
-        
+
         // Extract basic skills from job title and description
-        $text = strtolower($job->title . ' ' . $job->description);
-        
+        $text = strtolower($job->title.' '.$job->description);
+
         $commonSkills = [
             'javascript', 'python', 'php', 'java', 'react', 'vue', 'angular',
             'node.js', 'laravel', 'django', 'mysql', 'postgresql', 'mongodb',
             'aws', 'docker', 'kubernetes', 'git', 'agile', 'scrum',
-            'communication', 'leadership', 'problem solving', 'teamwork'
+            'communication', 'leadership', 'problem solving', 'teamwork',
         ];
-        
+
         foreach ($commonSkills as $skill) {
             if (strpos($text, $skill) !== false) {
                 $skills[] = ucfirst($skill);
             }
         }
-        
+
         return array_unique($skills);
     }
 
@@ -376,15 +374,15 @@ class ResumeOptimizationService
      */
     private function getFallbackCoverLetter(User $user, Job $job): string
     {
-        return "Dear Hiring Manager,\n\n" .
-               "I am writing to express my interest in the {$job->title} position at " . ($job->company->name ?? 'your company') . ".\n\n" .
-               "With my background in " . ($user->profession ?? 'my field') . " and " . ($user->experience_years ?? 0) . " years of experience, " .
-               "I believe I would be a valuable addition to your team.\n\n" .
-               "I am particularly drawn to this opportunity because of [your specific interest in the role/company]. " .
-               "My skills in " . implode(', ', array_slice($user->skills ?? [], 0, 3)) . " align well with the requirements for this position.\n\n" .
-               "I would welcome the opportunity to discuss how my experience and enthusiasm can contribute to your team's success.\n\n" .
-               "Thank you for your consideration.\n\n" .
-               "Best regards,\n" .
+        return "Dear Hiring Manager,\n\n".
+               "I am writing to express my interest in the {$job->title} position at ".($job->company->name ?? 'your company').".\n\n".
+               'With my background in '.($user->profession ?? 'my field').' and '.($user->experience_years ?? 0).' years of experience, '.
+               "I believe I would be a valuable addition to your team.\n\n".
+               'I am particularly drawn to this opportunity because of [your specific interest in the role/company]. '.
+               'My skills in '.implode(', ', array_slice($user->skills ?? [], 0, 3))." align well with the requirements for this position.\n\n".
+               "I would welcome the opportunity to discuss how my experience and enthusiasm can contribute to your team's success.\n\n".
+               "Thank you for your consideration.\n\n".
+               "Best regards,\n".
                $user->name;
     }
 }
