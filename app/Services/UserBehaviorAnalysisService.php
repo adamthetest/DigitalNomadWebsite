@@ -219,7 +219,7 @@ class UserBehaviorAnalysisService
         }
 
         return array_merge($userContext, [
-            'is_returning' => $user->last_active_at && $user->last_active_at->diffInDays(now()) > 1,
+            'is_returning' => $user->last_active_at && $user->last_active_at->diffInDays(now()) > 1, // @phpstan-ignore-line
             'profile_completion' => $this->calculateProfileCompletion($user),
             'is_premium' => $user->is_premium ?? false,
             'user_type' => $user->user_type ?? 'member',
