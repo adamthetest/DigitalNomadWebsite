@@ -196,8 +196,8 @@ class SmartRecommendationEngineService
                 'experience_level' => $user->experience_level ?? null,
             ],
             'preferences' => [
-                'skills' => is_array($user->skills ?? null) ? $user->skills : explode(',', $user->skills ?? ''),
-                'interests' => is_array($user->interests ?? null) ? $user->interests : explode(',', $user->interests ?? ''),
+                'skills' => is_array($user->skills ?? null) ? $user->skills : explode(',', (string) ($user->skills ?? '')),
+                'interests' => is_array($user->interests ?? null) ? $user->interests : explode(',', (string) ($user->interests ?? '')),
                 'budget_min' => $user->budget_min ?? null,
                 'budget_max' => $user->budget_max ?? null,
                 'preferred_climate' => $user->preferred_climate ?? null,

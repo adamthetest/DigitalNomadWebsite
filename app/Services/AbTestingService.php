@@ -403,7 +403,7 @@ class AbTestingService
         $visitors = $data['visitors'] ?? 0;
         $conversions = $data['conversions'] ?? 0;
 
-        return $visitors > 0 ? round(($conversions / $visitors) * 100, 2) : 0.0;
+        return $visitors > 0 ? round(($conversions / $visitors) * 100, 2) : 0;
     }
 
     /**

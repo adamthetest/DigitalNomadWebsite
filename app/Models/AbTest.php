@@ -24,6 +24,7 @@ class AbTest extends Model
         'results',
         'winner_variant',
         'confidence_level',
+        'algorithm_config',
     ];
 
     protected $casts = [
@@ -35,6 +36,7 @@ class AbTest extends Model
         'start_date' => 'datetime',
         'end_date' => 'datetime',
         'confidence_level' => 'decimal:2',
+        'algorithm_config' => 'array',
     ];
 
     /**
