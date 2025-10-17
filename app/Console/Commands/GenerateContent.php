@@ -98,7 +98,7 @@ class GenerateContent extends Command
      */
     private function generateCityGuides(bool $useQueue): void
     {
-        $cityId = $this->option('city-id');
+        $cityId = $this->option('city-id') ? (int) $this->option('city-id') : null;
 
         if ($useQueue) {
             GenerateCityGuides::dispatch($cityId);

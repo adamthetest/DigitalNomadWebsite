@@ -96,6 +96,7 @@ class ContentController extends Controller
                 'city_guide' => $this->contentService->generateCityGuide(
                     \App\Models\City::findOrFail($request->get('city_id'))
                 ),
+                default => throw new \InvalidArgumentException('Invalid content type'),
             };
 
             if (! $content) {

@@ -386,7 +386,7 @@ class AiContentGenerationService
      */
     private function buildCityGuidePrompt(City $city): string
     {
-        $countryName = $city->country ? $city->country->name : 'Unknown';
+        $countryName = $city->country !== null ? $city->country->name : 'Unknown';
 
         return "Write a comprehensive digital nomad guide for {$city->name}, {$countryName}.\n\n".
                "City information:\n".
