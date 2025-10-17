@@ -172,7 +172,7 @@ class JobMatch extends Model
      */
     public function getScorePercentageAttribute(): string
     {
-        return number_format($this->overall_score, 1).'%';
+        return number_format((float) $this->overall_score, 1).'%';
     }
 
     /**
@@ -251,13 +251,11 @@ class JobMatch extends Model
      */
     public function getApplicationTipsAttribute(): array
     {
-        if (! $this->ai_application_tips) {
+        if (empty($this->ai_application_tips)) {
             return [];
         }
 
-        return is_array($this->ai_application_tips)
-            ? $this->ai_application_tips
-            : [$this->ai_application_tips];
+        return (array) $this->ai_application_tips;
     }
 
     /**
@@ -265,13 +263,11 @@ class JobMatch extends Model
      */
     public function getResumeSuggestionsAttribute(): array
     {
-        if (! $this->ai_resume_suggestions) {
+        if (empty($this->ai_resume_suggestions)) {
             return [];
         }
 
-        return is_array($this->ai_resume_suggestions)
-            ? $this->ai_resume_suggestions
-            : [$this->ai_resume_suggestions];
+        return (array) $this->ai_resume_suggestions;
     }
 
     /**
@@ -279,12 +275,10 @@ class JobMatch extends Model
      */
     public function getCoverLetterTipsAttribute(): array
     {
-        if (! $this->ai_cover_letter_tips) {
+        if (empty($this->ai_cover_letter_tips)) {
             return [];
         }
 
-        return is_array($this->ai_cover_letter_tips)
-            ? $this->ai_cover_letter_tips
-            : [$this->ai_cover_letter_tips];
+        return (array) $this->ai_cover_letter_tips;
     }
 }

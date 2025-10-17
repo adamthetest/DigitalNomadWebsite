@@ -111,8 +111,8 @@ class JobMatchingController extends Controller
         }
 
         try {
-            $userProfile = $this->jobMatchingService->buildUserProfile($user);
-            $jobData = $this->jobMatchingService->buildJobData($job);
+            $userProfile = $this->buildUserProfile($user);
+            $jobData = $this->buildJobData($job);
             $matchScore = $this->jobMatchingService->calculateMatchScore($userProfile, $job);
             $aiInsights = $this->jobMatchingService->getAiInsights($userProfile, $job);
 
@@ -404,13 +404,13 @@ class JobMatchingController extends Controller
 
         switch ($type) {
             case 'viewed':
-                $query->viewed();
+                $query->where('user_viewed', true);
                 break;
             case 'applied':
-                $query->applied();
+                $query->where('user_applied', true);
                 break;
             case 'saved':
-                $query->saved();
+                $query->where('user_saved', true);
                 break;
         }
 
@@ -428,5 +428,51 @@ class JobMatchingController extends Controller
                 'total' => $matches->total(),
             ],
         ]);
+    }
+
+    /**
+     * Build user profile for matching
+     */
+    private function buildUserProfile(User $user): array
+    {
+        return [
+            'skills' => $user->skills ?? [],
+            'experience_years' => $user->experience_years ?? 0,
+            'profession' => $user->profession ?? '',
+            'education_level' => $user->education_level ?? '',
+            'preferred_locations' => $user->preferred_locations ?? [],
+            'preferred_climates' => $user->preferred_climates ?? [],
+            'budget_monthly_min' => $user->budget_monthly_min ?? 0,
+            'budget_monthly_max' => $user->budget_monthly_max ?? 0,
+            'work_type_preferences' => $user->work_type_preferences ?? [],
+            'remote_work_preferences' => $user->remote_work_preferences ?? [],
+            'timezone_preferences' => $user->timezone_preferences ?? [],
+            'salary_expectations' => $user->salary_expectations ?? [],
+            'ai_profile_summary' => $user->ai_profile_summary ?? '',
+        ];
+    }
+
+    /**
+     * Build job data for matching
+     */
+    private function buildJobData(Job $job): array
+    {
+        return [
+            'title' => $job->title,
+            'description' => $job->description,
+            'requirements' => $job->requirements ?? '',
+            'skills_required' => $job->skills_required ?? [],
+            'experience_level' => $job->experience_level ?? [],
+            'job_type' => $job->type,
+            'remote_type' => $job->remote_type,
+            'location' => $job->location,
+            'salary_min' => $job->salary_min,
+            'salary_max' => $job->salary_max,
+            'company_name' => $job->company->name ?? '',
+            'company_description' => $job->company->description ?? '',
+            'company_culture' => $job->company->culture ?? '',
+            'visa_support' => $job->visa_support ?? false,
+            'timezone_requirements' => $job->timezone_requirements ?? [],
+        ];
     }
 }

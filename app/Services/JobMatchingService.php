@@ -150,7 +150,7 @@ class JobMatchingService
             'requirements' => $job->requirements ?? '',
             'skills_required' => $job->skills_required ?? [],
             'experience_level' => $job->experience_level ?? [],
-            'job_type' => $job->job_type,
+            'job_type' => $job->type,
             'remote_type' => $job->remote_type,
             'location' => $job->location,
             'salary_min' => $job->salary_min,
@@ -322,7 +322,7 @@ class JobMatchingService
         // In a real implementation, you'd analyze company culture, values, etc.
 
         $userWorkType = $userProfile['work_type_preferences'] ?? [];
-        $jobType = $job->job_type;
+        $jobType = $job->type;
 
         if (in_array($jobType, $userWorkType)) {
             return 85;

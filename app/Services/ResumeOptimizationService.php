@@ -267,7 +267,7 @@ class ResumeOptimizationService
             'requirements' => $job->requirements ?? '',
             'skills_required' => $job->skills_required ?? [],
             'experience_level' => $job->experience_level ?? [],
-            'job_type' => $job->job_type,
+            'job_type' => $job->type,
             'remote_type' => $job->remote_type,
             'location' => $job->location,
             'company_name' => $job->company->name ?? '',
