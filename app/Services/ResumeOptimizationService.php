@@ -25,7 +25,7 @@ class ResumeOptimizationService
     /**
      * Optimize resume for a specific job
      */
-    public function optimizeResumeForJob(User $user, Job $job, string $resumeContent = null): array
+    public function optimizeResumeForJob(User $user, Job $job, ?string $resumeContent = null): array
     {
         $resumeContent = $resumeContent ?? $user->resume_content;
         
@@ -377,7 +377,7 @@ class ResumeOptimizationService
     private function getFallbackCoverLetter(User $user, Job $job): string
     {
         return "Dear Hiring Manager,\n\n" .
-               "I am writing to express my interest in the {$job->title} position at {$job->company->name ?? 'your company'}.\n\n" .
+               "I am writing to express my interest in the {$job->title} position at " . ($job->company->name ?? 'your company') . ".\n\n" .
                "With my background in " . ($user->profession ?? 'my field') . " and " . ($user->experience_years ?? 0) . " years of experience, " .
                "I believe I would be a valuable addition to your team.\n\n" .
                "I am particularly drawn to this opportunity because of [your specific interest in the role/company]. " .

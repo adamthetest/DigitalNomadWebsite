@@ -13,38 +13,38 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             // Add AI-generated profile content (only if not exists)
-            if (!Schema::hasColumn('users', 'ai_skills_analysis')) {
+            if (! Schema::hasColumn('users', 'ai_skills_analysis')) {
                 $table->json('ai_skills_analysis')->nullable()->comment('AI analysis of user skills');
             }
-            if (!Schema::hasColumn('users', 'ai_career_insights')) {
+            if (! Schema::hasColumn('users', 'ai_career_insights')) {
                 $table->json('ai_career_insights')->nullable()->comment('AI-generated career insights');
             }
-            if (!Schema::hasColumn('users', 'ai_resume_optimization_tips')) {
+            if (! Schema::hasColumn('users', 'ai_resume_optimization_tips')) {
                 $table->text('ai_resume_optimization_tips')->nullable()->comment('AI tips for resume optimization');
             }
-            
+
             // Add matching metadata
-            if (!Schema::hasColumn('users', 'matching_metadata')) {
+            if (! Schema::hasColumn('users', 'matching_metadata')) {
                 $table->json('matching_metadata')->nullable()->comment('Additional metadata for job matching');
             }
-            if (!Schema::hasColumn('users', 'last_profile_update')) {
+            if (! Schema::hasColumn('users', 'last_profile_update')) {
                 $table->timestamp('last_profile_update')->nullable()->comment('When profile was last updated');
             }
-            if (!Schema::hasColumn('users', 'last_embedding_update')) {
+            if (! Schema::hasColumn('users', 'last_embedding_update')) {
                 $table->timestamp('last_embedding_update')->nullable()->comment('When embeddings were last updated');
             }
-            
+
             // Add resume and cover letter fields
-            if (!Schema::hasColumn('users', 'resume_content')) {
+            if (! Schema::hasColumn('users', 'resume_content')) {
                 $table->text('resume_content')->nullable()->comment('User resume content');
             }
-            if (!Schema::hasColumn('users', 'resume_file_path')) {
+            if (! Schema::hasColumn('users', 'resume_file_path')) {
                 $table->string('resume_file_path')->nullable()->comment('Path to uploaded resume file');
             }
-            if (!Schema::hasColumn('users', 'resume_metadata')) {
+            if (! Schema::hasColumn('users', 'resume_metadata')) {
                 $table->json('resume_metadata')->nullable()->comment('Resume metadata and parsing results');
             }
-            if (!Schema::hasColumn('users', 'cover_letter_template')) {
+            if (! Schema::hasColumn('users', 'cover_letter_template')) {
                 $table->text('cover_letter_template')->nullable()->comment('User cover letter template');
             }
         });
@@ -75,7 +75,7 @@ return new class extends Migration
                 'resume_content',
                 'resume_file_path',
                 'resume_metadata',
-                'cover_letter_template'
+                'cover_letter_template',
             ]);
         });
     }

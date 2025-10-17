@@ -172,7 +172,7 @@ class JobMatch extends Model
      */
     public function getScorePercentageAttribute(): string
     {
-        return number_format($this->overall_score, 1) . '%';
+        return number_format($this->overall_score, 1).'%';
     }
 
     /**
@@ -216,7 +216,7 @@ class JobMatch extends Model
      */
     public function getFormattedMatchingFactorsAttribute(): array
     {
-        if (!$this->matching_factors) {
+        if (! $this->matching_factors) {
             return [];
         }
 
@@ -225,7 +225,7 @@ class JobMatch extends Model
             $factors[] = [
                 'factor' => ucfirst(str_replace('_', ' ', $factor)),
                 'value' => $value,
-                'score' => $this->getAttribute($factor . '_score') ?? 0,
+                'score' => $this->getAttribute($factor.'_score') ?? 0,
             ];
         }
 
@@ -237,11 +237,12 @@ class JobMatch extends Model
      */
     public function getAiInsightsSummaryAttribute(): string
     {
-        if (!$this->ai_insights || !isset($this->ai_insights['insights'])) {
+        if (! $this->ai_insights || ! isset($this->ai_insights['insights'])) {
             return 'No AI insights available.';
         }
 
         $insights = $this->ai_insights['insights'];
+
         return is_string($insights) ? $insights : 'AI insights generated successfully.';
     }
 
@@ -250,12 +251,12 @@ class JobMatch extends Model
      */
     public function getApplicationTipsAttribute(): array
     {
-        if (!$this->ai_application_tips) {
+        if (! $this->ai_application_tips) {
             return [];
         }
 
-        return is_array($this->ai_application_tips) 
-            ? $this->ai_application_tips 
+        return is_array($this->ai_application_tips)
+            ? $this->ai_application_tips
             : [$this->ai_application_tips];
     }
 
@@ -264,12 +265,12 @@ class JobMatch extends Model
      */
     public function getResumeSuggestionsAttribute(): array
     {
-        if (!$this->ai_resume_suggestions) {
+        if (! $this->ai_resume_suggestions) {
             return [];
         }
 
-        return is_array($this->ai_resume_suggestions) 
-            ? $this->ai_resume_suggestions 
+        return is_array($this->ai_resume_suggestions)
+            ? $this->ai_resume_suggestions
             : [$this->ai_resume_suggestions];
     }
 
@@ -278,12 +279,12 @@ class JobMatch extends Model
      */
     public function getCoverLetterTipsAttribute(): array
     {
-        if (!$this->ai_cover_letter_tips) {
+        if (! $this->ai_cover_letter_tips) {
             return [];
         }
 
-        return is_array($this->ai_cover_letter_tips) 
-            ? $this->ai_cover_letter_tips 
+        return is_array($this->ai_cover_letter_tips)
+            ? $this->ai_cover_letter_tips
             : [$this->ai_cover_letter_tips];
     }
 }

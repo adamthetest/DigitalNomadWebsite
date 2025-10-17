@@ -12,18 +12,29 @@ use Livewire\Component;
 class JobRecommendationsWidget extends Component
 {
     public $recommendations = [];
+
     public $loading = false;
+
     public $error = null;
+
     public $showResumeOptimization = false;
+
     public $showCoverLetter = false;
+
     public $selectedJob = null;
+
     public $resumeContent = '';
+
     public $optimizedResume = '';
+
     public $coverLetter = '';
+
     public $optimizationLoading = false;
+
     public $coverLetterLoading = false;
 
     private JobMatchingService $jobMatchingService;
+
     private ResumeOptimizationService $resumeOptimizationService;
 
     public function boot(
@@ -49,11 +60,11 @@ class JobRecommendationsWidget extends Component
         try {
             $user = Auth::user();
             $matches = $this->jobMatchingService->findMatchingJobs($user, 5);
-            
+
             $this->recommendations = [];
             foreach ($matches as $match) {
                 $jobMatch = $this->jobMatchingService->storeJobMatch($user, $match['job'], $match['score']);
-                
+
                 $this->recommendations[] = [
                     'job_match_id' => $jobMatch->id,
                     'job' => $match['job'],
@@ -63,9 +74,9 @@ class JobRecommendationsWidget extends Component
                     'ai_insights' => $match['ai_insights'] ?? null,
                 ];
             }
-            
+
         } catch (\Exception $e) {
-            $this->error = 'Failed to load job recommendations: ' . $e->getMessage();
+            $this->error = 'Failed to load job recommendations: '.$e->getMessage();
         } finally {
             $this->loading = false;
         }
@@ -80,12 +91,12 @@ class JobRecommendationsWidget extends Component
         try {
             $user = Auth::user();
             $optimization = $this->resumeOptimizationService->optimizeResumeForJob($user, $this->selectedJob);
-            
+
             $this->optimizedResume = $optimization['optimized_resume'] ?? '';
             $this->resumeContent = $user->resume_content ?? '';
-            
+
         } catch (\Exception $e) {
-            $this->error = 'Failed to optimize resume: ' . $e->getMessage();
+            $this->error = 'Failed to optimize resume: '.$e->getMessage();
         } finally {
             $this->optimizationLoading = false;
         }
@@ -100,11 +111,11 @@ class JobRecommendationsWidget extends Component
         try {
             $user = Auth::user();
             $coverLetter = $this->resumeOptimizationService->generateCoverLetter($user, $this->selectedJob);
-            
+
             $this->coverLetter = $coverLetter['cover_letter'] ?? '';
-            
+
         } catch (\Exception $e) {
-            $this->error = 'Failed to generate cover letter: ' . $e->getMessage();
+            $this->error = 'Failed to generate cover letter: '.$e->getMessage();
         } finally {
             $this->coverLetterLoading = false;
         }
@@ -131,7 +142,7 @@ class JobRecommendationsWidget extends Component
                 $this->dispatch('job-applied', ['job_match_id' => $jobMatchId]);
             }
         } catch (\Exception $e) {
-            $this->error = 'Failed to mark as applied: ' . $e->getMessage();
+            $this->error = 'Failed to mark as applied: '.$e->getMessage();
         }
     }
 
@@ -144,7 +155,7 @@ class JobRecommendationsWidget extends Component
                 $this->dispatch('job-saved', ['job_match_id' => $jobMatchId]);
             }
         } catch (\Exception $e) {
-            $this->error = 'Failed to save job: ' . $e->getMessage();
+            $this->error = 'Failed to save job: '.$e->getMessage();
         }
     }
 

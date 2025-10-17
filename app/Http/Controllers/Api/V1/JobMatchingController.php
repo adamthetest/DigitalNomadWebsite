@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 class JobMatchingController extends Controller
 {
     private JobMatchingService $jobMatchingService;
+
     private ResumeOptimizationService $resumeOptimizationService;
 
     public function __construct(
@@ -31,23 +32,23 @@ class JobMatchingController extends Controller
     public function getRecommendations(Request $request): JsonResponse
     {
         $user = Auth::user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Authentication required'
+                'message' => 'Authentication required',
             ], 401);
         }
 
         $limit = min($request->get('limit', 10), 50); // Max 50 recommendations
-        
+
         try {
             $matches = $this->jobMatchingService->findMatchingJobs($user, $limit);
-            
+
             $recommendations = [];
             foreach ($matches as $match) {
                 $jobMatch = $this->jobMatchingService->storeJobMatch($user, $match['job'], $match['score']);
-                
+
                 $recommendations[] = [
                     'job_match_id' => $jobMatch->id,
                     'job' => [
@@ -77,7 +78,7 @@ class JobMatchingController extends Controller
                     'quality_color' => $jobMatch->quality_color,
                 ];
             }
-            
+
             return response()->json([
                 'success' => true,
                 'data' => $recommendations,
@@ -85,12 +86,12 @@ class JobMatchingController extends Controller
                 'total_matches' => count($recommendations),
                 'user_profile_completeness' => $user->profile_completion,
             ]);
-            
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to generate job recommendations',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -101,11 +102,11 @@ class JobMatchingController extends Controller
     public function getMatchAnalysis(Job $job): JsonResponse
     {
         $user = Auth::user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Authentication required'
+                'message' => 'Authentication required',
             ], 401);
         }
 
@@ -114,10 +115,10 @@ class JobMatchingController extends Controller
             $jobData = $this->jobMatchingService->buildJobData($job);
             $matchScore = $this->jobMatchingService->calculateMatchScore($userProfile, $job);
             $aiInsights = $this->jobMatchingService->getAiInsights($userProfile, $job);
-            
+
             // Store or update the match
             $jobMatch = $this->jobMatchingService->storeJobMatch($user, $job, $matchScore);
-            
+
             return response()->json([
                 'success' => true,
                 'data' => [
@@ -155,12 +156,12 @@ class JobMatchingController extends Controller
                     ],
                 ],
             ]);
-            
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to analyze job match',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -171,11 +172,11 @@ class JobMatchingController extends Controller
     public function optimizeResume(Request $request, Job $job): JsonResponse
     {
         $user = Auth::user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Authentication required'
+                'message' => 'Authentication required',
             ], 401);
         }
 
@@ -185,7 +186,7 @@ class JobMatchingController extends Controller
 
         try {
             $resumeContent = $request->get('resume_content') ?? $user->resume_content;
-            
+
             if (empty($resumeContent)) {
                 return response()->json([
                     'success' => false,
@@ -194,7 +195,7 @@ class JobMatchingController extends Controller
             }
 
             $optimization = $this->resumeOptimizationService->optimizeResumeForJob($user, $job, $resumeContent);
-            
+
             return response()->json([
                 'success' => $optimization['success'],
                 'data' => [
@@ -206,12 +207,12 @@ class JobMatchingController extends Controller
                 ],
                 'message' => $optimization['message'],
             ]);
-            
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to optimize resume',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -222,17 +223,17 @@ class JobMatchingController extends Controller
     public function generateCoverLetter(Job $job): JsonResponse
     {
         $user = Auth::user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Authentication required'
+                'message' => 'Authentication required',
             ], 401);
         }
 
         try {
             $coverLetter = $this->resumeOptimizationService->generateCoverLetter($user, $job);
-            
+
             return response()->json([
                 'success' => $coverLetter['success'],
                 'data' => [
@@ -242,12 +243,12 @@ class JobMatchingController extends Controller
                 ],
                 'message' => $coverLetter['message'],
             ]);
-            
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to generate cover letter',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -258,11 +259,11 @@ class JobMatchingController extends Controller
     public function uploadResume(Request $request): JsonResponse
     {
         $user = Auth::user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Authentication required'
+                'message' => 'Authentication required',
             ], 401);
         }
 
@@ -272,7 +273,7 @@ class JobMatchingController extends Controller
 
         try {
             $upload = $this->resumeOptimizationService->uploadResume($user, $request->file('resume'));
-            
+
             return response()->json([
                 'success' => $upload['success'],
                 'data' => [
@@ -281,12 +282,12 @@ class JobMatchingController extends Controller
                 ],
                 'message' => $upload['message'],
             ]);
-            
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to upload resume',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -298,7 +299,7 @@ class JobMatchingController extends Controller
     {
         try {
             $skills = $this->resumeOptimizationService->extractSkillsFromJob($job);
-            
+
             return response()->json([
                 'success' => $skills['success'],
                 'data' => [
@@ -306,12 +307,12 @@ class JobMatchingController extends Controller
                 ],
                 'message' => $skills['message'],
             ]);
-            
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to extract skills',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -322,16 +323,16 @@ class JobMatchingController extends Controller
     public function markAsViewed(JobMatch $jobMatch): JsonResponse
     {
         $user = Auth::user();
-        
-        if (!$user || $jobMatch->user_id !== $user->id) {
+
+        if (! $user || $jobMatch->user_id !== $user->id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Unauthorized',
             ], 403);
         }
 
         $jobMatch->markAsViewed();
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Job match marked as viewed',
@@ -344,16 +345,16 @@ class JobMatchingController extends Controller
     public function markAsApplied(JobMatch $jobMatch): JsonResponse
     {
         $user = Auth::user();
-        
-        if (!$user || $jobMatch->user_id !== $user->id) {
+
+        if (! $user || $jobMatch->user_id !== $user->id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Unauthorized',
             ], 403);
         }
 
         $jobMatch->markAsApplied();
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Job match marked as applied',
@@ -366,16 +367,16 @@ class JobMatchingController extends Controller
     public function markAsSaved(JobMatch $jobMatch): JsonResponse
     {
         $user = Auth::user();
-        
-        if (!$user || $jobMatch->user_id !== $user->id) {
+
+        if (! $user || $jobMatch->user_id !== $user->id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized'
+                'message' => 'Unauthorized',
             ], 403);
         }
 
         $jobMatch->markAsSaved();
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Job match marked as saved',
@@ -388,19 +389,19 @@ class JobMatchingController extends Controller
     public function getMatchHistory(Request $request): JsonResponse
     {
         $user = Auth::user();
-        
-        if (!$user) {
+
+        if (! $user) {
             return response()->json([
                 'success' => false,
-                'message' => 'Authentication required'
+                'message' => 'Authentication required',
             ], 401);
         }
 
         $limit = min($request->get('limit', 20), 100);
         $type = $request->get('type', 'all'); // all, viewed, applied, saved
-        
+
         $query = $user->jobMatches()->with(['job.company']);
-        
+
         switch ($type) {
             case 'viewed':
                 $query->viewed();
@@ -412,11 +413,11 @@ class JobMatchingController extends Controller
                 $query->saved();
                 break;
         }
-        
+
         $matches = $query->orderBy('overall_score', 'desc')
-                         ->orderBy('created_at', 'desc')
-                         ->paginate($limit);
-        
+            ->orderBy('created_at', 'desc')
+            ->paginate($limit);
+
         return response()->json([
             'success' => true,
             'data' => $matches->items(),

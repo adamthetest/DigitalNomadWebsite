@@ -3,14 +3,12 @@
 namespace App\Services;
 
 use App\Models\Job;
-use App\Models\User;
 use App\Models\JobMatch;
-use App\Services\OpenAiService;
-use Illuminate\Support\Facades\Log;
+use App\Models\User;
 
 /**
  * Job Matching Service
- * 
+ *
  * Handles intelligent job matching using AI and algorithmic approaches
  */
 class JobMatchingService
@@ -29,17 +27,17 @@ class JobMatchingService
     {
         $userProfile = $this->buildUserProfile($user);
         $jobs = $this->getEligibleJobs($user);
-        
+
         $matches = [];
-        
+
         foreach ($jobs as $job) {
             $matchScore = $this->calculateMatchScore($userProfile, $job);
-            
+
             if ($matchScore['overall_score'] >= 60) { // Only include decent matches
                 $matches[] = [
                     'job' => $job,
                     'score' => $matchScore,
-                    'ai_insights' => $this->getAiInsights($userProfile, $job)
+                    'ai_insights' => $this->getAiInsights($userProfile, $job),
                 ];
             }
         }
@@ -115,7 +113,7 @@ class JobMatchingService
     public function getAiInsights(array $userProfile, Job $job): array
     {
         $jobData = $this->buildJobData($job);
-        
+
         return $this->openAiService->generateJobMatchingInsights($userProfile, $jobData);
     }
 
@@ -176,26 +174,26 @@ class JobMatchingService
             ->notExpired()
             ->where(function ($query) use ($user) {
                 // Filter by user preferences
-                if (!empty($user->preferred_job_types)) {
+                if (! empty($user->preferred_job_types)) {
                     $query->whereIn('job_type', $user->preferred_job_types);
                 }
-                
-                if (!empty($user->preferred_remote_types)) {
+
+                if (! empty($user->preferred_remote_types)) {
                     $query->whereIn('remote_type', $user->preferred_remote_types);
                 }
-                
+
                 // Filter by salary expectations
                 if ($user->budget_monthly_min > 0) {
                     $query->where(function ($q) use ($user) {
                         $q->whereNull('salary_min')
-                          ->orWhere('salary_min', '>=', $user->budget_monthly_min);
+                            ->orWhere('salary_min', '>=', $user->budget_monthly_min);
                     });
                 }
-                
+
                 if ($user->budget_monthly_max > 0) {
                     $query->where(function ($q) use ($user) {
                         $q->whereNull('salary_max')
-                          ->orWhere('salary_max', '<=', $user->budget_monthly_max);
+                            ->orWhere('salary_max', '<=', $user->budget_monthly_max);
                     });
                 }
             })
@@ -209,14 +207,14 @@ class JobMatchingService
     {
         $userSkills = $userProfile['skills'] ?? [];
         $jobSkills = $job->skills_required ?? [];
-        
+
         if (empty($jobSkills)) {
             return 70; // Neutral score if no skills specified
         }
-        
+
         $matchingSkills = array_intersect($userSkills, $jobSkills);
         $matchPercentage = count($matchingSkills) / count($jobSkills);
-        
+
         return min(100, $matchPercentage * 100 + 20); // Bonus for partial matches
     }
 
@@ -227,11 +225,11 @@ class JobMatchingService
     {
         $userExperience = $userProfile['experience_years'] ?? 0;
         $jobExperienceLevel = $job->experience_level ?? [];
-        
+
         if (empty($jobExperienceLevel)) {
             return 75; // Neutral score
         }
-        
+
         // Map experience levels to years
         $experienceMap = [
             'entry' => 0,
@@ -241,10 +239,10 @@ class JobMatchingService
             'lead' => 12,
             'executive' => 15,
         ];
-        
-        $jobMinYears = min(array_map(fn($level) => $experienceMap[$level] ?? 0, $jobExperienceLevel));
-        $jobMaxYears = max(array_map(fn($level) => $experienceMap[$level] ?? 0, $jobExperienceLevel));
-        
+
+        $jobMinYears = min(array_map(fn ($level) => $experienceMap[$level] ?? 0, $jobExperienceLevel));
+        $jobMaxYears = max(array_map(fn ($level) => $experienceMap[$level] ?? 0, $jobExperienceLevel));
+
         if ($userExperience >= $jobMinYears && $userExperience <= $jobMaxYears + 3) {
             return 90; // Good match
         } elseif ($userExperience < $jobMinYears) {
@@ -262,14 +260,14 @@ class JobMatchingService
         $userLocations = $userProfile['preferred_locations'] ?? [];
         $jobLocation = $job->location;
         $jobRemoteType = $job->remote_type;
-        
+
         // If job is fully remote, high score
         if ($jobRemoteType === 'fully_remote') {
             return 95;
         }
-        
+
         // If job is hybrid/onsite and user has location preferences
-        if (!empty($userLocations) && $jobLocation) {
+        if (! empty($userLocations) && $jobLocation) {
             $locationMatch = false;
             foreach ($userLocations as $preferredLocation) {
                 if (stripos($jobLocation, $preferredLocation) !== false) {
@@ -277,9 +275,10 @@ class JobMatchingService
                     break;
                 }
             }
+
             return $locationMatch ? 90 : 40;
         }
-        
+
         return 70; // Neutral score
     }
 
@@ -292,19 +291,19 @@ class JobMatchingService
         $userMaxSalary = $userProfile['budget_monthly_max'] ?? 0;
         $jobMinSalary = $job->salary_min ?? 0;
         $jobMaxSalary = $job->salary_max ?? 0;
-        
+
         if ($jobMinSalary === 0 && $jobMaxSalary === 0) {
             return 75; // Neutral score if no salary info
         }
-        
+
         if ($userMinSalary === 0 && $userMaxSalary === 0) {
             return 80; // User has no salary expectations
         }
-        
+
         // Check if salary ranges overlap
         $userRange = [$userMinSalary, $userMaxSalary ?: $userMinSalary * 1.5];
         $jobRange = [$jobMinSalary, $jobMaxSalary ?: $jobMinSalary * 1.5];
-        
+
         if ($userRange[1] >= $jobRange[0] && $userRange[0] <= $jobRange[1]) {
             return 90; // Good overlap
         } elseif ($userRange[0] > $jobRange[1]) {
@@ -321,14 +320,14 @@ class JobMatchingService
     {
         // This is a simplified calculation
         // In a real implementation, you'd analyze company culture, values, etc.
-        
+
         $userWorkType = $userProfile['work_type_preferences'] ?? [];
         $jobType = $job->job_type;
-        
+
         if (in_array($jobType, $userWorkType)) {
             return 85;
         }
-        
+
         return 70; // Neutral score
     }
 }
