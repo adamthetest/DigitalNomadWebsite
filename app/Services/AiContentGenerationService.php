@@ -285,7 +285,7 @@ class AiContentGenerationService
     private function buildTopCitiesPrompt($cities, int $year): string
     {
         $citiesData = $cities->map(function ($city) {
-            $countryName = $city->country ? $city->country->name : 'Unknown';
+            $countryName = $city->country?->name ?? 'Unknown';
 
             return "• {$city->name}, {$countryName}: ".
                    "Cost Index {$city->cost_of_living_index}, ".
@@ -312,7 +312,7 @@ class AiContentGenerationService
     private function buildTrendingDestinationsPrompt($cities, $jobs): string
     {
         $citiesData = $cities->map(function ($city) {
-            $countryName = $city->country ? $city->country->name : 'Unknown';
+            $countryName = $city->country?->name ?? 'Unknown';
 
             return "• {$city->name}, {$countryName}: Cost Index {$city->cost_of_living_index}, Internet {$city->internet_speed_mbps} Mbps";
         })->join("\n");
@@ -386,7 +386,7 @@ class AiContentGenerationService
      */
     private function buildCityGuidePrompt(City $city): string
     {
-        $countryName = $city->country !== null ? $city->country->name : 'Unknown';
+        $countryName = $city->country?->name ?? 'Unknown';
 
         return "Write a comprehensive digital nomad guide for {$city->name}, {$countryName}.\n\n".
                "City information:\n".
@@ -433,7 +433,7 @@ class AiContentGenerationService
         $content .= "Based on our analysis of cost of living, internet speed, safety, and nomad-friendly amenities, here are the top digital nomad destinations for {$year}:\n\n";
 
         foreach ($cities->take(10) as $index => $city) {
-            $countryName = $city->country ? $city->country->name : 'Unknown';
+            $countryName = $city->country?->name ?? 'Unknown';
             $content .= '## '.($index + 1).". {$city->name}, {$countryName}\n\n";
             $content .= "**Cost of Living Index:** {$city->cost_of_living_index}\n";
             $content .= "**Internet Speed:** {$city->internet_speed_mbps} Mbps\n";
@@ -517,7 +517,7 @@ class AiContentGenerationService
         $content .= "Based on our analysis of job opportunities, community activity, and destination popularity, here are the trending destinations for digital nomads this month:\n\n";
 
         foreach ($cities->take(5) as $index => $city) {
-            $countryName = $city->country ? $city->country->name : 'Unknown';
+            $countryName = $city->country?->name ?? 'Unknown';
             $content .= '## '.($index + 1).". {$city->name}, {$countryName}\n\n";
             $content .= "**Cost of Living Index:** {$city->cost_of_living_index}\n";
             $content .= "**Internet Speed:** {$city->internet_speed_mbps} Mbps\n";
