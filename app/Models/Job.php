@@ -108,6 +108,18 @@ class Job extends Model
         'applications_count',
         'location',
         'experience_level',
+        // Phase 3: Job Matching fields
+        'job_embedding',
+        'skills_embedding',
+        'company_embedding',
+        'matching_metadata',
+        'last_embedding_update',
+        'ai_job_summary',
+        'ai_skills_extracted',
+        'ai_requirements_parsed',
+        'ai_company_culture',
+        'match_score_base',
+        'match_factors',
     ];
 
     /**
@@ -388,5 +400,13 @@ class Job extends Model
     public function aiContexts(): MorphMany
     {
         return $this->morphMany(AiContext::class, 'context', 'context_model', 'context_id');
+    }
+
+    /**
+     * Get the job matches for this job.
+     */
+    public function jobMatches(): HasMany
+    {
+        return $this->hasMany(JobMatch::class);
     }
 }
