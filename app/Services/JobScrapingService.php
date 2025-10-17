@@ -152,7 +152,7 @@ class JobScrapingService
             return ['count' => 0, 'new' => 0, 'updated' => 0, 'skipped' => 0];
         }
 
-        $items = array_slice($xml->channel->item, 0, $this->maxJobsPerSource);
+        $items = array_slice(iterator_to_array($xml->channel->item), 0, $this->maxJobsPerSource);
 
         $results = ['count' => 0, 'new' => 0, 'updated' => 0, 'skipped' => 0];
 
@@ -184,7 +184,7 @@ class JobScrapingService
     /**
      * Process a RemoteOK job and create/update database record.
      */
-    private function processRemoteOKJob(array $jobData): ?Job
+    private function processRemoteOKJob(array $jobData): Job
     {
         $company = $this->findOrCreateCompany($jobData['company'], $jobData['company_logo'] ?? null);
 
@@ -218,7 +218,7 @@ class JobScrapingService
     /**
      * Process a We Work Remotely job and create/update database record.
      */
-    private function processWWRJob(array $jobData): ?Job
+    private function processWWRJob(array $jobData): Job
     {
         $company = $this->findOrCreateCompany($jobData['company'], null);
 

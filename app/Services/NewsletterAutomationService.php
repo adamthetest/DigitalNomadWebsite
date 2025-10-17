@@ -89,7 +89,7 @@ class NewsletterAutomationService
                 $sentCount++;
 
                 // Update subscriber's last sent date
-                $subscriber->update(['last_sent_at' => now()]);
+                $subscriber->update(['last_email_sent' => now()]);
 
             } catch (\Exception $e) {
                 Log::error('Failed to send newsletter to subscriber', [
@@ -126,10 +126,10 @@ class NewsletterAutomationService
      */
     private function getActiveSubscribers()
     {
-        return NewsletterSubscriber::where('is_active', true)
+        return NewsletterSubscriber::where('status', 'active')
             ->where(function ($query) {
-                $query->whereNull('last_sent_at')
-                    ->orWhere('last_sent_at', '<', now()->subWeek());
+                $query->whereNull('last_email_sent')
+                      ->orWhere('last_email_sent', '<', now()->subWeek());
             })
             ->get();
     }
@@ -142,9 +142,9 @@ class NewsletterAutomationService
         try {
             // Check if subscriber already exists
             $existingSubscriber = NewsletterSubscriber::where('email', $email)->first();
-
+            
             if ($existingSubscriber) {
-                if ($existingSubscriber->is_active) {
+                if ($existingSubscriber->status === 'active') {
                     return [
                         'success' => false,
                         'message' => 'Email already subscribed',
@@ -152,12 +152,12 @@ class NewsletterAutomationService
                 } else {
                     // Reactivate existing subscriber
                     $existingSubscriber->update([
-                        'is_active' => true,
-                        'name' => $name ?? $existingSubscriber->name,
-                        'preferences' => $preferences,
+                        'status' => 'active',
+                        'first_name' => $name ?? $existingSubscriber->first_name,
+                        'interests' => $preferences,
                         'subscribed_at' => now(),
                     ]);
-
+                    
                     return [
                         'success' => true,
                         'message' => 'Subscriber reactivated',
@@ -169,9 +169,9 @@ class NewsletterAutomationService
             // Create new subscriber
             $subscriber = NewsletterSubscriber::create([
                 'email' => $email,
-                'name' => $name,
-                'preferences' => $preferences,
-                'is_active' => true,
+                'first_name' => $name,
+                'interests' => $preferences,
+                'status' => 'active',
                 'subscribed_at' => now(),
             ]);
 
@@ -210,7 +210,7 @@ class NewsletterAutomationService
             }
 
             $subscriber->update([
-                'is_active' => false,
+                'status' => 'unsubscribed',
                 'unsubscribed_at' => now(),
             ]);
 
@@ -238,15 +238,15 @@ class NewsletterAutomationService
     public function getNewsletterStats(): array
     {
         $totalSubscribers = NewsletterSubscriber::count();
-        $activeSubscribers = NewsletterSubscriber::where('is_active', true)->count();
-        $inactiveSubscribers = NewsletterSubscriber::where('is_active', false)->count();
-
+        $activeSubscribers = NewsletterSubscriber::where('status', 'active')->count();
+        $inactiveSubscribers = NewsletterSubscriber::where('status', 'unsubscribed')->count();
+        
         $recentSubscribers = NewsletterSubscriber::where('subscribed_at', '>=', now()->subWeek())->count();
         $recentUnsubscribes = NewsletterSubscriber::where('unsubscribed_at', '>=', now()->subWeek())->count();
 
-        $lastSent = NewsletterSubscriber::whereNotNull('last_sent_at')
-            ->orderBy('last_sent_at', 'desc')
-            ->value('last_sent_at');
+        $lastSent = NewsletterSubscriber::whereNotNull('last_email_sent')
+            ->orderBy('last_email_sent', 'desc')
+            ->value('last_email_sent');
 
         return [
             'total_subscribers' => $totalSubscribers,
@@ -318,7 +318,7 @@ class NewsletterAutomationService
     {
         $cutoffDate = now()->subDays($daysInactive);
 
-        $inactiveSubscribers = NewsletterSubscriber::where('is_active', false)
+        $inactiveSubscribers = NewsletterSubscriber::where('status', 'unsubscribed')
             ->where('unsubscribed_at', '<', $cutoffDate)
             ->get();
 

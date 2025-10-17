@@ -54,7 +54,7 @@ class AffiliateLinkValidationService
                 $results['errors']++;
                 $results['details'][] = [
                     'link_id' => $link->id,
-                    'url' => $link->url,
+                    'url' => $link->affiliate_url,
                     'status' => 'error',
                     'error' => $e->getMessage(),
                 ];
@@ -76,7 +76,7 @@ class AffiliateLinkValidationService
                 ->withHeaders([
                     'User-Agent' => 'Mozilla/5.0 (compatible; AffiliateValidator/1.0)',
                 ])
-                ->get($link->url);
+                ->get($link->affiliate_url);
 
             $responseTime = round((microtime(true) - $startTime) * 1000, 2);
 
@@ -92,7 +92,7 @@ class AffiliateLinkValidationService
 
             return [
                 'link_id' => $link->id,
-                'url' => $link->url,
+                'url' => $link->affiliate_url,
                 'status' => $isValid ? 'valid' : 'invalid',
                 'status_code' => $response->status(),
                 'response_time_ms' => $responseTime,
@@ -113,7 +113,7 @@ class AffiliateLinkValidationService
 
             return [
                 'link_id' => $link->id,
-                'url' => $link->url,
+                'url' => $link->affiliate_url,
                 'status' => 'error',
                 'error' => $e->getMessage(),
                 'response_time_ms' => $responseTime,
@@ -155,7 +155,7 @@ class AffiliateLinkValidationService
                 $results['errors']++;
                 $results['details'][] = [
                     'link_id' => $link->id,
-                    'url' => $link->url,
+                    'url' => $link->affiliate_url,
                     'status' => 'error',
                     'error' => $e->getMessage(),
                 ];

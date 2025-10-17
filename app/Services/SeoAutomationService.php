@@ -321,7 +321,7 @@ class SeoAutomationService
      */
     private function generateCityMetaDescription(City $city): string
     {
-        $description = "Digital nomad guide for {$city->name}, {$city->country?->name}. ";
+        $description = "Digital nomad guide for {$city->name}, {$city->country->name}. ";
         $description .= "Cost of living: {$city->cost_of_living_index}, ";
         $description .= "Internet: {$city->internet_speed_mbps} Mbps, ";
         $description .= "Safety: {$city->safety_score}/10. ";
@@ -389,7 +389,7 @@ class SeoAutomationService
         $sitemapFile = "{$this->sitemapPath}/sitemap.xml";
 
         if (File::exists($sitemapFile)) {
-            return File::lastModified($sitemapFile);
+            return date('Y-m-d H:i:s', File::lastModified($sitemapFile));
         }
 
         return null;
