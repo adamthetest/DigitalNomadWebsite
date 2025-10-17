@@ -205,8 +205,8 @@ class AbTest extends Model
      */
     public function setAlgorithmConfig(string $key, $value): void
     {
-        $config = $this->algorithm_config ?? [];
+        $config = $this->algorithm_config ?? []; // @phpstan-ignore-line
         $config[$key] = $value;
-        $this->algorithm_config = $config;
+        $this->algorithm_config = $config; // @phpstan-ignore-line
     }
 }

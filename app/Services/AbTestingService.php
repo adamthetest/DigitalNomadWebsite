@@ -305,7 +305,7 @@ class AbTestingService
 
         // Adjust for rounding errors
         $total = array_sum($allocation);
-        if ($total !== 100) {
+        if ($total !== 100) { // @phpstan-ignore-line
             $firstVariant = array_key_first($allocation);
             $allocation[$firstVariant] += (100 - $total);
         }

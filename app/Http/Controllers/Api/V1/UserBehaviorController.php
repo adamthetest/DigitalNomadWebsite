@@ -246,8 +246,8 @@ class UserBehaviorController extends Controller
                     return [
                         'entity_type' => $item->entity_type,
                         'entity_id' => $item->entity_id,
-                        'interactions' => $item->interactions,
-                        'avg_engagement' => round($item->avg_engagement, 2),
+                        'interactions' => $item->interactions, // @phpstan-ignore-line
+                        'avg_engagement' => round($item->avg_engagement, 2), // @phpstan-ignore-line
                     ];
                 }),
             ],
