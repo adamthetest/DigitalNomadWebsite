@@ -1,11 +1,14 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AbTestingController;
 use App\Http\Controllers\Api\V1\AiAdvisorController;
 use App\Http\Controllers\Api\V1\AnalyticsController;
 use App\Http\Controllers\Api\V1\CityController;
 use App\Http\Controllers\Api\V1\ContentController;
 use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\JobMatchingController;
+use App\Http\Controllers\Api\V1\RecommendationController;
+use App\Http\Controllers\Api\V1\UserBehaviorController;
 use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -100,6 +103,48 @@ Route::prefix('v1')->group(function () {
         Route::get('/statistics', [AnalyticsController::class, 'getAnalyticsStatistics']);
         Route::post('/process', [AnalyticsController::class, 'triggerAnalyticsProcessing']);
         Route::get('/prediction-accuracy', [AnalyticsController::class, 'getPredictionAccuracy']);
+    });
+
+    // User Behavior Analysis API (requires authentication) - Phase 7
+    Route::middleware('auth:sanctum')->prefix('behavior')->group(function () {
+        Route::post('/track-event', [UserBehaviorController::class, 'trackEvent']);
+        Route::get('/analysis/{userId}', [UserBehaviorController::class, 'getUserBehaviorAnalysis']);
+        Route::get('/engagement-score/{userId}', [UserBehaviorController::class, 'getUserEngagementScore']);
+        Route::get('/churn-prediction/{userId}', [UserBehaviorController::class, 'predictChurnProbability']);
+        Route::get('/journey/{userId}', [UserBehaviorController::class, 'getUserJourney']);
+        Route::get('/statistics', [UserBehaviorController::class, 'getBehaviorStatistics']);
+        Route::get('/trends', [UserBehaviorController::class, 'getBehaviorTrends']);
+        Route::get('/top-content', [UserBehaviorController::class, 'getTopPerformingContent']);
+    });
+
+    // A/B Testing API (requires authentication) - Phase 7
+    Route::middleware('auth:sanctum')->prefix('ab-testing')->group(function () {
+        Route::post('/tests', [AbTestingController::class, 'createTest']);
+        Route::post('/tests/{testId}/start', [AbTestingController::class, 'startTest']);
+        Route::get('/tests/{testId}/variant', [AbTestingController::class, 'getUserVariant']);
+        Route::post('/tests/{testId}/conversion', [AbTestingController::class, 'trackConversion']);
+        Route::post('/tests/{testId}/event', [AbTestingController::class, 'trackEvent']);
+        Route::get('/tests/{testId}/results', [AbTestingController::class, 'getTestResults']);
+        Route::post('/tests/{testId}/complete', [AbTestingController::class, 'completeTest']);
+        Route::get('/tests', [AbTestingController::class, 'getAllTests']);
+        Route::get('/tests/active', [AbTestingController::class, 'getActiveTestsForUser']);
+        Route::post('/generate-variants', [AbTestingController::class, 'generateAiVariants']);
+        Route::get('/statistics', [AbTestingController::class, 'getTestStatistics']);
+    });
+
+    // Recommendation Engine API (requires authentication) - Phase 7
+    Route::middleware('auth:sanctum')->prefix('recommendations')->group(function () {
+        Route::get('/personalized', [RecommendationController::class, 'getPersonalizedRecommendations']);
+        Route::get('/collaborative', [RecommendationController::class, 'getCollaborativeFilteringRecommendations']);
+        Route::get('/content-based', [RecommendationController::class, 'getContentBasedRecommendations']);
+        Route::get('/hybrid', [RecommendationController::class, 'getHybridRecommendations']);
+        Route::post('/train', [RecommendationController::class, 'trainRecommendationEngine']);
+        Route::get('/engines', [RecommendationController::class, 'getRecommendationEngineStatus']);
+        Route::get('/statistics', [RecommendationController::class, 'getRecommendationStatistics']);
+        Route::get('/performance', [RecommendationController::class, 'getRecommendationPerformance']);
+        Route::post('/engines/{engineId}/metrics', [RecommendationController::class, 'updateRecommendationMetrics']);
+        Route::get('/engines/{engineId}/config', [RecommendationController::class, 'getRecommendationEngineConfig']);
+        Route::put('/engines/{engineId}/config', [RecommendationController::class, 'updateRecommendationEngineConfig']);
     });
 });
 
