@@ -129,7 +129,7 @@ class NewsletterAutomationService
         return NewsletterSubscriber::where('status', 'active')
             ->where(function ($query) {
                 $query->whereNull('last_email_sent')
-                      ->orWhere('last_email_sent', '<', now()->subWeek());
+                    ->orWhere('last_email_sent', '<', now()->subWeek());
             })
             ->get();
     }
@@ -142,7 +142,7 @@ class NewsletterAutomationService
         try {
             // Check if subscriber already exists
             $existingSubscriber = NewsletterSubscriber::where('email', $email)->first();
-            
+
             if ($existingSubscriber) {
                 if ($existingSubscriber->status === 'active') {
                     return [
@@ -157,7 +157,7 @@ class NewsletterAutomationService
                         'interests' => $preferences,
                         'subscribed_at' => now(),
                     ]);
-                    
+
                     return [
                         'success' => true,
                         'message' => 'Subscriber reactivated',
@@ -240,7 +240,7 @@ class NewsletterAutomationService
         $totalSubscribers = NewsletterSubscriber::count();
         $activeSubscribers = NewsletterSubscriber::where('status', 'active')->count();
         $inactiveSubscribers = NewsletterSubscriber::where('status', 'unsubscribed')->count();
-        
+
         $recentSubscribers = NewsletterSubscriber::where('subscribed_at', '>=', now()->subWeek())->count();
         $recentUnsubscribes = NewsletterSubscriber::where('unsubscribed_at', '>=', now()->subWeek())->count();
 
