@@ -190,18 +190,18 @@ class SmartRecommendationEngineService
         return [
             'user_id' => $userId,
             'demographics' => [
-                'age_range' => $user->age_range,
+                'age_range' => $user->age_range ?? null,
                 'location' => $user->current_location,
                 'work_type' => $user->work_type,
-                'experience_level' => $user->experience_level,
+                'experience_level' => $user->experience_level ?? null,
             ],
             'preferences' => [
-                'skills' => is_array($user->skills) ? $user->skills : explode(',', $user->skills ?? ''),
-                'interests' => is_array($user->interests) ? $user->interests : explode(',', $user->interests ?? ''),
-                'budget_min' => $user->budget_min,
-                'budget_max' => $user->budget_max,
-                'preferred_climate' => $user->preferred_climate,
-                'salary_expectation_min' => $user->salary_expectation_min,
+                'skills' => is_array($user->skills ?? null) ? $user->skills : explode(',', $user->skills ?? ''),
+                'interests' => is_array($user->interests ?? null) ? $user->interests : explode(',', $user->interests ?? ''),
+                'budget_min' => $user->budget_min ?? null,
+                'budget_max' => $user->budget_max ?? null,
+                'preferred_climate' => $user->preferred_climate ?? null,
+                'salary_expectation_min' => $user->salary_expectation_min ?? null,
             ],
             'behavior' => [
                 'engagement_score' => $behaviorAnalysis['engagement_score'] ?? 0,
@@ -223,7 +223,7 @@ class SmartRecommendationEngineService
      */
     private function recommendCities(array $userProfile, int $limit): array
     {
-        $query = City::active();
+        $query = City::where('is_active', true);
 
         // Apply budget constraints
         if (isset($userProfile['preferences']['budget_min']) && $userProfile['preferences']['budget_min']) {
@@ -235,7 +235,7 @@ class SmartRecommendationEngineService
 
         // Apply climate preferences
         if (isset($userProfile['preferences']['preferred_climate']) && $userProfile['preferences']['preferred_climate']) {
-            $query->where('climate_description', 'like', '%'.$userProfile['preferences']['preferred_climate'].'%');
+            $query->where('description', 'like', '%'.$userProfile['preferences']['preferred_climate'].'%');
         }
 
         $cities = $query->limit($limit * 2)->get();
@@ -342,8 +342,8 @@ class SmartRecommendationEngineService
      */
     private function recommendMixedContent(array $userProfile, int $limit): array
     {
-        $cityLimit = ceil($limit / 3);
-        $jobLimit = ceil($limit / 3);
+        $cityLimit = (int) ceil($limit / 3);
+        $jobLimit = (int) ceil($limit / 3);
         $articleLimit = $limit - $cityLimit - $jobLimit;
 
         $cities = $this->recommendCities($userProfile, $cityLimit);
@@ -407,7 +407,7 @@ class SmartRecommendationEngineService
 
             return [
                 'id' => $rec->entity_id,
-                'recommendation_score' => $rec->recommendation_score,
+                'recommendation_score' => $rec->recommendation_score ?? 0,
                 'entity_data' => $entity,
             ];
         })->toArray();
@@ -418,7 +418,7 @@ class SmartRecommendationEngineService
      */
     private function getContentBasedCityRecommendations(array $userPreferences, int $limit): array
     {
-        $query = City::active();
+        $query = City::where('is_active', true);
 
         if (isset($userPreferences['budget_min'])) {
             $query->where('cost_of_living_index', '>=', $userPreferences['budget_min']);
@@ -427,7 +427,7 @@ class SmartRecommendationEngineService
             $query->where('cost_of_living_index', '<=', $userPreferences['budget_max']);
         }
         if (isset($userPreferences['preferred_climate'])) {
-            $query->where('climate_description', 'like', '%'.$userPreferences['preferred_climate'].'%');
+            $query->where('description', 'like', '%'.$userPreferences['preferred_climate'].'%');
         }
 
         return $query->limit($limit)->get()->toArray();
@@ -534,7 +534,7 @@ class SmartRecommendationEngineService
         // Climate match (25% weight)
         if (isset($userProfile['preferences']['preferred_climate'])) {
             $climate = $userProfile['preferences']['preferred_climate'];
-            if (str_contains(strtolower($city->climate_description), strtolower($climate))) {
+            if (str_contains(strtolower($city->description ?? ''), strtolower($climate))) {
                 $score += 25;
             }
         }
@@ -636,7 +636,7 @@ class SmartRecommendationEngineService
 
         if (isset($userProfile['preferences']['preferred_climate'])) {
             $climate = $userProfile['preferences']['preferred_climate'];
-            if (str_contains(strtolower($city->climate_description), strtolower($climate))) {
+            if (str_contains(strtolower($city->description ?? ''), strtolower($climate))) {
                 $reasons[] = 'Matches your preferred climate';
             }
         }

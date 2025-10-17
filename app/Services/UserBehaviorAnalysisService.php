@@ -51,7 +51,8 @@ class UserBehaviorAnalysisService
 
         // Update user's last activity
         if ($userId) {
-            User::where('id', $userId)->update(['last_active_at' => now()]);
+            // Note: last_active_at field needs to be added to users table migration
+            // User::where('id', $userId)->update(['last_active_at' => now()]);
         }
 
         return $analytic;

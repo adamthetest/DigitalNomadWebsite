@@ -192,9 +192,9 @@ class UserBehaviorController extends Controller
 
             $trends[] = [
                 'date' => $date->format('Y-m-d'),
-                'events' => $dailyStats->events ?? 0,
-                'users' => $dailyStats->users ?? 0,
-                'avg_engagement' => round($dailyStats->avg_engagement ?? 0, 2),
+                'events' => $dailyStats?->events ?? 0,
+                'users' => $dailyStats?->users ?? 0,
+                'avg_engagement' => round($dailyStats?->avg_engagement ?? 0, 2),
             ];
         }
 

@@ -187,4 +187,23 @@ class AbTest extends Model
 
         return true;
     }
+
+    /**
+     * Get the algorithm configuration for a specific key.
+     */
+    public function getAlgorithmConfig(string $key, $default = null)
+    {
+        $config = $this->algorithm_config ?? [];
+        return $config[$key] ?? $default;
+    }
+
+    /**
+     * Set the algorithm configuration for a specific key.
+     */
+    public function setAlgorithmConfig(string $key, $value): void
+    {
+        $config = $this->algorithm_config ?? [];
+        $config[$key] = $value;
+        $this->algorithm_config = $config;
+    }
 }

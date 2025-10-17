@@ -329,12 +329,12 @@ class AbTestingService
         }
 
         // Check user type
-        if (isset($rules['user_types']) && ! in_array($user->user_type, $rules['user_types'])) {
+        if (isset($rules['user_types']) && ! in_array($user->user_type ?? 'member', $rules['user_types'])) {
             return false;
         }
 
         // Check premium status
-        if (isset($rules['premium_only']) && $rules['premium_only'] && ! $user->is_premium) {
+        if (isset($rules['premium_only']) && $rules['premium_only'] && ! ($user->is_premium ?? false)) {
             return false;
         }
 
@@ -474,13 +474,13 @@ class AbTestingService
     private function shouldCompleteTest(AbTest $test, array $results): bool
     {
         // Check if test has been running for minimum duration
-        $minDuration = $test->getAlgorithmConfig('min_duration_days', 7);
+        $minDuration = $test->algorithm_config['min_duration_days'] ?? 7;
         if ($test->start_date && $test->start_date->diffInDays(now()) < $minDuration) {
             return false;
         }
 
         // Check if we have enough visitors
-        $minVisitors = $test->getAlgorithmConfig('min_visitors', 1000);
+        $minVisitors = $test->algorithm_config['min_visitors'] ?? 1000;
         $totalVisitors = array_sum(array_column($results, 'visitors'));
         if ($totalVisitors < $minVisitors) {
             return false;
@@ -488,13 +488,13 @@ class AbTestingService
 
         // Check statistical significance
         $confidence = $this->calculateStatisticalSignificance($results);
-        $minConfidence = $test->getAlgorithmConfig('min_confidence', 95.0);
+        $minConfidence = $test->algorithm_config['min_confidence'] ?? 95.0;
         if ($confidence >= $minConfidence) {
             return true;
         }
 
         // Check if test has been running for maximum duration
-        $maxDuration = $test->getAlgorithmConfig('max_duration_days', 30);
+        $maxDuration = $test->algorithm_config['max_duration_days'] ?? 30;
         if ($test->start_date && $test->start_date->diffInDays(now()) >= $maxDuration) {
             return true;
         }
@@ -623,7 +623,7 @@ class AbTestingService
     {
         $words = explode(' ', $text);
 
-        return implode(' ', array_slice($words, 0, ceil(count($words) * 0.7)));
+        return implode(' ', array_slice($words, 0, (int) ceil(count($words) * 0.7)));
     }
 
     /**

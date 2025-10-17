@@ -140,7 +140,7 @@ class AdvancedContentCurationService
      */
     private function curateCities(User $user, array $userPreferences, int $limit): array
     {
-        $query = City::active();
+        $query = City::where('is_active', true);
 
         // Apply user preferences
         if (isset($userPreferences['preferences']['cities'])) {
@@ -149,18 +149,18 @@ class AdvancedContentCurationService
         }
 
         // Apply budget constraints
-        if ($user->budget_min || $user->budget_max) {
-            if ($user->budget_min) {
+        if (($user->budget_min ?? null) || ($user->budget_max ?? null)) {
+            if ($user->budget_min ?? null) {
                 $query->where('cost_of_living_index', '>=', $user->budget_min);
             }
-            if ($user->budget_max) {
+            if ($user->budget_max ?? null) {
                 $query->where('cost_of_living_index', '<=', $user->budget_max);
             }
         }
 
         // Apply climate preferences
-        if ($user->preferred_climate) {
-            $query->where('climate_description', 'like', '%'.$user->preferred_climate.'%');
+        if ($user->preferred_climate ?? null) {
+            $query->where('description', 'like', '%'.$user->preferred_climate.'%');
         }
 
         // Apply work type preferences
@@ -192,7 +192,7 @@ class AdvancedContentCurationService
         $query = Job::active()->published()->notExpired();
 
         // Apply skills matching
-        if ($user->skills) {
+        if ($user->skills ?? null) {
             $skills = is_array($user->skills) ? $user->skills : explode(',', $user->skills);
             foreach ($skills as $skill) {
                 $query->orWhere('tags', 'like', '%'.trim($skill).'%');
@@ -200,12 +200,12 @@ class AdvancedContentCurationService
         }
 
         // Apply work type preferences
-        if ($user->work_type) {
+        if ($user->work_type ?? null) {
             $query->where('type', $user->work_type);
         }
 
         // Apply salary preferences
-        if ($user->salary_expectation_min) {
+        if ($user->salary_expectation_min ?? null) {
             $query->where('salary_min', '>=', $user->salary_expectation_min);
         }
 
@@ -235,11 +235,11 @@ class AdvancedContentCurationService
         $query = Article::published();
 
         // Apply user interests
-        if ($user->interests) {
+        if ($user->interests ?? null) {
             $interests = is_array($user->interests) ? $user->interests : explode(',', $user->interests);
             foreach ($interests as $interest) {
                 $query->orWhere('title', 'like', '%'.trim($interest).'%')
-                    ->orWhere('content', 'like', '%'.trim($interest).'%');
+                      ->orWhere('content', 'like', '%'.trim($interest).'%');
             }
         }
 
@@ -262,9 +262,9 @@ class AdvancedContentCurationService
      */
     private function curateMixedContent(User $user, array $userPreferences, int $limit): array
     {
-        $cities = $this->curateCities($user, $userPreferences, ceil($limit / 3));
-        $jobs = $this->curateJobs($user, $userPreferences, ceil($limit / 3));
-        $articles = $this->curateArticles($user, $userPreferences, ceil($limit / 3));
+        $cities = $this->curateCities($user, $userPreferences, (int) ceil($limit / 3));
+        $jobs = $this->curateJobs($user, $userPreferences, (int) ceil($limit / 3));
+        $articles = $this->curateArticles($user, $userPreferences, (int) ceil($limit / 3));
 
         // Mix and rank by personalization score
         $mixedContent = array_merge($cities, $jobs, $articles);
@@ -392,10 +392,10 @@ class AdvancedContentCurationService
             'new_users' => User::where('created_at', '>=', now()->subDays(7))->get(),
             'active_users' => User::where('last_active_at', '>=', now()->subDays(3))->get(),
             'premium_users' => User::where('is_premium', true)->get(),
-            'job_seekers' => User::whereHas('behaviorAnalytics', function ($query) {
+            'job_seekers' => User::whereHas('userBehaviorAnalytics', function ($query) {
                 $query->where('event_type', 'apply')->where('event_timestamp', '>=', now()->subDays(30));
             })->get(),
-            'city_explorers' => User::whereHas('behaviorAnalytics', function ($query) {
+            'city_explorers' => User::whereHas('userBehaviorAnalytics', function ($query) {
                 $query->where('entity_type', 'city')->where('event_timestamp', '>=', now()->subDays(30));
             })->get(),
             default => collect(),
@@ -435,7 +435,7 @@ class AdvancedContentCurationService
         // Climate match
         if (isset($userPreferences['preferences']['climate'])) {
             $climate = $userPreferences['preferences']['climate'];
-            if (str_contains(strtolower($city->climate_description), strtolower($climate))) {
+            if (str_contains(strtolower($city->description ?? ''), strtolower($climate))) {
                 $score += 25;
             }
         }
@@ -548,7 +548,7 @@ class AdvancedContentCurationService
 
         if (isset($userPreferences['preferences']['climate'])) {
             $climate = $userPreferences['preferences']['climate'];
-            if (str_contains(strtolower($city->climate_description), strtolower($climate))) {
+            if (str_contains(strtolower($city->description ?? ''), strtolower($climate))) {
                 $reasons[] = 'Matches your preferred climate';
             }
         }
