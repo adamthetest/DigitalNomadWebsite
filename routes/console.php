@@ -86,3 +86,28 @@ Schedule::command('analytics:process trending_cities --queue')
     ->at('04:00')
     ->withoutOverlapping()
     ->runInBackground();
+
+// Schedule automated operations tasks - Phase 6
+Schedule::command('jobs:scrape --queue')
+    ->hourly()
+    ->withoutOverlapping()
+    ->runInBackground();
+
+Schedule::command('affiliate:validate --queue')
+    ->daily()
+    ->at('05:00')
+    ->withoutOverlapping()
+    ->runInBackground();
+
+Schedule::command('seo:refresh --queue')
+    ->daily()
+    ->at('06:00')
+    ->withoutOverlapping()
+    ->runInBackground();
+
+Schedule::command('newsletter:send --queue')
+    ->weekly()
+    ->sundays()
+    ->at('08:00')
+    ->withoutOverlapping()
+    ->runInBackground();
