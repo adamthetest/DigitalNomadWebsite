@@ -31,6 +31,7 @@ class JobMatchingService
         $matches = [];
 
         foreach ($jobs as $job) {
+            /** @var Job $job */
             $matchScore = $this->calculateMatchScore($userProfile, $job);
 
             if ($matchScore['overall_score'] >= 60) { // Only include decent matches
