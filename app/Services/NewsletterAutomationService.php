@@ -2,9 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\User;
 use App\Models\NewsletterSubscriber;
-use App\Services\AiContentGenerationService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -31,14 +29,14 @@ class NewsletterAutomationService
         try {
             // Generate newsletter content
             $newsletterContent = $this->contentService->generateWeeklyNewsletter();
-            
-            if (!$newsletterContent) {
+
+            if (! $newsletterContent) {
                 throw new \Exception('Failed to generate newsletter content');
             }
 
             // Get active subscribers
             $subscribers = $this->getActiveSubscribers();
-            
+
             if ($subscribers->isEmpty()) {
                 return [
                     'success' => false,
@@ -49,7 +47,7 @@ class NewsletterAutomationService
 
             // Send newsletter to subscribers
             $sentCount = $this->sendNewsletterToSubscribers($newsletterContent, $subscribers);
-            
+
             // Update newsletter content status
             $newsletterContent->update([
                 'status' => 'published',
@@ -72,7 +70,7 @@ class NewsletterAutomationService
 
             return [
                 'success' => false,
-                'message' => 'Failed to send newsletter: ' . $e->getMessage(),
+                'message' => 'Failed to send newsletter: '.$e->getMessage(),
                 'subscribers_count' => 0,
             ];
         }
@@ -89,10 +87,10 @@ class NewsletterAutomationService
             try {
                 $this->sendNewsletterToSubscriber($newsletterContent, $subscriber);
                 $sentCount++;
-                
+
                 // Update subscriber's last sent date
                 $subscriber->update(['last_sent_at' => now()]);
-                
+
             } catch (\Exception $e) {
                 Log::error('Failed to send newsletter to subscriber', [
                     'subscriber_id' => $subscriber->id,
@@ -112,7 +110,7 @@ class NewsletterAutomationService
     {
         // In a real implementation, you would use a proper email service
         // For now, we'll just log the action
-        
+
         Log::info('Newsletter sent to subscriber', [
             'subscriber_id' => $subscriber->id,
             'email' => $subscriber->email,
@@ -131,7 +129,7 @@ class NewsletterAutomationService
         return NewsletterSubscriber::where('is_active', true)
             ->where(function ($query) {
                 $query->whereNull('last_sent_at')
-                      ->orWhere('last_sent_at', '<', now()->subWeek());
+                    ->orWhere('last_sent_at', '<', now()->subWeek());
             })
             ->get();
     }
@@ -139,12 +137,12 @@ class NewsletterAutomationService
     /**
      * Add subscriber to newsletter.
      */
-    public function addSubscriber(string $email, string $name = null, array $preferences = []): array
+    public function addSubscriber(string $email, ?string $name = null, array $preferences = []): array
     {
         try {
             // Check if subscriber already exists
             $existingSubscriber = NewsletterSubscriber::where('email', $email)->first();
-            
+
             if ($existingSubscriber) {
                 if ($existingSubscriber->is_active) {
                     return [
@@ -159,7 +157,7 @@ class NewsletterAutomationService
                         'preferences' => $preferences,
                         'subscribed_at' => now(),
                     ]);
-                    
+
                     return [
                         'success' => true,
                         'message' => 'Subscriber reactivated',
@@ -191,7 +189,7 @@ class NewsletterAutomationService
 
             return [
                 'success' => false,
-                'message' => 'Failed to add subscriber: ' . $e->getMessage(),
+                'message' => 'Failed to add subscriber: '.$e->getMessage(),
             ];
         }
     }
@@ -203,8 +201,8 @@ class NewsletterAutomationService
     {
         try {
             $subscriber = NewsletterSubscriber::where('email', $email)->first();
-            
-            if (!$subscriber) {
+
+            if (! $subscriber) {
                 return [
                     'success' => false,
                     'message' => 'Subscriber not found',
@@ -229,7 +227,7 @@ class NewsletterAutomationService
 
             return [
                 'success' => false,
-                'message' => 'Failed to remove subscriber: ' . $e->getMessage(),
+                'message' => 'Failed to remove subscriber: '.$e->getMessage(),
             ];
         }
     }
@@ -242,7 +240,7 @@ class NewsletterAutomationService
         $totalSubscribers = NewsletterSubscriber::count();
         $activeSubscribers = NewsletterSubscriber::where('is_active', true)->count();
         $inactiveSubscribers = NewsletterSubscriber::where('is_active', false)->count();
-        
+
         $recentSubscribers = NewsletterSubscriber::where('subscribed_at', '>=', now()->subWeek())->count();
         $recentUnsubscribes = NewsletterSubscriber::where('unsubscribed_at', '>=', now()->subWeek())->count();
 
@@ -280,8 +278,8 @@ class NewsletterAutomationService
     {
         try {
             $newsletterContent = $this->contentService->generateWeeklyNewsletter();
-            
-            if (!$newsletterContent) {
+
+            if (! $newsletterContent) {
                 throw new \Exception('Failed to generate newsletter content');
             }
 
@@ -308,7 +306,7 @@ class NewsletterAutomationService
 
             return [
                 'success' => false,
-                'message' => 'Failed to send test newsletter: ' . $e->getMessage(),
+                'message' => 'Failed to send test newsletter: '.$e->getMessage(),
             ];
         }
     }
@@ -319,13 +317,13 @@ class NewsletterAutomationService
     public function cleanupInactiveSubscribers(int $daysInactive = 365): int
     {
         $cutoffDate = now()->subDays($daysInactive);
-        
+
         $inactiveSubscribers = NewsletterSubscriber::where('is_active', false)
             ->where('unsubscribed_at', '<', $cutoffDate)
             ->get();
 
         $deletedCount = 0;
-        
+
         foreach ($inactiveSubscribers as $subscriber) {
             $subscriber->delete();
             $deletedCount++;

@@ -36,6 +36,7 @@ class ScrapeJobsCommand extends Command
 
         if ($showStats) {
             $this->showScrapingStats($scrapingService);
+
             return 0;
         }
 
@@ -50,10 +51,12 @@ class ScrapeJobsCommand extends Command
             }
 
             $this->info('✅ Job scraping completed successfully!');
+
             return 0;
 
         } catch (\Exception $e) {
             $this->error('❌ Error scraping jobs: '.$e->getMessage());
+
             return 1;
         }
     }
@@ -66,12 +69,12 @@ class ScrapeJobsCommand extends Command
         if ($source) {
             $this->info("🔍 Scraping jobs from {$source}...");
             $results = $scrapingService->scrapeSource($source);
-            
+
             $this->displayResults($source, $results);
         } else {
             $this->info('🔍 Scraping jobs from all sources...');
             $results = $scrapingService->scrapeAllSources();
-            
+
             $this->displayAllResults($results);
         }
     }
@@ -86,7 +89,7 @@ class ScrapeJobsCommand extends Command
         $this->line("• New jobs: {$results['new']}");
         $this->line("• Updated jobs: {$results['updated']}");
         $this->line("• Skipped jobs: {$results['skipped']}");
-        
+
         if (isset($results['error'])) {
             $this->warn("• Error: {$results['error']}");
         }
@@ -107,10 +110,10 @@ class ScrapeJobsCommand extends Command
         $this->line("• New jobs: {$totalNew}");
         $this->line("• Updated jobs: {$totalUpdated}");
         $this->line("• Skipped jobs: {$totalSkipped}");
-        
+
         $this->newLine();
         $this->info('📊 Results by Source:');
-        
+
         foreach ($results as $source => $sourceResults) {
             $this->line("• {$source}: {$sourceResults['count']} jobs");
         }
@@ -122,15 +125,15 @@ class ScrapeJobsCommand extends Command
     private function showScrapingStats(JobScrapingService $scrapingService): void
     {
         $stats = $scrapingService->getScrapingStats();
-        
+
         $this->info('📊 Job Scraping Statistics:');
         $this->line("• Total scraped jobs: {$stats['total_scraped_jobs']}");
         $this->line("• Active scraped jobs: {$stats['active_scraped_jobs']}");
         $this->line("• Recent scraped jobs (last week): {$stats['recent_scraped_jobs']}");
-        
+
         $this->newLine();
         $this->info('🔧 Available Sources:');
-        
+
         foreach ($stats['sources_enabled'] as $sourceName => $config) {
             $status = $config['enabled'] ? '✅ Enabled' : '❌ Disabled';
             $this->line("• {$sourceName}: {$status}");

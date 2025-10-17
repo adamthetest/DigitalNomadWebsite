@@ -50,7 +50,7 @@ class ScrapeJobs implements ShouldQueue
             if ($this->source) {
                 // Scrape from specific source
                 $results = $scrapingService->scrapeSource($this->source);
-                
+
                 Log::info("Job scraping completed for source: {$this->source}", [
                     'source' => $this->source,
                     'results' => $results,
@@ -58,11 +58,11 @@ class ScrapeJobs implements ShouldQueue
             } else {
                 // Scrape from all sources
                 $results = $scrapingService->scrapeAllSources();
-                
+
                 $totalJobs = array_sum(array_column($results, 'count'));
                 $totalNew = array_sum(array_column($results, 'new'));
                 $totalUpdated = array_sum(array_column($results, 'updated'));
-                
+
                 Log::info('Job scraping completed for all sources', [
                     'total_jobs' => $totalJobs,
                     'total_new' => $totalNew,
@@ -77,7 +77,7 @@ class ScrapeJobs implements ShouldQueue
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            
+
             throw $e;
         }
     }

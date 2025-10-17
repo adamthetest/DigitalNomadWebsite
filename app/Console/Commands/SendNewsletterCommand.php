@@ -42,21 +42,25 @@ class SendNewsletterCommand extends Command
 
         if ($showStats) {
             $this->showNewsletterStats($newsletterService);
+
             return 0;
         }
 
         if ($addSubscriber) {
             $this->addSubscriber($newsletterService, $addSubscriber);
+
             return 0;
         }
 
         if ($removeSubscriber) {
             $this->removeSubscriber($newsletterService, $removeSubscriber);
+
             return 0;
         }
 
         if ($cleanup) {
             $this->cleanupInactiveSubscribers($newsletterService);
+
             return 0;
         }
 
@@ -71,10 +75,12 @@ class SendNewsletterCommand extends Command
             }
 
             $this->info('✅ Newsletter sending completed successfully!');
+
             return 0;
 
         } catch (\Exception $e) {
             $this->error('❌ Error sending newsletter: '.$e->getMessage());
+
             return 1;
         }
     }
@@ -87,12 +93,12 @@ class SendNewsletterCommand extends Command
         if ($testEmail) {
             $this->info("📧 Sending test newsletter to: {$testEmail}");
             $result = $newsletterService->sendTestNewsletter($testEmail);
-            
+
             $this->displayTestResult($result);
         } else {
             $this->info('📧 Sending newsletter to all subscribers...');
             $result = $newsletterService->generateAndSendNewsletter();
-            
+
             $this->displayNewsletterResult($result);
         }
     }
@@ -131,7 +137,7 @@ class SendNewsletterCommand extends Command
     private function showNewsletterStats(NewsletterAutomationService $newsletterService): void
     {
         $stats = $newsletterService->getNewsletterStats();
-        
+
         $this->info('📊 Newsletter Statistics:');
         $this->line("• Total subscribers: {$stats['total_subscribers']}");
         $this->line("• Active subscribers: {$stats['active_subscribers']}");
@@ -139,11 +145,11 @@ class SendNewsletterCommand extends Command
         $this->line("• Recent subscribers (last week): {$stats['recent_subscribers']}");
         $this->line("• Recent unsubscribes (last week): {$stats['recent_unsubscribes']}");
         $this->line("• Growth rate: {$stats['growth_rate']}%");
-        
+
         if ($stats['last_sent_at']) {
             $this->line("• Last sent: {$stats['last_sent_at']}");
         } else {
-            $this->line("• Last sent: Never");
+            $this->line('• Last sent: Never');
         }
     }
 
@@ -153,11 +159,11 @@ class SendNewsletterCommand extends Command
     private function addSubscriber(NewsletterAutomationService $newsletterService, string $email): void
     {
         $this->info("📧 Adding subscriber: {$email}");
-        
+
         $result = $newsletterService->addSubscriber($email);
-        
+
         if ($result['success']) {
-            $this->info("✅ Subscriber added successfully!");
+            $this->info('✅ Subscriber added successfully!');
             $this->line("• Subscriber ID: {$result['subscriber_id']}");
         } else {
             $this->error("❌ Failed to add subscriber: {$result['message']}");
@@ -170,11 +176,11 @@ class SendNewsletterCommand extends Command
     private function removeSubscriber(NewsletterAutomationService $newsletterService, string $email): void
     {
         $this->info("📧 Removing subscriber: {$email}");
-        
+
         $result = $newsletterService->removeSubscriber($email);
-        
+
         if ($result['success']) {
-            $this->info("✅ Subscriber removed successfully!");
+            $this->info('✅ Subscriber removed successfully!');
         } else {
             $this->error("❌ Failed to remove subscriber: {$result['message']}");
         }
@@ -186,10 +192,10 @@ class SendNewsletterCommand extends Command
     private function cleanupInactiveSubscribers(NewsletterAutomationService $newsletterService): void
     {
         $this->info('🧹 Cleaning up inactive subscribers...');
-        
+
         $deletedCount = $newsletterService->cleanupInactiveSubscribers();
-        
-        $this->info("✅ Cleanup completed!");
+
+        $this->info('✅ Cleanup completed!');
         $this->line("• Inactive subscribers deleted: {$deletedCount}");
     }
 }

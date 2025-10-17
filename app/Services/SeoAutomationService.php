@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\Article;
 use App\Models\City;
 use App\Models\Job;
-use App\Models\Article;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 
@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 class SeoAutomationService
 {
     protected string $sitemapPath = 'public/sitemaps';
+
     protected array $sitemapTypes = ['cities', 'jobs', 'articles', 'static'];
 
     /**
@@ -25,9 +26,9 @@ class SeoAutomationService
     public function generateAllSitemaps(): array
     {
         $results = [];
-        
+
         // Ensure sitemap directory exists
-        if (!File::exists($this->sitemapPath)) {
+        if (! File::exists($this->sitemapPath)) {
             File::makeDirectory($this->sitemapPath, 0755, true);
         }
 
@@ -35,7 +36,7 @@ class SeoAutomationService
             try {
                 $result = $this->generateSitemap($type);
                 $results[$type] = $result;
-                
+
                 Log::info("Generated {$type} sitemap", [
                     'type' => $type,
                     'urls_count' => $result['urls_count'],
@@ -46,7 +47,7 @@ class SeoAutomationService
                     'type' => $type,
                     'error' => $e->getMessage(),
                 ]);
-                
+
                 $results[$type] = [
                     'success' => false,
                     'error' => $e->getMessage(),
@@ -76,9 +77,9 @@ class SeoAutomationService
         $xml = $this->buildSitemapXml($urls);
         $filename = "sitemap-{$type}.xml";
         $filepath = "{$this->sitemapPath}/{$filename}";
-        
+
         File::put($filepath, $xml);
-        
+
         return [
             'success' => true,
             'filename' => $filename,
@@ -94,20 +95,20 @@ class SeoAutomationService
      */
     private function generateSitemapIndex(array $results): void
     {
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
-        
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+        $xml .= '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
+
         foreach ($results as $type => $result) {
             if ($result['success'] ?? false) {
-                $xml .= '  <sitemap>' . "\n";
-                $xml .= '    <loc>' . url("sitemaps/sitemap-{$type}.xml") . '</loc>' . "\n";
-                $xml .= '    <lastmod>' . now()->toISOString() . '</lastmod>' . "\n";
-                $xml .= '  </sitemap>' . "\n";
+                $xml .= '  <sitemap>'."\n";
+                $xml .= '    <loc>'.url("sitemaps/sitemap-{$type}.xml").'</loc>'."\n";
+                $xml .= '    <lastmod>'.now()->toISOString().'</lastmod>'."\n";
+                $xml .= '  </sitemap>'."\n";
             }
         }
-        
+
         $xml .= '</sitemapindex>';
-        
+
         File::put("{$this->sitemapPath}/sitemap.xml", $xml);
     }
 
@@ -118,7 +119,7 @@ class SeoAutomationService
     {
         $cities = City::where('is_active', true)->get();
         $urls = [];
-        
+
         foreach ($cities as $city) {
             $urls[] = [
                 'loc' => url("/cities/{$city->slug}"),
@@ -127,7 +128,7 @@ class SeoAutomationService
                 'priority' => '0.8',
             ];
         }
-        
+
         return $urls;
     }
 
@@ -140,9 +141,9 @@ class SeoAutomationService
             ->where('published', true)
             ->where('expires_at', '>', now())
             ->get();
-        
+
         $urls = [];
-        
+
         foreach ($jobs as $job) {
             $urls[] = [
                 'loc' => url("/jobs/{$job->id}"),
@@ -151,7 +152,7 @@ class SeoAutomationService
                 'priority' => '0.7',
             ];
         }
-        
+
         return $urls;
     }
 
@@ -163,9 +164,9 @@ class SeoAutomationService
         $articles = Article::where('is_active', true)
             ->where('published', true)
             ->get();
-        
+
         $urls = [];
-        
+
         foreach ($articles as $article) {
             $urls[] = [
                 'loc' => url("/articles/{$article->slug}"),
@@ -174,7 +175,7 @@ class SeoAutomationService
                 'priority' => '0.6',
             ];
         }
-        
+
         return $urls;
     }
 
@@ -228,20 +229,20 @@ class SeoAutomationService
      */
     private function buildSitemapXml(array $urls): string
     {
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
-        
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'."\n";
+
         foreach ($urls as $url) {
-            $xml .= '  <url>' . "\n";
-            $xml .= '    <loc>' . htmlspecialchars($url['loc']) . '</loc>' . "\n";
-            $xml .= '    <lastmod>' . $url['lastmod'] . '</lastmod>' . "\n";
-            $xml .= '    <changefreq>' . $url['changefreq'] . '</changefreq>' . "\n";
-            $xml .= '    <priority>' . $url['priority'] . '</priority>' . "\n";
-            $xml .= '  </url>' . "\n";
+            $xml .= '  <url>'."\n";
+            $xml .= '    <loc>'.htmlspecialchars($url['loc']).'</loc>'."\n";
+            $xml .= '    <lastmod>'.$url['lastmod'].'</lastmod>'."\n";
+            $xml .= '    <changefreq>'.$url['changefreq'].'</changefreq>'."\n";
+            $xml .= '    <priority>'.$url['priority'].'</priority>'."\n";
+            $xml .= '  </url>'."\n";
         }
-        
+
         $xml .= '</urlset>';
-        
+
         return $xml;
     }
 
@@ -256,10 +257,10 @@ class SeoAutomationService
         $robotsContent .= "Disallow: /api/\n";
         $robotsContent .= "Disallow: /storage/\n";
         $robotsContent .= "\n";
-        $robotsContent .= "Sitemap: " . url('sitemaps/sitemap.xml') . "\n";
-        
+        $robotsContent .= 'Sitemap: '.url('sitemaps/sitemap.xml')."\n";
+
         File::put('public/robots.txt', $robotsContent);
-        
+
         return [
             'success' => true,
             'filepath' => 'public/robots.txt',
@@ -283,7 +284,7 @@ class SeoAutomationService
         $cities = City::where('is_active', true)
             ->whereNull('meta_description')
             ->get();
-        
+
         foreach ($cities as $city) {
             $metaDescription = $this->generateCityMetaDescription($city);
             $city->update(['meta_description' => $metaDescription]);
@@ -294,7 +295,7 @@ class SeoAutomationService
         $jobs = Job::where('is_active', true)
             ->whereNull('meta_description')
             ->get();
-        
+
         foreach ($jobs as $job) {
             $metaDescription = $this->generateJobMetaDescription($job);
             $job->update(['meta_description' => $metaDescription]);
@@ -305,7 +306,7 @@ class SeoAutomationService
         $articles = Article::where('is_active', true)
             ->whereNull('meta_description')
             ->get();
-        
+
         foreach ($articles as $article) {
             $metaDescription = $this->generateArticleMetaDescription($article);
             $article->update(['meta_description' => $metaDescription]);
@@ -324,8 +325,8 @@ class SeoAutomationService
         $description .= "Cost of living: {$city->cost_of_living_index}, ";
         $description .= "Internet: {$city->internet_speed_mbps} Mbps, ";
         $description .= "Safety: {$city->safety_score}/10. ";
-        $description .= "Find coworking spaces, accommodation, and nomad tips.";
-        
+        $description .= 'Find coworking spaces, accommodation, and nomad tips.';
+
         return substr($description, 0, 160);
     }
 
@@ -337,13 +338,13 @@ class SeoAutomationService
         $description = "{$job->title} at {$job->company->name}. ";
         $description .= "Location: {$job->location}. ";
         $description .= "Type: {$job->type}. ";
-        
+
         if ($job->salary_min || $job->salary_max) {
-            $description .= "Salary: " . ($job->formatted_salary ?? 'Competitive') . ". ";
+            $description .= 'Salary: '.($job->formatted_salary ?? 'Competitive').'. ';
         }
-        
-        $description .= "Apply now for remote work opportunities.";
-        
+
+        $description .= 'Apply now for remote work opportunities.';
+
         return substr($description, 0, 160);
     }
 
@@ -354,7 +355,7 @@ class SeoAutomationService
     {
         $description = strip_tags($article->excerpt ?? $article->content);
         $description = preg_replace('/\s+/', ' ', $description);
-        
+
         return substr(trim($description), 0, 160);
     }
 
@@ -365,7 +366,7 @@ class SeoAutomationService
     {
         $sitemapFiles = File::glob("{$this->sitemapPath}/*.xml");
         $totalSitemapSize = 0;
-        
+
         foreach ($sitemapFiles as $file) {
             $totalSitemapSize += File::size($file);
         }
@@ -386,11 +387,11 @@ class SeoAutomationService
     private function getLastGeneratedTime(): ?string
     {
         $sitemapFile = "{$this->sitemapPath}/sitemap.xml";
-        
+
         if (File::exists($sitemapFile)) {
             return File::lastModified($sitemapFile);
         }
-        
+
         return null;
     }
 
@@ -401,14 +402,14 @@ class SeoAutomationService
     {
         $files = File::glob("{$this->sitemapPath}/*.xml");
         $deleted = 0;
-        
+
         foreach ($files as $file) {
             if (File::lastModified($file) < now()->subWeek()->timestamp) {
                 File::delete($file);
                 $deleted++;
             }
         }
-        
+
         return $deleted;
     }
 }

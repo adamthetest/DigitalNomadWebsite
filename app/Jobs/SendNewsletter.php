@@ -50,7 +50,7 @@ class SendNewsletter implements ShouldQueue
             if ($this->testEmail) {
                 // Send test newsletter
                 $result = $newsletterService->sendTestNewsletter($this->testEmail);
-                
+
                 Log::info('Test newsletter sent', [
                     'test_email' => $this->testEmail,
                     'result' => $result,
@@ -58,7 +58,7 @@ class SendNewsletter implements ShouldQueue
             } else {
                 // Send newsletter to all subscribers
                 $result = $newsletterService->generateAndSendNewsletter();
-                
+
                 Log::info('Newsletter sent to all subscribers', [
                     'subscribers_count' => $result['subscribers_count'],
                     'sent_count' => $result['sent_count'] ?? 0,
@@ -72,7 +72,7 @@ class SendNewsletter implements ShouldQueue
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            
+
             throw $e;
         }
     }

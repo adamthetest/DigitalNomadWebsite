@@ -28,6 +28,7 @@ class JobScrapingService
     ];
 
     protected int $maxJobsPerSource = 50;
+
     protected int $timeout = 30;
 
     /**
@@ -36,16 +37,16 @@ class JobScrapingService
     public function scrapeAllSources(): array
     {
         $results = [];
-        
+
         foreach ($this->sources as $sourceName => $config) {
-            if (!$config['enabled']) {
+            if (! $config['enabled']) {
                 continue;
             }
 
             try {
                 $jobs = $this->scrapeSource($sourceName);
                 $results[$sourceName] = $jobs;
-                
+
                 Log::info("Scraped {$jobs['count']} jobs from {$sourceName}", [
                     'source' => $sourceName,
                     'new_jobs' => $jobs['new'],
@@ -57,7 +58,7 @@ class JobScrapingService
                     'source' => $sourceName,
                     'error' => $e->getMessage(),
                 ]);
-                
+
                 $results[$sourceName] = [
                     'count' => 0,
                     'new' => 0,
@@ -76,12 +77,12 @@ class JobScrapingService
      */
     public function scrapeSource(string $sourceName): array
     {
-        if (!isset($this->sources[$sourceName])) {
+        if (! isset($this->sources[$sourceName])) {
             throw new \InvalidArgumentException("Unknown source: {$sourceName}");
         }
 
         $config = $this->sources[$sourceName];
-        
+
         return match ($sourceName) {
             'remoteok' => $this->scrapeRemoteOK($config['url']),
             'weworkremotely' => $this->scrapeWeWorkRemotely($config['url']),
@@ -95,25 +96,26 @@ class JobScrapingService
     private function scrapeRemoteOK(string $url): array
     {
         $response = Http::timeout($this->timeout)->get($url);
-        
-        if (!$response->successful()) {
+
+        if (! $response->successful()) {
             throw new \Exception("Failed to fetch RemoteOK data: HTTP {$response->status()}");
         }
 
         $data = $response->json();
-        
-        if (!is_array($data) || empty($data)) {
+
+        if (! is_array($data) || empty($data)) {
             return ['count' => 0, 'new' => 0, 'updated' => 0, 'skipped' => 0];
         }
 
         // Remove the first element which is usually metadata
         $jobs = array_slice($data, 1, $this->maxJobsPerSource);
-        
+
         $results = ['count' => 0, 'new' => 0, 'updated' => 0, 'skipped' => 0];
 
         foreach ($jobs as $jobData) {
-            if (!$this->isValidRemoteOKJob($jobData)) {
+            if (! $this->isValidRemoteOKJob($jobData)) {
                 $results['skipped']++;
+
                 continue;
             }
 
@@ -139,26 +141,27 @@ class JobScrapingService
     private function scrapeWeWorkRemotely(string $url): array
     {
         $response = Http::timeout($this->timeout)->get($url);
-        
-        if (!$response->successful()) {
+
+        if (! $response->successful()) {
             throw new \Exception("Failed to fetch We Work Remotely data: HTTP {$response->status()}");
         }
 
         $xml = simplexml_load_string($response->body());
-        
-        if (!$xml || !isset($xml->channel->item)) {
+
+        if (! $xml || ! isset($xml->channel->item)) {
             return ['count' => 0, 'new' => 0, 'updated' => 0, 'skipped' => 0];
         }
 
         $items = array_slice($xml->channel->item, 0, $this->maxJobsPerSource);
-        
+
         $results = ['count' => 0, 'new' => 0, 'updated' => 0, 'skipped' => 0];
 
         foreach ($items as $item) {
             $jobData = $this->parseWWRItem($item);
-            
-            if (!$this->isValidWWRJob($jobData)) {
+
+            if (! $this->isValidWWRJob($jobData)) {
                 $results['skipped']++;
+
                 continue;
             }
 
@@ -184,7 +187,7 @@ class JobScrapingService
     private function processRemoteOKJob(array $jobData): ?Job
     {
         $company = $this->findOrCreateCompany($jobData['company'], $jobData['company_logo'] ?? null);
-        
+
         $jobAttributes = [
             'title' => $jobData['position'],
             'description' => $this->cleanDescription($jobData['description'] ?? ''),
@@ -198,7 +201,7 @@ class JobScrapingService
             'salary_period' => 'yearly',
             'tags' => $this->processTags($jobData['tags'] ?? []),
             'external_url' => $jobData['url'] ?? null,
-            'external_id' => 'remoteok_' . ($jobData['id'] ?? Str::random(10)),
+            'external_id' => 'remoteok_'.($jobData['id'] ?? Str::random(10)),
             'source' => 'remoteok',
             'is_active' => true,
             'published' => true,
@@ -218,7 +221,7 @@ class JobScrapingService
     private function processWWRJob(array $jobData): ?Job
     {
         $company = $this->findOrCreateCompany($jobData['company'], null);
-        
+
         $jobAttributes = [
             'title' => $jobData['title'],
             'description' => $this->cleanDescription($jobData['description']),
@@ -232,7 +235,7 @@ class JobScrapingService
             'salary_period' => 'yearly',
             'tags' => $this->processTags($jobData['tags'] ?? []),
             'external_url' => $jobData['url'],
-            'external_id' => 'wwr_' . Str::slug($jobData['title'] . '_' . $jobData['company']),
+            'external_id' => 'wwr_'.Str::slug($jobData['title'].'_'.$jobData['company']),
             'source' => 'weworkremotely',
             'is_active' => true,
             'published' => true,
@@ -252,8 +255,8 @@ class JobScrapingService
     private function findOrCreateCompany(string $name, ?string $logoUrl = null): Company
     {
         $company = Company::where('name', $name)->first();
-        
-        if (!$company) {
+
+        if (! $company) {
             $company = Company::create([
                 'name' => $name,
                 'logo_url' => $logoUrl,
@@ -263,7 +266,7 @@ class JobScrapingService
                 'industry' => 'technology',
                 'is_active' => true,
             ]);
-        } elseif ($logoUrl && !$company->logo_url) {
+        } elseif ($logoUrl && ! $company->logo_url) {
             $company->update(['logo_url' => $logoUrl]);
         }
 
@@ -277,7 +280,7 @@ class JobScrapingService
     {
         $description = strip_tags((string) $item->description);
         $title = (string) $item->title;
-        
+
         // Extract company name from title (usually in format "Job Title at Company")
         $company = 'Unknown Company';
         if (preg_match('/at\s+(.+)$/', $title, $matches)) {
@@ -300,9 +303,9 @@ class JobScrapingService
      */
     private function isValidRemoteOKJob(array $jobData): bool
     {
-        return !empty($jobData['position']) && 
-               !empty($jobData['company']) &&
-               !empty($jobData['url']);
+        return ! empty($jobData['position']) &&
+               ! empty($jobData['company']) &&
+               ! empty($jobData['url']);
     }
 
     /**
@@ -310,9 +313,9 @@ class JobScrapingService
      */
     private function isValidWWRJob(array $jobData): bool
     {
-        return !empty($jobData['title']) && 
-               !empty($jobData['company']) &&
-               !empty($jobData['url']);
+        return ! empty($jobData['title']) &&
+               ! empty($jobData['company']) &&
+               ! empty($jobData['url']);
     }
 
     /**
@@ -323,7 +326,7 @@ class JobScrapingService
         // Remove HTML tags and clean up whitespace
         $description = strip_tags($description);
         $description = preg_replace('/\s+/', ' ', $description);
-        
+
         return trim($description);
     }
 
@@ -333,19 +336,19 @@ class JobScrapingService
     private function mapJobType(array $tags): string
     {
         $tagString = strtolower(implode(' ', $tags));
-        
+
         if (str_contains($tagString, 'full-time') || str_contains($tagString, 'fulltime')) {
             return 'full_time';
         }
-        
+
         if (str_contains($tagString, 'part-time') || str_contains($tagString, 'parttime')) {
             return 'part_time';
         }
-        
+
         if (str_contains($tagString, 'contract') || str_contains($tagString, 'freelance')) {
             return 'contract';
         }
-        
+
         return 'full_time'; // Default
     }
 
@@ -355,14 +358,14 @@ class JobScrapingService
     private function processTags(array $tags): array
     {
         $processedTags = [];
-        
+
         foreach ($tags as $tag) {
             $cleanTag = strtolower(trim($tag));
-            if (!empty($cleanTag) && !in_array($cleanTag, ['full-time', 'part-time', 'contract'])) {
+            if (! empty($cleanTag) && ! in_array($cleanTag, ['full-time', 'part-time', 'contract'])) {
                 $processedTags[] = $cleanTag;
             }
         }
-        
+
         return array_unique(array_slice($processedTags, 0, 10)); // Max 10 tags
     }
 
@@ -372,17 +375,17 @@ class JobScrapingService
     private function extractSalaryMin(array $jobData): ?int
     {
         $description = strtolower($jobData['description'] ?? '');
-        
+
         // Look for salary ranges like "$50k-80k", "$50,000-80,000"
         if (preg_match('/\$(\d+(?:,\d{3})*(?:k)?)\s*[-–]\s*\$(\d+(?:,\d{3})*(?:k)?)/', $description, $matches)) {
             return $this->parseSalary($matches[1]);
         }
-        
+
         // Look for minimum salary indicators
         if (preg_match('/starting at \$(\d+(?:,\d{3})*(?:k)?)/', $description, $matches)) {
             return $this->parseSalary($matches[1]);
         }
-        
+
         return null;
     }
 
@@ -392,12 +395,12 @@ class JobScrapingService
     private function extractSalaryMax(array $jobData): ?int
     {
         $description = strtolower($jobData['description'] ?? '');
-        
+
         // Look for salary ranges like "$50k-80k", "$50,000-80,000"
         if (preg_match('/\$(\d+(?:,\d{3})*(?:k)?)\s*[-–]\s*\$(\d+(?:,\d{3})*(?:k)?)/', $description, $matches)) {
             return $this->parseSalary($matches[2]);
         }
-        
+
         return null;
     }
 
@@ -407,11 +410,11 @@ class JobScrapingService
     private function parseSalary(string $salary): int
     {
         $salary = str_replace(',', '', $salary);
-        
+
         if (str_ends_with($salary, 'k')) {
             return (int) str_replace('k', '', $salary) * 1000;
         }
-        
+
         return (int) $salary;
     }
 
@@ -422,15 +425,15 @@ class JobScrapingService
     {
         $description = strtolower($jobData['description'] ?? '');
         $tags = array_map('strtolower', $jobData['tags'] ?? []);
-        
+
         $visaKeywords = ['visa', 'sponsor', 'sponsorship', 'relocation', 'immigration'];
-        
+
         foreach ($visaKeywords as $keyword) {
             if (str_contains($description, $keyword) || in_array($keyword, $tags)) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -443,7 +446,7 @@ class JobScrapingService
         $activeJobs = Job::whereIn('source', ['remoteok', 'weworkremotely'])
             ->where('is_active', true)
             ->count();
-        
+
         $recentJobs = Job::whereIn('source', ['remoteok', 'weworkremotely'])
             ->where('created_at', '>=', now()->subWeek())
             ->count();
@@ -452,7 +455,7 @@ class JobScrapingService
             'total_scraped_jobs' => $totalJobs,
             'active_scraped_jobs' => $activeJobs,
             'recent_scraped_jobs' => $recentJobs,
-            'sources_enabled' => array_filter($this->sources, fn($config) => $config['enabled']),
+            'sources_enabled' => array_filter($this->sources, fn ($config) => $config['enabled']),
         ];
     }
 
@@ -461,12 +464,12 @@ class JobScrapingService
      */
     public function toggleSource(string $sourceName, bool $enabled): bool
     {
-        if (!isset($this->sources[$sourceName])) {
+        if (! isset($this->sources[$sourceName])) {
             return false;
         }
 
         $this->sources[$sourceName]['enabled'] = $enabled;
-        
+
         return true;
     }
 

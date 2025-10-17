@@ -50,7 +50,7 @@ class ValidateAffiliateLinks implements ShouldQueue
             if ($this->category) {
                 // Validate links from specific category
                 $results = $validationService->validateLinksByCategory($this->category);
-                
+
                 Log::info("Affiliate link validation completed for category: {$this->category}", [
                     'category' => $this->category,
                     'results' => $results,
@@ -58,7 +58,7 @@ class ValidateAffiliateLinks implements ShouldQueue
             } else {
                 // Validate all links
                 $results = $validationService->validateAllLinks();
-                
+
                 Log::info('Affiliate link validation completed for all categories', [
                     'total' => $results['total'],
                     'valid' => $results['valid'],
@@ -73,7 +73,7 @@ class ValidateAffiliateLinks implements ShouldQueue
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            
+
             throw $e;
         }
     }

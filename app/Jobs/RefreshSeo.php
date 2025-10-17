@@ -62,7 +62,7 @@ class RefreshSeo implements ShouldQueue
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            
+
             throw $e;
         }
     }
@@ -73,9 +73,9 @@ class RefreshSeo implements ShouldQueue
     private function generateSitemaps(SeoAutomationService $seoService): void
     {
         $results = $seoService->generateAllSitemaps();
-        
+
         $totalUrls = array_sum(array_column($results, 'urls_count'));
-        
+
         Log::info('Sitemaps generated successfully', [
             'total_urls' => $totalUrls,
             'results' => $results,
@@ -88,7 +88,7 @@ class RefreshSeo implements ShouldQueue
     private function generateRobots(SeoAutomationService $seoService): void
     {
         $result = $seoService->generateRobotsTxt();
-        
+
         Log::info('Robots.txt generated successfully', [
             'file_size' => $result['file_size'],
         ]);
@@ -100,9 +100,9 @@ class RefreshSeo implements ShouldQueue
     private function updateMetaDescriptions(SeoAutomationService $seoService): void
     {
         $results = $seoService->updateMetaDescriptions();
-        
+
         $totalUpdated = array_sum($results);
-        
+
         Log::info('Meta descriptions updated successfully', [
             'total_updated' => $totalUpdated,
             'results' => $results,
@@ -115,7 +115,7 @@ class RefreshSeo implements ShouldQueue
     private function cleanupOldFiles(SeoAutomationService $seoService): void
     {
         $deleted = $seoService->cleanupOldSitemaps();
-        
+
         Log::info('Old sitemap files cleaned up', [
             'files_deleted' => $deleted,
         ]);
@@ -128,16 +128,16 @@ class RefreshSeo implements ShouldQueue
     {
         // Generate sitemaps
         $this->generateSitemaps($seoService);
-        
+
         // Generate robots.txt
         $this->generateRobots($seoService);
-        
+
         // Update meta descriptions
         $this->updateMetaDescriptions($seoService);
-        
+
         // Cleanup old files
         $this->cleanupOldFiles($seoService);
-        
+
         Log::info('All SEO tasks completed successfully');
     }
 

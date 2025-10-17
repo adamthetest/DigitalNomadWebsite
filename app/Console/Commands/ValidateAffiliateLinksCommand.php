@@ -38,11 +38,13 @@ class ValidateAffiliateLinksCommand extends Command
 
         if ($showStats) {
             $this->showValidationStats($validationService);
+
             return 0;
         }
 
         if ($generateReport) {
             $this->generateValidationReport($validationService);
+
             return 0;
         }
 
@@ -57,10 +59,12 @@ class ValidateAffiliateLinksCommand extends Command
             }
 
             $this->info('✅ Affiliate link validation completed successfully!');
+
             return 0;
 
         } catch (\Exception $e) {
             $this->error('❌ Error validating affiliate links: '.$e->getMessage());
+
             return 1;
         }
     }
@@ -73,12 +77,12 @@ class ValidateAffiliateLinksCommand extends Command
         if ($category) {
             $this->info("🔍 Validating affiliate links for category: {$category}...");
             $results = $validationService->validateLinksByCategory($category);
-            
+
             $this->displayCategoryResults($category, $results);
         } else {
             $this->info('🔍 Validating all affiliate links...');
             $results = $validationService->validateAllLinks();
-            
+
             $this->displayAllResults($results);
         }
     }
@@ -93,7 +97,7 @@ class ValidateAffiliateLinksCommand extends Command
         $this->line("• Valid links: {$results['valid']}");
         $this->line("• Invalid links: {$results['invalid']}");
         $this->line("• Errors: {$results['errors']}");
-        
+
         $successRate = $results['total'] > 0 ? round(($results['valid'] / $results['total']) * 100, 1) : 0;
         $this->line("• Success rate: {$successRate}%");
     }
@@ -108,13 +112,13 @@ class ValidateAffiliateLinksCommand extends Command
         $this->line("• Valid links: {$results['valid']}");
         $this->line("• Invalid links: {$results['invalid']}");
         $this->line("• Errors: {$results['errors']}");
-        
+
         $successRate = $results['total'] > 0 ? round(($results['valid'] / $results['total']) * 100, 1) : 0;
         $this->line("• Success rate: {$successRate}%");
-        
+
         $this->newLine();
         $this->info('📊 Detailed Results:');
-        
+
         foreach ($results['details'] as $detail) {
             $status = match ($detail['status']) {
                 'valid' => '✅',
@@ -122,17 +126,17 @@ class ValidateAffiliateLinksCommand extends Command
                 'error' => '⚠️',
                 default => '❓',
             };
-            
+
             $this->line("• {$status} {$detail['url']}");
-            
+
             if (isset($detail['status_code'])) {
                 $this->line("  Status: {$detail['status_code']}");
             }
-            
+
             if (isset($detail['response_time_ms'])) {
                 $this->line("  Response time: {$detail['response_time_ms']}ms");
             }
-            
+
             if (isset($detail['error'])) {
                 $this->line("  Error: {$detail['error']}");
             }
@@ -145,7 +149,7 @@ class ValidateAffiliateLinksCommand extends Command
     private function showValidationStats(AffiliateLinkValidationService $validationService): void
     {
         $stats = $validationService->getValidationStats();
-        
+
         $this->info('📊 Affiliate Link Validation Statistics:');
         $this->line("• Total links: {$stats['total_links']}");
         $this->line("• Active links: {$stats['active_links']}");
@@ -163,19 +167,19 @@ class ValidateAffiliateLinksCommand extends Command
     private function generateValidationReport(AffiliateLinkValidationService $validationService): void
     {
         $this->info('📋 Generating validation report...');
-        
+
         $report = $validationService->generateValidationReport();
-        
+
         $this->info('📊 Validation Report Generated:');
         $this->line("• Generated at: {$report['generated_at']}");
         $this->line("• Total links: {$report['statistics']['total_links']}");
         $this->line("• Valid links: {$report['statistics']['valid_links']}");
         $this->line("• Invalid links: {$report['statistics']['invalid_links']}");
         $this->line("• Validation rate: {$report['statistics']['validation_rate']}%");
-        
+
         $this->newLine();
         $this->info('💡 Recommendations:');
-        
+
         foreach ($report['recommendations'] as $recommendation) {
             $this->line("• {$recommendation}");
         }

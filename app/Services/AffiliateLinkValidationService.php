@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Log;
 class AffiliateLinkValidationService
 {
     protected int $timeout = 10;
+
     protected array $validStatusCodes = [200, 301, 302, 303, 307, 308];
 
     /**
@@ -35,7 +36,7 @@ class AffiliateLinkValidationService
             try {
                 $validation = $this->validateLink($link);
                 $results['details'][] = $validation;
-                
+
                 if ($validation['status'] === 'valid') {
                     $results['valid']++;
                 } elseif ($validation['status'] === 'invalid') {
@@ -49,7 +50,7 @@ class AffiliateLinkValidationService
                     'url' => $link->url,
                     'error' => $e->getMessage(),
                 ]);
-                
+
                 $results['errors']++;
                 $results['details'][] = [
                     'link_id' => $link->id,
@@ -69,7 +70,7 @@ class AffiliateLinkValidationService
     public function validateLink(AffiliateLink $link): array
     {
         $startTime = microtime(true);
-        
+
         try {
             $response = Http::timeout($this->timeout)
                 ->withHeaders([
@@ -78,9 +79,9 @@ class AffiliateLinkValidationService
                 ->get($link->url);
 
             $responseTime = round((microtime(true) - $startTime) * 1000, 2);
-            
+
             $isValid = $this->isValidResponse($response);
-            
+
             // Update link status
             $link->update([
                 'last_checked_at' => now(),
@@ -100,7 +101,7 @@ class AffiliateLinkValidationService
 
         } catch (\Exception $e) {
             $responseTime = round((microtime(true) - $startTime) * 1000, 2);
-            
+
             // Update link status
             $link->update([
                 'last_checked_at' => now(),
@@ -142,7 +143,7 @@ class AffiliateLinkValidationService
             try {
                 $validation = $this->validateLink($link);
                 $results['details'][] = $validation;
-                
+
                 if ($validation['status'] === 'valid') {
                     $results['valid']++;
                 } elseif ($validation['status'] === 'invalid') {
@@ -169,13 +170,13 @@ class AffiliateLinkValidationService
      */
     private function isValidResponse($response): bool
     {
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             return false;
         }
 
         $statusCode = $response->status();
-        
-        if (!in_array($statusCode, $this->validStatusCodes)) {
+
+        if (! in_array($statusCode, $this->validStatusCodes)) {
             return false;
         }
 
@@ -206,7 +207,7 @@ class AffiliateLinkValidationService
     private function getRedirectUrl($response): ?string
     {
         $statusCode = $response->status();
-        
+
         if (in_array($statusCode, [301, 302, 303, 307, 308])) {
             return $response->header('Location');
         }
@@ -223,7 +224,7 @@ class AffiliateLinkValidationService
         $activeLinks = AffiliateLink::where('is_active', true)->count();
         $validLinks = AffiliateLink::where('is_valid', true)->count();
         $invalidLinks = AffiliateLink::where('is_valid', false)->count();
-        
+
         $recentlyChecked = AffiliateLink::where('last_checked_at', '>=', now()->subDay())->count();
         $neverChecked = AffiliateLink::whereNull('last_checked_at')->count();
 
@@ -250,7 +251,7 @@ class AffiliateLinkValidationService
         return AffiliateLink::where('is_active', true)
             ->where(function ($query) {
                 $query->whereNull('last_checked_at')
-                      ->orWhere('last_checked_at', '<', now()->subWeek());
+                    ->orWhere('last_checked_at', '<', now()->subWeek());
             })
             ->orderBy('last_checked_at', 'asc')
             ->limit($limit)

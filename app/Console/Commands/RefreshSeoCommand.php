@@ -36,6 +36,7 @@ class RefreshSeoCommand extends Command
 
         if ($showStats) {
             $this->showSeoStats($seoService);
+
             return 0;
         }
 
@@ -50,10 +51,12 @@ class RefreshSeoCommand extends Command
             }
 
             $this->info('✅ SEO refresh completed successfully!');
+
             return 0;
 
         } catch (\Exception $e) {
             $this->error('❌ Error refreshing SEO: '.$e->getMessage());
+
             return 1;
         }
     }
@@ -79,14 +82,14 @@ class RefreshSeoCommand extends Command
     private function generateSitemaps(SeoAutomationService $seoService): void
     {
         $this->info('🗺️ Generating sitemaps...');
-        
+
         $results = $seoService->generateAllSitemaps();
-        
+
         $totalUrls = array_sum(array_column($results, 'urls_count'));
-        
-        $this->info("📊 Sitemaps generated successfully:");
+
+        $this->info('📊 Sitemaps generated successfully:');
         $this->line("• Total URLs: {$totalUrls}");
-        
+
         foreach ($results as $type => $result) {
             if ($result['success'] ?? false) {
                 $this->line("• {$type}: {$result['urls_count']} URLs, {$result['file_size']} bytes");
@@ -102,10 +105,10 @@ class RefreshSeoCommand extends Command
     private function generateRobots(SeoAutomationService $seoService): void
     {
         $this->info('🤖 Generating robots.txt...');
-        
+
         $result = $seoService->generateRobotsTxt();
-        
-        $this->info("📊 Robots.txt generated successfully:");
+
+        $this->info('📊 Robots.txt generated successfully:');
         $this->line("• File size: {$result['file_size']} bytes");
         $this->line("• Location: {$result['filepath']}");
     }
@@ -116,12 +119,12 @@ class RefreshSeoCommand extends Command
     private function updateMetaDescriptions(SeoAutomationService $seoService): void
     {
         $this->info('📝 Updating meta descriptions...');
-        
+
         $results = $seoService->updateMetaDescriptions();
-        
+
         $totalUpdated = array_sum($results);
-        
-        $this->info("📊 Meta descriptions updated successfully:");
+
+        $this->info('📊 Meta descriptions updated successfully:');
         $this->line("• Cities updated: {$results['cities_updated']}");
         $this->line("• Jobs updated: {$results['jobs_updated']}");
         $this->line("• Articles updated: {$results['articles_updated']}");
@@ -134,10 +137,10 @@ class RefreshSeoCommand extends Command
     private function cleanupOldFiles(SeoAutomationService $seoService): void
     {
         $this->info('🧹 Cleaning up old sitemap files...');
-        
+
         $deleted = $seoService->cleanupOldSitemaps();
-        
-        $this->info("📊 Old files cleaned up:");
+
+        $this->info('📊 Old files cleaned up:');
         $this->line("• Files deleted: {$deleted}");
     }
 
@@ -147,22 +150,22 @@ class RefreshSeoCommand extends Command
     private function performAllTasks(SeoAutomationService $seoService): void
     {
         $this->info('🔄 Performing all SEO tasks...');
-        
+
         // Generate sitemaps
         $this->generateSitemaps($seoService);
         $this->newLine();
-        
+
         // Generate robots.txt
         $this->generateRobots($seoService);
         $this->newLine();
-        
+
         // Update meta descriptions
         $this->updateMetaDescriptions($seoService);
         $this->newLine();
-        
+
         // Cleanup old files
         $this->cleanupOldFiles($seoService);
-        
+
         $this->info('✅ All SEO tasks completed successfully!');
     }
 
@@ -172,18 +175,18 @@ class RefreshSeoCommand extends Command
     private function showSeoStats(SeoAutomationService $seoService): void
     {
         $stats = $seoService->getSeoStats();
-        
+
         $this->info('📊 SEO Statistics:');
         $this->line("• Sitemap files: {$stats['sitemap_files']}");
-        $this->line("• Total sitemap size: " . number_format($stats['total_sitemap_size']) . " bytes");
+        $this->line('• Total sitemap size: '.number_format($stats['total_sitemap_size']).' bytes');
         $this->line("• Cities without meta: {$stats['cities_without_meta']}");
         $this->line("• Jobs without meta: {$stats['jobs_without_meta']}");
         $this->line("• Articles without meta: {$stats['articles_without_meta']}");
-        
+
         if ($stats['last_generated']) {
-            $this->line("• Last generated: " . date('Y-m-d H:i:s', $stats['last_generated']));
+            $this->line('• Last generated: '.date('Y-m-d H:i:s', $stats['last_generated']));
         } else {
-            $this->line("• Last generated: Never");
+            $this->line('• Last generated: Never');
         }
     }
 }
