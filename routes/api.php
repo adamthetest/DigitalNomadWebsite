@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AiAdvisorController;
+use App\Http\Controllers\Api\V1\AnalyticsController;
 use App\Http\Controllers\Api\V1\CityController;
 use App\Http\Controllers\Api\V1\ContentController;
 use App\Http\Controllers\Api\V1\JobController;
@@ -83,11 +84,24 @@ Route::prefix('v1')->group(function () {
         Route::delete('/{content}', [ContentController::class, 'destroy']);
     });
 
-    // Public Content API - Phase 4
-    Route::prefix('content')->group(function () {
-        Route::get('/published', [ContentController::class, 'published']);
-    });
-});
+           // Public Content API - Phase 4
+           Route::prefix('content')->group(function () {
+               Route::get('/published', [ContentController::class, 'published']);
+           });
+
+           // Analytics API (requires authentication) - Phase 5
+           Route::middleware('auth:sanctum')->prefix('analytics')->group(function () {
+               Route::get('/forecasted-metrics', [AnalyticsController::class, 'getForecastedMetrics']);
+               Route::get('/cost-trend-predictions', [AnalyticsController::class, 'getCostTrendPredictions']);
+               Route::get('/trending-cities-predictions', [AnalyticsController::class, 'getTrendingCitiesPredictions']);
+               Route::get('/user-growth-predictions', [AnalyticsController::class, 'getUserGrowthPredictions']);
+               Route::get('/daily-metrics', [AnalyticsController::class, 'getDailyMetrics']);
+               Route::get('/performance-summary', [AnalyticsController::class, 'generatePerformanceSummary']);
+               Route::get('/statistics', [AnalyticsController::class, 'getAnalyticsStatistics']);
+               Route::post('/process', [AnalyticsController::class, 'triggerAnalyticsProcessing']);
+               Route::get('/prediction-accuracy', [AnalyticsController::class, 'getPredictionAccuracy']);
+           });
+       });
 
 // Health check endpoint
 Route::get('/health', function () {
