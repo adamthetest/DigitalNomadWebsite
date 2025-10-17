@@ -194,6 +194,7 @@ class AbTest extends Model
     public function getAlgorithmConfig(string $key, $default = null)
     {
         $config = $this->algorithm_config ?? [];
+
         return $config[$key] ?? $default;
     }
 

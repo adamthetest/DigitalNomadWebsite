@@ -239,7 +239,7 @@ class AdvancedContentCurationService
             $interests = is_array($user->interests) ? $user->interests : explode(',', $user->interests);
             foreach ($interests as $interest) {
                 $query->orWhere('title', 'like', '%'.trim($interest).'%')
-                      ->orWhere('content', 'like', '%'.trim($interest).'%');
+                    ->orWhere('content', 'like', '%'.trim($interest).'%');
             }
         }
 
