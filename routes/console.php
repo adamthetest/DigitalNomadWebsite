@@ -66,3 +66,23 @@ Schedule::command('content:generate top-cities --queue')
     ->monthly()
     ->withoutOverlapping()
     ->runInBackground();
+
+// Schedule predictive analytics tasks - Phase 5
+Schedule::command('analytics:process all --queue')
+    ->daily()
+    ->at('02:00')
+    ->withoutOverlapping()
+    ->runInBackground();
+
+Schedule::command('analytics:process cost_trends --queue')
+    ->weekly()
+    ->sundays()
+    ->at('03:00')
+    ->withoutOverlapping()
+    ->runInBackground();
+
+Schedule::command('analytics:process trending_cities --queue')
+    ->daily()
+    ->at('04:00')
+    ->withoutOverlapping()
+    ->runInBackground();
