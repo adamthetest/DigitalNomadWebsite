@@ -40,7 +40,7 @@ class CityTest extends TestCase
             'internet_speed_mbps', 'safety_score', 'cost_of_living_index',
             'best_time_to_visit', 'highlights', 'images', 'is_featured',
             'is_active',
-            // AI-ready fields
+            // Phase 2: AI-ready fields
             'cost_accommodation_monthly', 'cost_food_monthly', 'cost_transport_monthly',
             'cost_coworking_monthly', 'cost_currency', 'internet_reliability_score',
             'fiber_available', 'mobile_data_good', 'weather_data', 'avg_temperature_celsius',

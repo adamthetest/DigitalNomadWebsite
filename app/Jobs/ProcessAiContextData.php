@@ -293,10 +293,8 @@ class ProcessAiContextData implements ShouldQueue
                 'text' => "{$user->name} is a {$user->job_title} with {$user->experience_years} years of experience. ".
                          "Currently in {$user->location_current} and looking for {$user->work_type} opportunities.",
                 'profile_highlights' => array_filter([
-                    // @phpstan-ignore-next-line
-                    $user->technical_skills && is_array($user->technical_skills) ? 'Technical skills: '.implode(', ', array_slice($user->technical_skills, 0, 3)) : null,
-                    // @phpstan-ignore-next-line
-                    $user->preferred_climates && is_array($user->preferred_climates) ? 'Prefers: '.implode(', ', $user->preferred_climates) : null,
+                    $user->technical_skills && is_array($user->technical_skills) ? 'Technical skills: '.implode(', ', array_slice($user->technical_skills, 0, 3)) : null, // @phpstan-ignore-line
+                    $user->preferred_climates ? 'Prefers: '.implode(', ', $user->preferred_climates) : null, // @phpstan-ignore-line
                     $user->budget_monthly_max ? 'Budget: up to $'.number_format($user->budget_monthly_max) : null,
                 ]),
             ],
@@ -389,7 +387,7 @@ class ProcessAiContextData implements ShouldQueue
             $tags[] = 'high-salary';
         }
 
-        if ($job->tags) {
+        if ($job->tags && is_array($job->tags)) { // @phpstan-ignore-line
             $tags = array_merge($tags, array_slice($job->tags, 0, 5));
         }
 
@@ -421,8 +419,7 @@ class ProcessAiContextData implements ShouldQueue
     {
         $tags = [];
 
-        // @phpstan-ignore-next-line
-        if ($user->technical_skills && is_array($user->technical_skills)) {
+        if ($user->technical_skills && is_array($user->technical_skills)) { // @phpstan-ignore-line
             $tags = array_merge($tags, array_slice($user->technical_skills, 0, 5));
         }
 

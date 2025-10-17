@@ -38,6 +38,11 @@ class JobTest extends TestCase
             'source_url', 'apply_url', 'apply_email', 'featured', 'is_active',
             'expires_at', 'published_at', 'views_count', 'applications_count',
             'location', 'experience_level',
+            // Phase 3: Job Matching fields
+            'job_embedding', 'skills_embedding', 'company_embedding',
+            'matching_metadata', 'last_embedding_update', 'ai_job_summary',
+            'ai_skills_extracted', 'ai_requirements_parsed', 'ai_company_culture',
+            'match_score_base', 'match_factors',
         ];
 
         $this->assertEquals($expectedFillable, $fillable);

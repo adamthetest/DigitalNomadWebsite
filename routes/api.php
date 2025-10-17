@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AiAdvisorController;
 use App\Http\Controllers\Api\V1\CityController;
 use App\Http\Controllers\Api\V1\JobController;
+use App\Http\Controllers\Api\V1\JobMatchingController;
 use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -46,12 +47,28 @@ Route::prefix('v1')->group(function () {
         Route::get('/{user}/ai-context', [UserController::class, 'aiContext']);
     });
 
-    // AI Advisor API (requires authentication)
+    // AI Advisor API (requires authentication) - Phase 2
     Route::prefix('ai-advisor')->middleware('auth:sanctum')->group(function () {
         Route::get('/city-recommendations', [AiAdvisorController::class, 'getCityRecommendations']);
         Route::get('/city/{city}/summary', [AiAdvisorController::class, 'getCitySummary']);
         Route::get('/city/{city}/insights', [AiAdvisorController::class, 'getCityInsights']);
         Route::post('/compare-cities', [AiAdvisorController::class, 'compareCities']);
+    });
+
+    // Job Matching API (requires authentication) - Phase 3
+    Route::middleware('auth:sanctum')->prefix('job-matching')->group(function () {
+        Route::get('/recommendations', [JobMatchingController::class, 'getRecommendations']);
+        Route::get('/match-history', [JobMatchingController::class, 'getMatchHistory']);
+        Route::post('/upload-resume', [JobMatchingController::class, 'uploadResume']);
+
+        Route::get('/jobs/{job}/match-analysis', [JobMatchingController::class, 'getMatchAnalysis']);
+        Route::post('/jobs/{job}/optimize-resume', [JobMatchingController::class, 'optimizeResume']);
+        Route::get('/jobs/{job}/generate-cover-letter', [JobMatchingController::class, 'generateCoverLetter']);
+        Route::get('/jobs/{job}/extract-skills', [JobMatchingController::class, 'extractSkills']);
+
+        Route::post('/matches/{jobMatch}/viewed', [JobMatchingController::class, 'markAsViewed']);
+        Route::post('/matches/{jobMatch}/applied', [JobMatchingController::class, 'markAsApplied']);
+        Route::post('/matches/{jobMatch}/saved', [JobMatchingController::class, 'markAsSaved']);
     });
 });
 

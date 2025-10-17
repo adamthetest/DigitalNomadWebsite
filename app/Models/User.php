@@ -78,6 +78,25 @@ class User extends Authenticatable
         'personalized_recommendations',
         'data_sharing_preferences',
         'is_admin',
+        // Phase 3: Job Matching fields
+        'profile_embedding',
+        'skills_embedding',
+        'experience_embedding',
+        'job_matching_preferences',
+        'preferred_job_types',
+        'preferred_remote_types',
+        'salary_expectations',
+        'timezone_preferences',
+        'ai_skills_analysis',
+        'ai_career_insights',
+        'ai_resume_optimization_tips',
+        'matching_metadata',
+        'last_profile_update',
+        'last_embedding_update',
+        'resume_content',
+        'resume_file_path',
+        'resume_metadata',
+        'cover_letter_template',
     ];
 
     /**
@@ -374,5 +393,13 @@ class User extends Authenticatable
     public function aiContexts(): MorphMany
     {
         return $this->morphMany(AiContext::class, 'context', 'context_model', 'context_id');
+    }
+
+    /**
+     * Get the job matches for the user.
+     */
+    public function jobMatches(): HasMany
+    {
+        return $this->hasMany(JobMatch::class);
     }
 }
