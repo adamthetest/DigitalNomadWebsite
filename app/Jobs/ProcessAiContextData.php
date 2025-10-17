@@ -76,7 +76,7 @@ class ProcessAiContextData implements ShouldQueue
     private function processCities(): void
     {
         $query = City::where('is_active', true);
-        
+
         if ($this->contextId) {
             $query->where('id', $this->contextId);
         }
@@ -96,7 +96,7 @@ class ProcessAiContextData implements ShouldQueue
     private function processJobs(): void
     {
         $query = Job::where('is_active', true);
-        
+
         if ($this->contextId) {
             $query->where('id', $this->contextId);
         }
@@ -116,7 +116,7 @@ class ProcessAiContextData implements ShouldQueue
     private function processUsers(): void
     {
         $query = User::query();
-        
+
         if ($this->contextId) {
             $query->where('id', $this->contextId);
         }
@@ -174,7 +174,7 @@ class ProcessAiContextData implements ShouldQueue
         // Generate AI summary and tags (placeholder for now)
         $aiContext->updateAiData([
             'summary' => [
-                'text' => "{$city->name} is a digital nomad destination with a cost of living index of {$city->cost_of_living_index}. " .
+                'text' => "{$city->name} is a digital nomad destination with a cost of living index of {$city->cost_of_living_index}. ".
                          "It offers internet speeds of {$city->internet_speed_mbps} Mbps and has a safety score of {$city->safety_score}/10.",
                 'highlights' => $city->highlights ?? [],
             ],
@@ -222,12 +222,12 @@ class ProcessAiContextData implements ShouldQueue
         // Generate AI summary and tags (placeholder for now)
         $aiContext->updateAiData([
             'summary' => [
-                'text' => "{$job->title} at {$job->company->name} - {$job->type} {$job->remote_type} position. " .
+                'text' => "{$job->title} at {$job->company->name} - {$job->type} {$job->remote_type} position. ".
                          "Salary range: {$job->formatted_salary}",
                 'key_points' => array_filter([
                     $job->visa_support ? 'Visa support available' : null,
                     $job->remote_type === 'fully-remote' ? 'Fully remote' : null,
-                    $job->tags ? 'Skills: ' . implode(', ', array_slice($job->tags, 0, 5)) : null,
+                    $job->tags ? 'Skills: '.implode(', ', array_slice($job->tags, 0, 5)) : null,
                 ]),
             ],
             'tags' => $this->generateJobTags($job),
@@ -277,12 +277,12 @@ class ProcessAiContextData implements ShouldQueue
         // Generate AI summary and tags (placeholder for now)
         $aiContext->updateAiData([
             'summary' => [
-                'text' => "{$user->name} is a {$user->job_title} with {$user->experience_years} years of experience. " .
+                'text' => "{$user->name} is a {$user->job_title} with {$user->experience_years} years of experience. ".
                          "Currently in {$user->location_current} and looking for {$user->work_type} opportunities.",
                 'profile_highlights' => array_filter([
-                    $user->technical_skills ? 'Technical skills: ' . implode(', ', array_slice($user->technical_skills, 0, 3)) : null,
-                    $user->preferred_climates ? 'Prefers: ' . implode(', ', $user->preferred_climates) : null,
-                    $user->budget_monthly_max ? 'Budget: up to $' . number_format($user->budget_monthly_max) : null,
+                    $user->technical_skills ? 'Technical skills: '.implode(', ', array_slice($user->technical_skills, 0, 3)) : null,
+                    $user->preferred_climates ? 'Prefers: '.implode(', ', $user->preferred_climates) : null,
+                    $user->budget_monthly_max ? 'Budget: up to $'.number_format($user->budget_monthly_max) : null,
                 ]),
             ],
             'tags' => $this->generateUserTags($user),
@@ -338,17 +338,17 @@ class ProcessAiContextData implements ShouldQueue
         $insights = [];
 
         if ($city->cost_of_living_index) {
-            $insights['cost_category'] = $city->cost_of_living_index < 50 ? 'budget' : 
+            $insights['cost_category'] = $city->cost_of_living_index < 50 ? 'budget' :
                                        ($city->cost_of_living_index < 80 ? 'moderate' : 'expensive');
         }
 
         if ($city->internet_speed_mbps) {
-            $insights['internet_category'] = $city->internet_speed_mbps > 50 ? 'excellent' : 
+            $insights['internet_category'] = $city->internet_speed_mbps > 50 ? 'excellent' :
                                             ($city->internet_speed_mbps > 25 ? 'good' : 'basic');
         }
 
         if ($city->safety_score) {
-            $insights['safety_category'] = $city->safety_score > 8 ? 'very-safe' : 
+            $insights['safety_category'] = $city->safety_score > 8 ? 'very-safe' :
                                          ($city->safety_score > 6 ? 'safe' : 'moderate');
         }
 
@@ -389,7 +389,7 @@ class ProcessAiContextData implements ShouldQueue
         $insights = [];
 
         if ($job->salary_max) {
-            $insights['salary_category'] = $job->salary_max > 150000 ? 'high' : 
+            $insights['salary_category'] = $job->salary_max > 150000 ? 'high' :
                                           ($job->salary_max > 80000 ? 'mid' : 'entry');
         }
 
@@ -439,12 +439,12 @@ class ProcessAiContextData implements ShouldQueue
         $insights = [];
 
         if ($user->experience_years) {
-            $insights['experience_level'] = $user->experience_years < 2 ? 'entry' : 
+            $insights['experience_level'] = $user->experience_years < 2 ? 'entry' :
                                           ($user->experience_years < 5 ? 'mid' : 'senior');
         }
 
         if ($user->budget_monthly_max) {
-            $insights['budget_category'] = $user->budget_monthly_max < 2000 ? 'budget' : 
+            $insights['budget_category'] = $user->budget_monthly_max < 2000 ? 'budget' :
                                           ($user->budget_monthly_max < 5000 ? 'moderate' : 'premium');
         }
 
@@ -459,7 +459,7 @@ class ProcessAiContextData implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        Log::error("ProcessAiContextData job failed", [
+        Log::error('ProcessAiContextData job failed', [
             'context_type' => $this->contextType,
             'context_id' => $this->contextId,
             'error' => $exception->getMessage(),

@@ -35,8 +35,9 @@ class ProcessAiData extends Command
         $useQueue = $this->option('queue');
         $force = $this->option('force');
 
-        if (!in_array($type, ['city', 'job', 'user', 'all'])) {
+        if (! in_array($type, ['city', 'job', 'user', 'all'])) {
             $this->error('Invalid type. Must be one of: city, job, user, all');
+
             return 1;
         }
 
@@ -49,6 +50,7 @@ class ProcessAiData extends Command
         }
 
         $this->info('AI data processing completed successfully!');
+
         return 0;
     }
 
@@ -90,12 +92,12 @@ class ProcessAiData extends Command
         $this->info("Processing {$type} data...");
 
         $job = new ProcessAiContextData($type, $id ? (int) $id : null);
-        
+
         try {
             $job->handle();
             $this->info("✓ {$type} processing completed");
         } catch (\Exception $e) {
-            $this->error("✗ {$type} processing failed: " . $e->getMessage());
+            $this->error("✗ {$type} processing failed: ".$e->getMessage());
         }
     }
 }

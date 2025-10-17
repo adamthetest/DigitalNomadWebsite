@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 // API v1 routes
 Route::prefix('v1')->group(function () {
-    
+
     // Cities API
     Route::prefix('cities')->group(function () {
         Route::get('/', [CityController::class, 'index']);

@@ -51,7 +51,7 @@ class CityController extends Controller
 
         // Filter by climate
         if ($request->has('climate')) {
-            $query->where('climate', 'like', '%' . $request->climate . '%');
+            $query->where('climate', 'like', '%'.$request->climate.'%');
         }
 
         // Filter by visa options
@@ -61,7 +61,7 @@ class CityController extends Controller
 
         // Search by name
         if ($request->has('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('name', 'like', '%'.$request->search.'%');
         }
 
         // Sort options
@@ -114,7 +114,7 @@ class CityController extends Controller
             'neighborhoods',
             'articles' => function ($query) {
                 $query->where('status', 'published');
-            }
+            },
         ]);
 
         return response()->json([
@@ -130,7 +130,7 @@ class CityController extends Controller
     {
         $aiContext = $city->aiContexts()->latest()->first();
 
-        if (!$aiContext) {
+        if (! $aiContext) {
             return response()->json([
                 'success' => false,
                 'message' => 'No AI context data available for this city',
@@ -200,15 +200,15 @@ class CityController extends Controller
         // Work requirements
         if ($request->has('work_requirements')) {
             $requirements = $request->work_requirements;
-            
+
             if (in_array('coworking', $requirements)) {
                 $query->where('coworking_spaces_count', '>', 0);
             }
-            
+
             if (in_array('english', $requirements)) {
                 $query->where('english_widely_spoken', true);
             }
-            
+
             if (in_array('fiber', $requirements)) {
                 $query->where('fiber_available', true);
             }

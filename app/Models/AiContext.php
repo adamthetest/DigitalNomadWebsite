@@ -106,7 +106,7 @@ class AiContext extends Model
     /**
      * Update AI data and timestamp.
      */
-    public function updateAiData(array $data, string $modelVersion = null): void
+    public function updateAiData(array $data, ?string $modelVersion = null): void
     {
         $this->update([
             'ai_summary' => $data['summary'] ?? null,

@@ -17,7 +17,7 @@ class UserController extends Controller
         $query = User::query();
 
         // Filter by public profiles only for non-admin users
-        if (!auth()->user() || !auth()->user()->is_admin) {
+        if (! auth()->user() || ! auth()->user()->is_admin) {
             $query->public();
         }
 
@@ -77,10 +77,10 @@ class UserController extends Controller
         if ($request->has('search')) {
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('bio', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('job_title', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('tagline', 'like', '%' . $searchTerm . '%');
+                $q->where('name', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('bio', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('job_title', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('tagline', 'like', '%'.$searchTerm.'%');
             });
         }
 
@@ -109,7 +109,7 @@ class UserController extends Controller
         $users = $query->paginate($perPage);
 
         // Remove sensitive data for non-admin users
-        if (!auth()->user() || !auth()->user()->is_admin) {
+        if (! auth()->user() || ! auth()->user()->is_admin) {
             $users->getCollection()->transform(function ($user) {
                 return $this->sanitizeUserData($user);
             });
@@ -135,7 +135,7 @@ class UserController extends Controller
     public function show(User $user): JsonResponse
     {
         // Check if user can view this profile
-        if (!$this->canViewUser($user)) {
+        if (! $this->canViewUser($user)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Profile not accessible',
@@ -156,7 +156,7 @@ class UserController extends Controller
     public function aiContext(User $user): JsonResponse
     {
         // Only allow users to access their own AI context or admin users
-        if (!auth()->user() || (auth()->id() !== $user->id && !auth()->user()->is_admin)) {
+        if (! auth()->user() || (auth()->id() !== $user->id && ! auth()->user()->is_admin)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied',
@@ -165,7 +165,7 @@ class UserController extends Controller
 
         $aiContext = $user->aiContexts()->latest()->first();
 
-        if (!$aiContext) {
+        if (! $aiContext) {
             return response()->json([
                 'success' => false,
                 'message' => 'No AI context data available for this user',
@@ -199,7 +199,7 @@ class UserController extends Controller
         $user = User::findOrFail($request->user_id);
 
         // Only allow users to get their own recommendations or admin users
-        if (!auth()->user() || (auth()->id() !== $user->id && !auth()->user()->is_admin)) {
+        if (! auth()->user() || (auth()->id() !== $user->id && ! auth()->user()->is_admin)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied',
@@ -254,7 +254,7 @@ class UserController extends Controller
                 ->groupBy('level')
                 ->pluck('count', 'level'),
             'ai_consent_percentage' => round(
-                User::where('ai_data_collection_consent', true)->count() / 
+                User::where('ai_data_collection_consent', true)->count() /
                 User::count() * 100, 2
             ),
         ];
@@ -281,7 +281,7 @@ class UserController extends Controller
         }
 
         // Check visibility settings
-        return $user->visibility === 'public' || 
+        return $user->visibility === 'public' ||
                ($user->visibility === 'members' && auth()->check());
     }
 
@@ -291,12 +291,12 @@ class UserController extends Controller
     private function sanitizeUserData(User $user): array
     {
         $data = $user->toArray();
-        
+
         // Remove sensitive fields
         unset($data['email'], $data['password'], $data['remember_token']);
-        
+
         // Remove AI-specific sensitive data unless user is admin
-        if (!auth()->user() || !auth()->user()->is_admin) {
+        if (! auth()->user() || ! auth()->user()->is_admin) {
             unset($data['ai_preferences_vector'], $data['data_sharing_preferences']);
         }
 

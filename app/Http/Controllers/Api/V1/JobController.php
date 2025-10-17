@@ -62,7 +62,7 @@ class JobController extends Controller
 
         // Filter by location
         if ($request->has('location')) {
-            $query->where('location', 'like', '%' . $request->location . '%');
+            $query->where('location', 'like', '%'.$request->location.'%');
         }
 
         // Filter by timezone
@@ -74,9 +74,9 @@ class JobController extends Controller
         if ($request->has('search')) {
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
-                $q->where('title', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('description', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('requirements', 'like', '%' . $searchTerm . '%');
+                $q->where('title', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('description', 'like', '%'.$searchTerm.'%')
+                    ->orWhere('requirements', 'like', '%'.$searchTerm.'%');
             });
         }
 
@@ -148,7 +148,7 @@ class JobController extends Controller
     {
         $aiContext = $job->aiContexts()->latest()->first();
 
-        if (!$aiContext) {
+        if (! $aiContext) {
             return response()->json([
                 'success' => false,
                 'message' => 'No AI context data available for this job',
@@ -225,8 +225,8 @@ class JobController extends Controller
         if ($request->has('timezone')) {
             $query->where(function ($q) use ($request) {
                 $q->where('timezone', $request->timezone)
-                  ->orWhereNull('timezone')
-                  ->orWhere('remote_type', 'fully-remote');
+                    ->orWhereNull('timezone')
+                    ->orWhere('remote_type', 'fully-remote');
             });
         }
 
@@ -256,7 +256,7 @@ class JobController extends Controller
                 ->groupBy('remote_type')
                 ->pluck('count', 'remote_type'),
             'visa_support_percentage' => round(
-                Job::active()->where('visa_support', true)->count() / 
+                Job::active()->where('visa_support', true)->count() /
                 Job::active()->count() * 100, 2
             ),
             'average_salary' => Job::active()

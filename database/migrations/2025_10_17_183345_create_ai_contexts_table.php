@@ -30,7 +30,7 @@ return new class extends Migration
             $table->index(['context_model', 'context_id']);
             $table->index('last_ai_update');
             $table->index('ai_model_version');
-            
+
             // Unique constraint to prevent duplicates
             $table->unique(['context_type', 'context_id', 'context_model']);
         });
