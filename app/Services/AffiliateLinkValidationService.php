@@ -47,7 +47,7 @@ class AffiliateLinkValidationService
             } catch (\Exception $e) {
                 Log::error('Error validating affiliate link', [
                     'link_id' => $link->id,
-                    'url' => $link->url,
+                    'url' => $link->affiliate_url,
                     'error' => $e->getMessage(),
                 ]);
 
