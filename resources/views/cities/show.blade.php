@@ -78,8 +78,7 @@
                 </div>
 
                 <!-- AI City Insights Widget -->
-                <!-- Temporarily disabled for testing -->
-                <!-- @livewire('ai-city-insights-widget', ['city' => $city]) -->
+                @livewire('ai-city-insights-widget', ['city' => $city])
 
                 <!-- Cost of Living -->
                 @if($costItems->count() > 0)
