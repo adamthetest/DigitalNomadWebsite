@@ -103,7 +103,7 @@ class SmartRecommendationEngineService
     {
         $userProfile = $this->buildUserProfile($userId);
         $similarUsers = $this->findSimilarUsers($userProfile, $entityType);
-        
+
         if (empty($similarUsers)) {
             return [];
         }
@@ -127,7 +127,7 @@ class SmartRecommendationEngineService
     {
         $userProfile = $this->buildUserProfile($userId);
         $userPreferences = $this->extractUserPreferences($userProfile);
-        
+
         $recommendations = match ($entityType) {
             'cities' => $this->getContentBasedCityRecommendations($userPreferences, $limit),
             'jobs' => $this->getContentBasedJobRecommendations($userPreferences, $limit),
@@ -242,6 +242,7 @@ class SmartRecommendationEngineService
 
         return $cities->map(function ($city) use ($userProfile) {
             $score = $this->calculateCityRecommendationScore($city, $userProfile);
+
             return [
                 'id' => $city->id,
                 'name' => $city->name,
@@ -286,6 +287,7 @@ class SmartRecommendationEngineService
 
         return $jobs->map(function ($job) use ($userProfile) {
             $score = $this->calculateJobRecommendationScore($job, $userProfile);
+
             return [
                 'id' => $job->id,
                 'title' => $job->title,
@@ -314,7 +316,7 @@ class SmartRecommendationEngineService
             $query->where(function ($q) use ($interests) {
                 foreach ($interests as $interest) {
                     $q->orWhere('title', 'like', '%'.trim($interest).'%')
-                      ->orWhere('content', 'like', '%'.trim($interest).'%');
+                        ->orWhere('content', 'like', '%'.trim($interest).'%');
                 }
             });
         }
@@ -323,6 +325,7 @@ class SmartRecommendationEngineService
 
         return $articles->map(function ($article) use ($userProfile) {
             $score = $this->calculateArticleRecommendationScore($article, $userProfile);
+
             return [
                 'id' => $article->id,
                 'title' => $article->title,
@@ -401,6 +404,7 @@ class SmartRecommendationEngineService
 
         return $recommendations->map(function ($rec) use ($entityType) {
             $entity = $this->getEntityById($rec->entity_id, $entityType);
+
             return [
                 'id' => $rec->entity_id,
                 'recommendation_score' => $rec->recommendation_score,
@@ -717,6 +721,7 @@ class SmartRecommendationEngineService
     {
         $sessions = $events->pluck('session_id')->unique()->count();
         $days = 7; // Last 7 days
+
         return round($sessions / $days, 3);
     }
 
@@ -758,7 +763,7 @@ class SmartRecommendationEngineService
     private function collectTrainingData(string $entityType, int $days): array
     {
         $startDate = now()->subDays($days);
-        
+
         return UserBehaviorAnalytic::byEntityType($entityType)
             ->byDateRange($startDate, now())
             ->with('user')

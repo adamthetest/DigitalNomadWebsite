@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\AbTest;
 use App\Models\User;
-use App\Models\UserBehaviorAnalytic;
 use Illuminate\Support\Facades\Log;
 
 class AbTestingService
@@ -50,6 +49,7 @@ class AbTestingService
 
         if ($test->start()) {
             Log::info('A/B test started', ['test_id' => $testId]);
+
             return true;
         }
 
@@ -106,6 +106,7 @@ class AbTestingService
                 'expected_variant' => $userVariant,
                 'tracked_variant' => $variant,
             ]);
+
             return;
         }
 
@@ -529,6 +530,7 @@ class AbTestingService
 
         if ($confidence >= 95) {
             $winner = $this->determineWinner($results);
+
             return "Test is statistically significant. Winner: {$winner}";
         } elseif ($confidence >= 80) {
             return 'Test is approaching significance. Consider running longer.';
@@ -610,6 +612,7 @@ class AbTestingService
     {
         $variant = $baseContent;
         $variant['variant_type'] = 'generic';
+
         return $variant;
     }
 
@@ -619,6 +622,7 @@ class AbTestingService
     private function shortenText(string $text): string
     {
         $words = explode(' ', $text);
+
         return implode(' ', array_slice($words, 0, ceil(count($words) * 0.7)));
     }
 
@@ -631,7 +635,7 @@ class AbTestingService
         $enhancers = ['amazing', 'incredible', 'fantastic', 'wonderful', 'outstanding'];
         $words = explode(' ', $text);
         $enhancer = $enhancers[array_rand($enhancers)];
-        
+
         return $enhancer.' '.$text;
     }
 }

@@ -94,6 +94,7 @@ class AbTest extends Model
     public function getTrafficAllocationForVariant(string $variant): float
     {
         $allocation = $this->traffic_allocation ?? [];
+
         return $allocation[$variant] ?? 0.0;
     }
 
@@ -170,7 +171,7 @@ class AbTest extends Model
     /**
      * Complete the A/B test.
      */
-    public function complete(string $winnerVariant = null): bool
+    public function complete(?string $winnerVariant = null): bool
     {
         if ($this->status !== 'active') {
             return false;

@@ -243,7 +243,7 @@ class RecommendationController extends Controller
             'total_recommendations' => RecommendationEngine::sum('recommendation_count'),
             'engines_needing_retraining' => RecommendationEngine::where(function ($query) {
                 $query->whereNull('last_trained_at')
-                      ->orWhere('last_trained_at', '<', now()->subDays(30));
+                    ->orWhere('last_trained_at', '<', now()->subDays(30));
             })->count(),
         ];
 
@@ -294,9 +294,9 @@ class RecommendationController extends Controller
                 'performance' => $performance,
                 'summary' => [
                     'total_engines' => $engines->count(),
-                    'performing_well' => $engines->filter(fn($e) => $e->isPerformingWell())->count(),
-                    'needing_retraining' => $engines->filter(fn($e) => $e->needsRetraining())->count(),
-                    'avg_performance_score' => $engines->avg(fn($e) => $e->getPerformanceScore()),
+                    'performing_well' => $engines->filter(fn ($e) => $e->isPerformingWell())->count(),
+                    'needing_retraining' => $engines->filter(fn ($e) => $e->needsRetraining())->count(),
+                    'avg_performance_score' => $engines->avg(fn ($e) => $e->getPerformanceScore()),
                 ],
             ],
         ]);

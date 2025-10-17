@@ -95,6 +95,7 @@ class RecommendationEngine extends Model
     public function getFeatureWeight(string $feature): float
     {
         $weights = $this->feature_weights ?? [];
+
         return $weights[$feature] ?? 0.0;
     }
 
@@ -124,7 +125,7 @@ class RecommendationEngine extends Model
     /**
      * Mark the engine as trained.
      */
-    public function markAsTrained(float $accuracyScore = null): void
+    public function markAsTrained(?float $accuracyScore = null): void
     {
         $this->update([
             'status' => 'active',
@@ -139,6 +140,7 @@ class RecommendationEngine extends Model
     public function getAlgorithmConfig(string $key, $default = null)
     {
         $config = $this->algorithm_config ?? [];
+
         return $config[$key] ?? $default;
     }
 

@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\UserBehaviorAnalytic;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class UserBehaviorAnalysisService

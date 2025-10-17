@@ -7,7 +7,6 @@ use App\Models\City;
 use App\Models\Job;
 use App\Models\User;
 use App\Models\UserBehaviorAnalytic;
-use Illuminate\Support\Facades\Log;
 
 class AdvancedContentCurationService
 {
@@ -240,7 +239,7 @@ class AdvancedContentCurationService
             $interests = is_array($user->interests) ? $user->interests : explode(',', $user->interests);
             foreach ($interests as $interest) {
                 $query->orWhere('title', 'like', '%'.trim($interest).'%')
-                      ->orWhere('content', 'like', '%'.trim($interest).'%');
+                    ->orWhere('content', 'like', '%'.trim($interest).'%');
             }
         }
 
@@ -680,6 +679,7 @@ class AdvancedContentCurationService
         $wordFreq = array_diff_key($wordFreq, array_flip($stopWords));
 
         arsort($wordFreq);
+
         return array_slice(array_keys($wordFreq), 0, 10);
     }
 
@@ -806,23 +806,37 @@ class AdvancedContentCurationService
         // Title optimization score
         $titleRecs = $optimizations['title_optimization']['recommendations'];
         $titleScore = 0;
-        if ($titleRecs['optimal_word_count'] === 'Good') $titleScore += 25;
-        if ($titleRecs['optimal_character_count'] === 'Good') $titleScore += 25;
-        if ($titleRecs['includes_keywords']) $titleScore += 25;
+        if ($titleRecs['optimal_word_count'] === 'Good') {
+            $titleScore += 25;
+        }
+        if ($titleRecs['optimal_character_count'] === 'Good') {
+            $titleScore += 25;
+        }
+        if ($titleRecs['includes_keywords']) {
+            $titleScore += 25;
+        }
         $scores[] = $titleScore;
 
         // Meta description score
         $metaDesc = $optimizations['meta_description'];
         $metaScore = 0;
-        if (strlen($metaDesc) >= 120 && strlen($metaDesc) <= 160) $metaScore += 25;
-        if (strlen($metaDesc) > 0) $metaScore += 25;
+        if (strlen($metaDesc) >= 120 && strlen($metaDesc) <= 160) {
+            $metaScore += 25;
+        }
+        if (strlen($metaDesc) > 0) {
+            $metaScore += 25;
+        }
         $scores[] = $metaScore;
 
         // Content structure score
         $structure = $optimizations['content_structure'];
         $structureScore = 0;
-        if ($structure['word_count'] >= 300) $structureScore += 25;
-        if ($structure['readability_score'] >= 60) $structureScore += 25;
+        if ($structure['word_count'] >= 300) {
+            $structureScore += 25;
+        }
+        if ($structure['readability_score'] >= 60) {
+            $structureScore += 25;
+        }
         $scores[] = $structureScore;
 
         return round(array_sum($scores) / count($scores), 2);
