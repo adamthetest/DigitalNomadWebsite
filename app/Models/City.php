@@ -217,6 +217,14 @@ class City extends Model
     }
 
     /**
+     * Get all jobs in this city.
+     */
+    public function jobs(): HasMany
+    {
+        return $this->hasMany(Job::class);
+    }
+
+    /**
      * Get only active neighborhoods in this city.
      */
     public function activeNeighborhoods(): HasMany

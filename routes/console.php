@@ -46,3 +46,23 @@ Schedule::command('ai:process all --queue --force')
     ->weekly()
     ->withoutOverlapping()
     ->runInBackground();
+
+// Schedule AI content generation tasks - Phase 4
+Schedule::command('content:generate weekly --queue')
+    ->weekly()
+    ->sundays()
+    ->at('09:00')
+    ->withoutOverlapping()
+    ->runInBackground();
+
+Schedule::command('content:generate city-guides --queue')
+    ->weekly()
+    ->sundays()
+    ->at('10:00')
+    ->withoutOverlapping()
+    ->runInBackground();
+
+Schedule::command('content:generate top-cities --queue')
+    ->monthly()
+    ->withoutOverlapping()
+    ->runInBackground();
