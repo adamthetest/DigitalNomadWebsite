@@ -1,3 +1,4 @@
+<div>
 <div class="ai-city-insights-widget bg-white rounded-lg shadow-lg p-6 mb-6">
     <div class="flex items-center justify-between mb-4">
         <h3 class="text-xl font-bold text-gray-800 flex items-center">
@@ -227,3 +228,4 @@
         @this.call('compareWithCity', cityId);
     }
 </script>
+</div>
