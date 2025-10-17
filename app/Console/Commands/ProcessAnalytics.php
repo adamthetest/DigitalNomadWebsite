@@ -39,16 +39,18 @@ class ProcessAnalytics extends Command
         try {
             if ($useQueue) {
                 ProcessPredictiveAnalytics::dispatch($type, $days);
-                $this->info("📊 Analytics processing job dispatched to queue");
+                $this->info('📊 Analytics processing job dispatched to queue');
             } else {
                 $this->processAnalyticsImmediately($analyticsService, $type, $days);
             }
 
-            $this->info("✅ Analytics processing completed successfully!");
+            $this->info('✅ Analytics processing completed successfully!');
+
             return 0;
 
         } catch (\Exception $e) {
-            $this->error("❌ Error processing analytics: " . $e->getMessage());
+            $this->error('❌ Error processing analytics: '.$e->getMessage());
+
             return 1;
         }
     }
@@ -62,22 +64,23 @@ class ProcessAnalytics extends Command
             case 'cost_trends':
                 $this->processCostTrends($analyticsService, $days);
                 break;
-            
+
             case 'trending_cities':
                 $this->processTrendingCities($analyticsService, $days);
                 break;
-            
+
             case 'user_growth':
                 $this->processUserGrowth($analyticsService, $days);
                 break;
-            
+
             case 'all':
                 $this->processAllAnalytics($analyticsService, $days);
                 break;
-            
+
             default:
                 $this->error("Unknown analytics type: {$type}");
                 $this->line('Available types: all, cost_trends, trending_cities, user_growth');
+
                 return;
         }
     }
@@ -88,17 +91,17 @@ class ProcessAnalytics extends Command
     private function processCostTrends(PredictiveAnalyticsService $analyticsService, int $days): void
     {
         $this->info('📈 Processing cost trend predictions...');
-        
+
         $predictions = $analyticsService->predictCostTrends(null, $days);
-        
-        $this->info("Generated cost trend predictions for " . count($predictions) . " cities");
-        
+
+        $this->info('Generated cost trend predictions for '.count($predictions).' cities');
+
         foreach ($predictions as $prediction) {
             $city = $prediction['city'];
             $data = $prediction['prediction']['data'];
-            
-            $this->line("• {$city->name}: {$data['trend_direction']} trend (confidence: " . 
-                      number_format($prediction['prediction']['confidence']['overall'] * 100, 1) . "%)");
+
+            $this->line("• {$city->name}: {$data['trend_direction']} trend (confidence: ".
+                      number_format($prediction['prediction']['confidence']['overall'] * 100, 1).'%)');
         }
     }
 
@@ -108,17 +111,17 @@ class ProcessAnalytics extends Command
     private function processTrendingCities(PredictiveAnalyticsService $analyticsService, int $days): void
     {
         $this->info('🏙️ Processing trending cities predictions...');
-        
+
         $predictions = $analyticsService->predictTrendingCities($days);
-        
-        $this->info("Generated trending cities predictions for " . count($predictions) . " cities");
-        
+
+        $this->info('Generated trending cities predictions for '.count($predictions).' cities');
+
         foreach ($predictions as $index => $prediction) {
             $city = $prediction['city'];
             $data = $prediction['prediction']['data'];
-            
-            $this->line(($index + 1) . ". {$city->name}: Trend score " . 
-                      number_format($data['trend_score'] * 100, 1) . "%");
+
+            $this->line(($index + 1).". {$city->name}: Trend score ".
+                      number_format($data['trend_score'] * 100, 1).'%');
         }
     }
 
@@ -128,21 +131,22 @@ class ProcessAnalytics extends Command
     private function processUserGrowth(PredictiveAnalyticsService $analyticsService, int $days): void
     {
         $this->info('👥 Processing user growth predictions...');
-        
+
         $prediction = $analyticsService->predictUserGrowth($days);
-        
+
         if (isset($prediction['data']['error'])) {
-            $this->warn("Insufficient data for user growth prediction");
+            $this->warn('Insufficient data for user growth prediction');
+
             return;
         }
-        
+
         $data = $prediction['data'];
-        
-        $this->info("User growth prediction generated:");
+
+        $this->info('User growth prediction generated:');
         $this->line("• Current users: {$data['current_users']}");
         $this->line("• Predicted users: {$data['predicted_users']}");
-        $this->line("• Growth rate: " . number_format($data['growth_rate'], 2) . " users/day");
-        $this->line("• Growth percentage: " . number_format($data['growth_percentage'], 1) . "%");
+        $this->line('• Growth rate: '.number_format($data['growth_rate'], 2).' users/day');
+        $this->line('• Growth percentage: '.number_format($data['growth_percentage'], 1).'%');
     }
 
     /**
@@ -151,21 +155,21 @@ class ProcessAnalytics extends Command
     private function processAllAnalytics(PredictiveAnalyticsService $analyticsService, int $days): void
     {
         $this->info('🔄 Processing all analytics types...');
-        
+
         $this->processCostTrends($analyticsService, $days);
         $this->newLine();
-        
+
         $this->processTrendingCities($analyticsService, $days);
         $this->newLine();
-        
+
         $this->processUserGrowth($analyticsService, $days);
         $this->newLine();
-        
+
         $this->info('📊 Generating performance summary...');
         $summary = $analyticsService->generatePerformanceSummary();
-        
-        $this->line("Performance summary generated:");
+
+        $this->line('Performance summary generated:');
         $this->line("• Generated at: {$summary['generated_at']}");
-        $this->line("• Summary length: " . strlen($summary['summary']) . " characters");
+        $this->line('• Summary length: '.strlen($summary['summary']).' characters');
     }
 }

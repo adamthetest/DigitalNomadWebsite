@@ -29,7 +29,7 @@ return new class extends Migration
             $table->index(['entity_type', 'entity_id']);
             $table->index(['prediction_date', 'prediction_type']);
             $table->index('generated_at');
-            
+
             // Unique constraint to prevent duplicate predictions
             $table->unique(['prediction_type', 'entity_type', 'entity_id', 'prediction_date'], 'unique_prediction');
         });

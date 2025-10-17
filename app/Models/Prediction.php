@@ -62,11 +62,11 @@ class Prediction extends Model
     public function scopeForEntity($query, string $entityType, $entityId = null)
     {
         $query = $query->where('entity_type', $entityType);
-        
+
         if ($entityId !== null) {
             $query->where('entity_id', $entityId);
         }
-        
+
         return $query;
     }
 
@@ -180,11 +180,11 @@ class Prediction extends Model
     public static function getCityPredictions($cityId, $predictionType = null)
     {
         $query = static::forEntity('city', $cityId);
-        
+
         if ($predictionType) {
             $query->byType($predictionType);
         }
-        
+
         return $query->orderBy('prediction_date')->get();
     }
 
@@ -194,11 +194,11 @@ class Prediction extends Model
     public static function getGlobalPredictions($predictionType = null)
     {
         $query = static::whereNull('entity_id');
-        
+
         if ($predictionType) {
             $query->byType($predictionType);
         }
-        
+
         return $query->orderBy('prediction_date')->get();
     }
 
@@ -208,11 +208,11 @@ class Prediction extends Model
     public static function getLatestPredictions($predictionType, $entityType = null, $entityId = null)
     {
         $query = static::byType($predictionType)->recent();
-        
+
         if ($entityType) {
             $query->forEntity($entityType, $entityId);
         }
-        
+
         return $query->orderBy('prediction_date')->get();
     }
 
@@ -222,11 +222,11 @@ class Prediction extends Model
     public function getAccuracyScore(): float
     {
         $confidenceScores = $this->confidence_scores ?? [];
-        
+
         if (empty($confidenceScores)) {
             return 0.0;
         }
-        
+
         return array_sum($confidenceScores) / count($confidenceScores);
     }
 

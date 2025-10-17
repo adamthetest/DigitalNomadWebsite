@@ -25,8 +25,8 @@ class AnalyticsController extends Controller
     public function getForecastedMetrics(Request $request): JsonResponse
     {
         $user = Auth::user();
-        
-        if (!$user || !$user->is_admin) {
+
+        if (! $user || ! $user->is_admin) {
             return response()->json([
                 'success' => false,
                 'message' => 'Admin access required',
@@ -110,8 +110,8 @@ class AnalyticsController extends Controller
     public function getDailyMetrics(Request $request): JsonResponse
     {
         $user = Auth::user();
-        
-        if (!$user || !$user->is_admin) {
+
+        if (! $user || ! $user->is_admin) {
             return response()->json([
                 'success' => false,
                 'message' => 'Admin access required',
@@ -153,8 +153,8 @@ class AnalyticsController extends Controller
     public function generatePerformanceSummary(): JsonResponse
     {
         $user = Auth::user();
-        
-        if (!$user || !$user->is_admin) {
+
+        if (! $user || ! $user->is_admin) {
             return response()->json([
                 'success' => false,
                 'message' => 'Admin access required',
@@ -175,8 +175,8 @@ class AnalyticsController extends Controller
     public function getAnalyticsStatistics(): JsonResponse
     {
         $user = Auth::user();
-        
-        if (!$user || !$user->is_admin) {
+
+        if (! $user || ! $user->is_admin) {
             return response()->json([
                 'success' => false,
                 'message' => 'Admin access required',
@@ -222,8 +222,8 @@ class AnalyticsController extends Controller
     public function triggerAnalyticsProcessing(Request $request): JsonResponse
     {
         $user = Auth::user();
-        
-        if (!$user || !$user->is_admin) {
+
+        if (! $user || ! $user->is_admin) {
             return response()->json([
                 'success' => false,
                 'message' => 'Admin access required',
@@ -243,7 +243,7 @@ class AnalyticsController extends Controller
         try {
             if ($useQueue) {
                 \App\Jobs\ProcessPredictiveAnalytics::dispatch($type, $days);
-                
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Analytics processing job dispatched to queue',
@@ -256,7 +256,7 @@ class AnalyticsController extends Controller
             } else {
                 // Process immediately
                 $forecastedMetrics = $this->analyticsService->getForecastedMetrics($days);
-                
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Analytics processed immediately',
@@ -267,7 +267,7 @@ class AnalyticsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error processing analytics: ' . $e->getMessage(),
+                'message' => 'Error processing analytics: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -278,8 +278,8 @@ class AnalyticsController extends Controller
     public function getPredictionAccuracy(): JsonResponse
     {
         $user = Auth::user();
-        
-        if (!$user || !$user->is_admin) {
+
+        if (! $user || ! $user->is_admin) {
             return response()->json([
                 'success' => false,
                 'message' => 'Admin access required',

@@ -25,7 +25,7 @@ return new class extends Migration
             $table->index(['date', 'metric_type']);
             $table->index(['date', 'entity_type', 'entity_id']);
             $table->index(['metric_type', 'entity_type']);
-            
+
             // Unique constraint to prevent duplicate metrics for same day/type/entity
             $table->unique(['date', 'metric_type', 'entity_type', 'entity_id'], 'unique_daily_metric');
         });

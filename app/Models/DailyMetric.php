@@ -65,11 +65,11 @@ class DailyMetric extends Model
     public function scopeForEntity($query, string $entityType, $entityId = null)
     {
         $query = $query->where('entity_type', $entityType);
-        
+
         if ($entityId !== null) {
             $query->where('entity_id', $entityId);
         }
-        
+
         return $query;
     }
 
@@ -79,11 +79,11 @@ class DailyMetric extends Model
     public static function getCityMetrics($cityId, $startDate = null, $endDate = null)
     {
         $query = static::forEntity('city', $cityId);
-        
+
         if ($startDate && $endDate) {
             $query->dateRange($startDate, $endDate);
         }
-        
+
         return $query->orderBy('date')->get();
     }
 
@@ -93,11 +93,11 @@ class DailyMetric extends Model
     public static function getGlobalMetrics($metricType, $startDate = null, $endDate = null)
     {
         $query = static::byType($metricType)->whereNull('entity_id');
-        
+
         if ($startDate && $endDate) {
             $query->dateRange($startDate, $endDate);
         }
-        
+
         return $query->orderBy('date')->get();
     }
 

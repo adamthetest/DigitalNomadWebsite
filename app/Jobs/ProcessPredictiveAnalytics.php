@@ -90,7 +90,7 @@ class ProcessPredictiveAnalytics implements ShouldQueue
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
-            
+
             throw $e;
         }
     }
@@ -189,7 +189,7 @@ class ProcessPredictiveAnalytics implements ShouldQueue
     private function processCostTrends(PredictiveAnalyticsService $analyticsService): void
     {
         $predictions = $analyticsService->predictCostTrends(null, $this->forecastDays);
-        
+
         Log::info('Cost trend predictions generated', [
             'predictions_count' => count($predictions),
         ]);
@@ -201,7 +201,7 @@ class ProcessPredictiveAnalytics implements ShouldQueue
     private function processTrendingCities(PredictiveAnalyticsService $analyticsService): void
     {
         $predictions = $analyticsService->predictTrendingCities($this->forecastDays);
-        
+
         Log::info('Trending cities predictions generated', [
             'predictions_count' => count($predictions),
         ]);
@@ -213,7 +213,7 @@ class ProcessPredictiveAnalytics implements ShouldQueue
     private function processUserGrowth(PredictiveAnalyticsService $analyticsService): void
     {
         $prediction = $analyticsService->predictUserGrowth($this->forecastDays);
-        
+
         Log::info('User growth prediction generated', [
             'prediction_data' => $prediction['data'] ?? [],
         ]);
