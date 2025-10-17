@@ -40,6 +40,15 @@ class CityTest extends TestCase
             'internet_speed_mbps', 'safety_score', 'cost_of_living_index',
             'best_time_to_visit', 'highlights', 'images', 'is_featured',
             'is_active',
+            // AI-ready fields
+            'cost_accommodation_monthly', 'cost_food_monthly', 'cost_transport_monthly',
+            'cost_coworking_monthly', 'cost_currency', 'internet_reliability_score',
+            'fiber_available', 'mobile_data_good', 'weather_data', 'avg_temperature_celsius',
+            'avg_humidity_percent', 'rainy_days_per_year', 'safety_details', 'female_safe',
+            'lgbtq_friendly', 'visa_options', 'visa_duration_days', 'visa_extensions_possible',
+            'visa_cost_usd', 'coworking_spaces_count', 'cafes_with_wifi_count',
+            'english_widely_spoken', 'nomad_communities', 'ai_summary', 'ai_tags',
+            'ai_data_updated_at', 'data_source', 'last_data_sync',
         ];
 
         $this->assertEquals($expectedFillable, $fillable);

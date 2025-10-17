@@ -36,6 +36,15 @@ class UserTest extends TestCase
             'website', 'twitter', 'instagram', 'linkedin', 'github', 'behance',
             'is_public', 'id_verified', 'premium_status', 'last_active',
             'visibility', 'location_precise', 'show_social_links', 'timezone',
+            // AI-ready fields
+            'profession_details', 'technical_skills', 'soft_skills', 'experience_years',
+            'education_level', 'certifications', 'preferred_climates', 'preferred_activities',
+            'budget_monthly_min', 'budget_monthly_max', 'budget_currency', 'visa_flexible',
+            'preferred_work_schedule', 'work_environment_preferences', 'requires_stable_internet',
+            'min_internet_speed_mbps', 'lifestyle_tags', 'pet_friendly_needed',
+            'family_friendly_needed', 'dietary_restrictions', 'ai_profile_summary',
+            'ai_preferences_vector', 'ai_profile_updated_at', 'ai_data_collection_consent',
+            'personalized_recommendations', 'data_sharing_preferences', 'is_admin',
         ];
 
         $this->assertEquals($expectedFillable, $fillable);

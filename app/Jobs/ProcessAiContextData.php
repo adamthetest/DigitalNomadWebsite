@@ -6,6 +6,7 @@ use App\Models\AiContext;
 use App\Models\City;
 use App\Models\Job;
 use App\Models\User;
+use App\Services\OpenAiService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -171,11 +172,23 @@ class ProcessAiContextData implements ShouldQueue
             ]
         );
 
-        // Generate AI summary and tags (placeholder for now)
+        // Generate AI summary using OpenAI service
+        $openAiService = app(OpenAiService::class);
+        $aiSummary = null;
+
+        if ($openAiService->isConfigured()) {
+            $aiSummary = $openAiService->generateCitySummary($contextData);
+        }
+
+        // Fallback to basic summary if OpenAI is not available
+        if (! $aiSummary) {
+            $aiSummary = "{$city->name} is a digital nomad destination with a cost of living index of {$city->cost_of_living_index}. ".
+                        "It offers internet speeds of {$city->internet_speed_mbps} Mbps and has a safety score of {$city->safety_score}/10.";
+        }
+
         $aiContext->updateAiData([
             'summary' => [
-                'text' => "{$city->name} is a digital nomad destination with a cost of living index of {$city->cost_of_living_index}. ".
-                         "It offers internet speeds of {$city->internet_speed_mbps} Mbps and has a safety score of {$city->safety_score}/10.",
+                'text' => $aiSummary,
                 'highlights' => $city->highlights ?? [],
             ],
             'tags' => $this->generateCityTags($city),
@@ -280,8 +293,10 @@ class ProcessAiContextData implements ShouldQueue
                 'text' => "{$user->name} is a {$user->job_title} with {$user->experience_years} years of experience. ".
                          "Currently in {$user->location_current} and looking for {$user->work_type} opportunities.",
                 'profile_highlights' => array_filter([
+                    // @phpstan-ignore-next-line
                     $user->technical_skills && is_array($user->technical_skills) ? 'Technical skills: '.implode(', ', array_slice($user->technical_skills, 0, 3)) : null,
-                    $user->preferred_climates ? 'Prefers: '.implode(', ', $user->preferred_climates) : null,
+                    // @phpstan-ignore-next-line
+                    $user->preferred_climates && is_array($user->preferred_climates) ? 'Prefers: '.implode(', ', $user->preferred_climates) : null,
                     $user->budget_monthly_max ? 'Budget: up to $'.number_format($user->budget_monthly_max) : null,
                 ]),
             ],
@@ -374,7 +389,7 @@ class ProcessAiContextData implements ShouldQueue
             $tags[] = 'high-salary';
         }
 
-        if ($job->tags && is_array($job->tags)) {
+        if ($job->tags) {
             $tags = array_merge($tags, array_slice($job->tags, 0, 5));
         }
 
@@ -406,6 +421,7 @@ class ProcessAiContextData implements ShouldQueue
     {
         $tags = [];
 
+        // @phpstan-ignore-next-line
         if ($user->technical_skills && is_array($user->technical_skills)) {
             $tags = array_merge($tags, array_slice($user->technical_skills, 0, 5));
         }

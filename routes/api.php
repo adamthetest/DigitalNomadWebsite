@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AiAdvisorController;
 use App\Http\Controllers\Api\V1\CityController;
 use App\Http\Controllers\Api\V1\JobController;
 use App\Http\Controllers\Api\V1\UserController;
@@ -43,6 +44,14 @@ Route::prefix('v1')->group(function () {
         Route::get('/statistics', [UserController::class, 'statistics']);
         Route::get('/{user}', [UserController::class, 'show']);
         Route::get('/{user}/ai-context', [UserController::class, 'aiContext']);
+    });
+
+    // AI Advisor API (requires authentication)
+    Route::prefix('ai-advisor')->middleware('auth:sanctum')->group(function () {
+        Route::get('/city-recommendations', [AiAdvisorController::class, 'getCityRecommendations']);
+        Route::get('/city/{city}/summary', [AiAdvisorController::class, 'getCitySummary']);
+        Route::get('/city/{city}/insights', [AiAdvisorController::class, 'getCityInsights']);
+        Route::post('/compare-cities', [AiAdvisorController::class, 'compareCities']);
     });
 });
 
