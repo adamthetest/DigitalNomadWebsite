@@ -16,7 +16,7 @@
         "laravel-vite-plugin": "^2.0.0",
         "postcss": "^8.5.6",
         "tailwindcss": "^4.1.14",
-        "vite": "^7.1.10"
+        "vite": "^7.1.12"
     },
     "dependencies": {
         "socket.io-client": "^4.8.1"
