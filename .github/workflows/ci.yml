@@ -43,7 +43,7 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -99,7 +99,7 @@ jobs:
   phpstan:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -116,7 +116,7 @@ jobs:
   security:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -135,7 +135,7 @@ jobs:
     if: ${{ github.event_name == 'pull_request' || github.event.inputs.run_lighthouse == 'true' }}
     
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
