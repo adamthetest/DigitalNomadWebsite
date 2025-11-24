@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' || github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'dependencies' }}
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' || github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'dependencies' }}
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - name: Setup Node.js
       uses: actions/setup-node@v6
@@ -89,7 +89,7 @@ jobs:
       security-events: write
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v4
@@ -114,7 +114,7 @@ jobs:
     if: ${{ github.event_name == 'push' || github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'codeql' }}
     
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -133,7 +133,7 @@ jobs:
     if: ${{ github.event_name == 'push' || github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'security' }}
     
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -175,7 +175,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' || github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'secrets' }}
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
@@ -192,7 +192,7 @@ jobs:
     if: ${{ github.event_name == 'pull_request' || github.event_name == 'push' || github.event.inputs.scan_type == 'full' || github.event.inputs.scan_type == 'lighthouse' }}
     
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
