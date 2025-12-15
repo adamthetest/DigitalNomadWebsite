@@ -51,7 +51,7 @@ jobs:
       run: composer audit --format=json > composer-audit.json || true
 
     - name: Upload Composer Audit Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: composer-audit-results
         path: composer-audit.json
@@ -75,7 +75,7 @@ jobs:
       run: npm audit --json > npm-audit.json || true
 
     - name: Upload NPM Audit Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: npm-audit-results
         path: npm-audit.json
@@ -166,7 +166,7 @@ jobs:
       run: composer security-audit
 
     - name: Upload Security Audit Report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: security-audit-report
         path: storage/app/security-audit-report.json
